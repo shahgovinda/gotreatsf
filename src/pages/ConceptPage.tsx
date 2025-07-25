@@ -86,28 +86,17 @@ const Concept = () => {
           At GoTreats, we deliver homemade meals that are fresh, healthy, and affordable – crafted with love and served with care.
         </p>
 
-        <div className="grid md:grid-cols-2 gap-6 text-left">
-          <ConceptCard
-            title="Fresh & Hygienic"
-            desc="Prepared with high-quality ingredients in a hygienic environment."
-            icon={<UtensilsCrossed size={36} className="text-orange-500" />}
-          />
-          <ConceptCard
-            title="Affordable & Convenient"
-            desc="Meals for students, families, and professionals – all on a budget."
-            icon={<PiggyBank size={36} className="text-orange-500" />}
-          />
-          <ConceptCard
-            title="Balanced Nutrition"
-            desc="Perfect balance of protein, carbs, and nutrients for your lifestyle."
-            icon={<Salad size={36} className="text-orange-500" />}
-          />
-          <ConceptCard
-            title="Eco-Friendly Packaging"
-            desc="Delivered in biodegradable and sustainable containers."
-            icon={<Leaf size={36} className="text-orange-500" />}
-          />
-
+        {/* Responsive, interactive video section */}
+        <div className="w-full flex justify-center my-8">
+          <div className="relative w-full max-w-2xl aspect-video rounded-2xl overflow-hidden shadow-lg group">
+            <video
+              className="w-full h-full object-cover rounded-2xl"
+              controls
+            >
+              <source src="/Screen-record-1944c9b0017.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
         </div>
 
         <h2 className="text-3xl font-bold mt-12 text-green-700">How It Works</h2>

@@ -10,14 +10,14 @@ import {getMessaging} from "firebase/messaging";
 
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_API_KEY,
-  authDomain: import.meta.env.VITE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_STORAGEBUCKET,
-  messagingSenderId: import.meta.env.VITE_MESSENGING_ID,
-  appId: import.meta.env.VITE_APP_ID,
-  measurementId: import.meta.env.VITE_MEASUREMENT_ID
-}
+  apiKey: "AIzaSyD4dHHjOVadAQgKxJjyZiTgZNDOKesLSp4",
+  authDomain: "chanda-home-essentials.firebaseapp.com",
+  projectId: "chanda-home-essentials",
+  storageBucket: "chanda-home-essentials.firebasestorage.app",
+  messagingSenderId: "252729417304",
+  appId: "1:252729417304:web:464a826ff50c8840ae342d",
+  measurementId: "G-9WVJG5KDJ8"
+};
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

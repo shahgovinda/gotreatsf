@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { updateVoucherAfterOrder, validateVoucher } from '@/services/voucherService'
+import { OrderDetails, Address } from '../types/orderTypes'
 
 // Extend the Window interface to include Razorpay
 declare global {
@@ -14,34 +15,64 @@ import { useAuthStore } from '../store/authStore'
 import { handleCheckout } from '../services/orderService'
 import { updateUserPhoneNumber } from '../services/authService'
 import toast from 'react-hot-toast'
-import { ShoppingBag, PenBoxIcon, BadgePercent } from 'lucide-react'
+import { ShoppingBag, PenBoxIcon, BadgePercent, Loader2, FileText } from 'lucide-react'
 import { motion } from 'framer-motion'
 import AddressSection from '../components/AddressSection'
 import CartSection from '../components/CartSection'
-import { OrderDetails } from '../types/orderTypes'
 import VoucherModal from './VoucherModal';
-import { Radio, RadioGroup, useDisclosure } from '@heroui/react';
+import { useDisclosure } from '@heroui/react';
 import { Voucher } from '@/types/voucherTypes';
 import VoucherAppliedModal from './VoucherAppliedModal';
 import OrderPlacedModal from './OrderPlacedModal';
 import { useOrderPlacedModalStore } from '@/store/orderPlacedModalStore';
+import OrderSummary from '@/components/OrderSummary';
 
 const DELIVERY_PRICE = 20;
 const TAX_RATE = 0;
 
+// Helper to ensure address is always of type Address
+function getSafeAddress(addr: any): Address {
+  return {
+    flatNumber: addr?.flatNumber || '',
+    buildingName: addr?.buildingName || '',
+    streetAddress: addr?.streetAddress || '',
+    landmark: addr?.landmark || '',
+    area: addr?.area || '',
+    pincode: addr?.pincode || '',
+  };
+}
 
 const Checkout = () => {
-    const { items, grossTotalPrice, totalPrice, voucherDiscount, calculateGrossTotalPrice, calculateTotalPrice, updateQuantity: updateItemQuantity, clearCart, setVoucherDiscount } = useCartStore()
+    const { 
+        items, 
+        grossTotalPrice, 
+        totalPrice, 
+        voucherDiscount, 
+        calculateGrossTotalPrice, 
+        calculateTotalPrice, 
+        updateQuantity: updateItemQuantity, 
+        clearCart, 
+        setVoucherDiscount,
+        note,
+        setNote,
+        preferredDeliveryTime,
+        setDeliveryTime,
+        preferredDeliveryPeriod,
+        setDeliveryPeriod
+    } = useCartStore()
     const navigate = useNavigate()
     const userDetails = useAuthStore((state) => state.userDetails)
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const { isOpen: isVoucherAppliedModalOpen, onOpenChange: onOpenVoucherAppliedModalChange, onOpen: onOpenVoucherAppliedModal } = useDisclosure();
     const { isOpen: isOrderPlacedModalOpen, onOpenChange: onOpenOrderPlacedModalChange } = useDisclosure();
     const [paymentMode, setPaymentMode] = useState('online');
-    const [note, setNote] = useState('');
-    const [preferredDeliveryTime, setPreferredDeliveryTime] = useState('');
-    const [preferredDeliveryPeriod, setPreferredDeliveryPeriod] = useState('AM');
     const [appliedVoucher, setAppliedVoucher] = useState<Voucher | null>(null);
+    const [showInstructions, setShowInstructions] = useState(false);
+    const [tempNote, setTempNote] = useState(note || '');
+    const [isSavingNote, setIsSavingNote] = useState(false);
+    const [noteSaved, setNoteSaved] = useState(!!note);
+    const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+    const [sendCutlery, setSendCutlery] = useState(note?.toLowerCase().includes('send cutlery'));
 
 
     // console.log(appliedVoucher);
@@ -81,6 +112,17 @@ const Checkout = () => {
         calculateTotalPrice(DELIVERY_PRICE, TAX_RATE);
     }, [items, grossTotalPrice, appliedVoucher, userDetails?.phoneNumber, calculateGrossTotalPrice, calculateTotalPrice]);
 
+    // Update note when sendCutlery changes
+    useEffect(() => {
+        let updatedNote = tempNote;
+        if (sendCutlery && !updatedNote.toLowerCase().includes('send cutlery')) {
+            updatedNote = updatedNote ? updatedNote + ' | Send cutlery' : 'Send cutlery';
+        } else if (!sendCutlery && updatedNote.toLowerCase().includes('send cutlery')) {
+            updatedNote = updatedNote.replace(/\s*\|?\s*send cutlery/i, '').trim();
+        }
+        setTempNote(updatedNote);
+        setNote(updatedNote);
+    }, [sendCutlery]);
 
 
     useEffect(() => window.scrollTo(0, 0), [])
@@ -106,365 +148,373 @@ const Checkout = () => {
     };
 
     const handlePaymentClick = async () => {
-        const { userDetails: currentUser } = useAuthStore.getState();
-
-        if (!currentUser) {
-            toast.error('Please log in to continue');
-            return;
-        }
-
-        if (!currentUser.address) {
-            toast.error('Please add your delivery address');
-            return;
-        }
-
-        if (!currentUser.phoneNumber || currentUser.phoneNumber.length !== 13) {
-            toast.error('Please enter a valid 10-digit phone number');
-            return;
-        }
-
-        if (!preferredDeliveryTime || !preferredDeliveryPeriod) {
-            toast.error('Please select your preferred delivery time');
-            return;
-        }
-        if (items.length === 0) {
-            toast.error('Your cart is empty. Please add items to proceed.');
-            return;
-        }
-
-        const orderDetails: OrderDetails = {
-            items: items,
-            grossTotalPrice: grossTotalPrice.toFixed(2),
-            totalAmount: totalPrice,
-            gst: grossTotalPrice * parseFloat(TAX_RATE.toFixed(2)),
-            deliveryCharge: DELIVERY_PRICE,
-            totalQuantity: items.reduce((total, item) => total + item.quantity, 0),
-            note: note,
-            deliveryTime: preferredDeliveryTime + ' ' + preferredDeliveryPeriod,
-            customer: {
-                uid: currentUser.uid,
-                name: currentUser.displayName || currentUser.name || '',
-                email: currentUser.email || '',
-                phoneNumber: currentUser.phoneNumber || '',
-            },
-            address: currentUser.address || '',
-            voucherDiscount: voucherDiscount || null,
-            voucherCode: appliedVoucher ? appliedVoucher.code : null,
-        };
-
-        if (paymentMode === 'cod') {
-            // COD: Place order directly
-            const paymentDetails = {
-                ...orderDetails,
-                paymentStatus: 'pending' as 'pending',
-                orderStatus: 'received' as 'received',
+        if (isPlacingOrder) return;
+        setIsPlacingOrder(true);
+        try {
+            if (!userDetails) {
+                toast.error('Please log in to continue');
+                setIsPlacingOrder(false);
+                return;
+            }
+            if (!userDetails.address) {
+                toast.error('Please add your delivery address');
+                setIsPlacingOrder(false);
+                return;
+            }
+            if (!userDetails.phoneNumber || userDetails.phoneNumber.length !== 13) {
+                toast.error('Please enter a valid 10-digit phone number');
+                setIsPlacingOrder(false);
+                return;
+            }
+            if (!preferredDeliveryTime || !preferredDeliveryPeriod) {
+                toast.error('Please select your preferred delivery time');
+                setIsPlacingOrder(false);
+                return;
+            }
+            if (items.length === 0) {
+                toast.error('Your cart is empty. Please add items to proceed.');
+                setIsPlacingOrder(false);
+                return;
+            }
+            const orderDetails: OrderDetails = {
+                items: items,
+                grossTotalPrice: grossTotalPrice.toFixed(2),
+                totalAmount: totalPrice,
+                gst: grossTotalPrice * parseFloat(TAX_RATE.toFixed(2)),
+                deliveryCharge: DELIVERY_PRICE,
+                totalQuantity: items.reduce((total, item) => total + item.quantity, 0),
+                note: note,
+                deliveryTime: preferredDeliveryTime + ' ' + preferredDeliveryPeriod,
+                customer: {
+                    uid: userDetails.uid,
+                    name: userDetails.displayName || '',
+                    email: userDetails.email || '',
+                    phoneNumber: userDetails.phoneNumber || '',
+                },
+                address: getSafeAddress(userDetails.address),
+                voucherDiscount: voucherDiscount || null,
+                voucherCode: appliedVoucher ? appliedVoucher.code : null,
             };
-            const success = await handleCheckout(paymentDetails);
-            if (success && appliedVoucher && userDetails?.phoneNumber) {
-                await updateVoucherAfterOrder(appliedVoucher, userDetails.phoneNumber);
-            }
-            if (success) {
-                clearCart();
-                toast.success('Order placed successfully (Cash on Delivery)');
-                useOrderPlacedModalStore.getState().open(); // Open modal globally
-                navigate('/orders');
-            } else {
-                toast.error('Order placement failed. Please contact support.');
-            }
-            return;
-        }
-
-
-        const res = await loadRazorpayScript();
-        if (!res) {
-            toast.error('Razorpay SDK failed to load. Are you online?');
-            return;
-        }
-
-        const amountInPaise = Math.round(totalPrice * 100);
-
-        const options = {
-            key: import.meta.env.VITE_RAZORPAY_KEY,
-            amount: amountInPaise,
-            currency: 'INR',
-            name: 'GoTreats Tiffins',
-            description: 'Order Payment',
-            image: '/favicon.png',
-            prefill: {
-                name: currentUser?.displayName || '',
-                email: currentUser?.email || '',
-                contact: currentUser?.phoneNumber || ''
-            },
-            notes: {
-                customer_Name: currentUser?.displayName || '',
-                customer_Email: currentUser?.email || '',
-                customer_Phone: currentUser?.phoneNumber || '',
-                customer_Address: currentUser?.address || '',
-                customer_Note: note || '',
-                delivery_Time: preferredDeliveryTime + ' ' + preferredDeliveryPeriod,
-            },
-            remember_customer: true,
-            theme: {
-                color: '#22c55e',
-            },
-            modal: {
-                ondismiss: function () {
-                    toast('Payment Cancelled');
-                }
-            },
-            handler: async function (response: any) {
-
+            if (paymentMode === 'cod') {
                 const paymentDetails = {
                     ...orderDetails,
-                    razorpay_payment_id: response.razorpay_payment_id,
-                    paymentStatus: 'success' as 'success',
+                    paymentStatus: 'pending' as 'pending',
                     orderStatus: 'received' as 'received',
                 };
-
                 const success = await handleCheckout(paymentDetails);
-                // Update voucher usage if voucher was applied
-                if (success && appliedVoucher && userDetails?.phoneNumber) {
+                if (success && appliedVoucher && userDetails.phoneNumber) {
                     await updateVoucherAfterOrder(appliedVoucher, userDetails.phoneNumber);
                 }
                 if (success) {
                     clearCart();
-                    toast.success('Payment & Order placed successfully');
-                    useOrderPlacedModalStore.getState().open(); // Open modal globally
+                    toast.success('Order placed successfully (Cash on Delivery)');
+                    useOrderPlacedModalStore.getState().open();
                     navigate('/orders');
                 } else {
-                    toast.error('Order placement failed after payment. Please contact support.');
+                    toast.error('Order placement failed. Please contact support.');
                 }
-            },
-        };
-
-        const rzp = new window.Razorpay(options);
-        rzp.open();
+                setIsPlacingOrder(false);
+                return;
+            }
+            const res = await loadRazorpayScript();
+            if (!res) {
+                toast.error('Razorpay SDK failed to load. Are you online?');
+                setIsPlacingOrder(false);
+                return;
+            }
+            const amountInPaise = Math.round(totalPrice * 100);
+            const options = {
+                key: import.meta.env.VITE_RAZORPAY_KEY,
+                amount: amountInPaise,
+                currency: 'INR',
+                name: 'GoTreats Tiffins',
+                description: 'Order Payment',
+                image: '/favicon.png',
+                prefill: {
+                    name: userDetails?.displayName || '',
+                    email: userDetails?.email || '',
+                    contact: userDetails?.phoneNumber || ''
+                },
+                notes: {
+                    customer_Name: userDetails?.displayName || '',
+                    customer_Email: userDetails?.email || '',
+                    customer_Phone: userDetails?.phoneNumber || '',
+                    customer_Address: userDetails?.address || '',
+                    customer_Note: note || '',
+                    delivery_Time: preferredDeliveryTime + ' ' + preferredDeliveryPeriod,
+                },
+                remember_customer: true,
+                theme: {
+                    color: '#22c55e',
+                },
+                modal: {
+                    ondismiss: function () {
+                        toast('Payment Cancelled');
+                        setIsPlacingOrder(false);
+                    }
+                },
+                handler: async function (response: any) {
+                    if (isPlacingOrder) return;
+                    setIsPlacingOrder(true);
+                    const paymentDetails = {
+                        ...orderDetails,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        paymentStatus: 'success' as 'success',
+                        orderStatus: 'received' as 'received',
+                    };
+                    const success = await handleCheckout(paymentDetails);
+                    if (success && appliedVoucher && userDetails.phoneNumber) {
+                        await updateVoucherAfterOrder(appliedVoucher, userDetails.phoneNumber);
+                    }
+                    if (success) {
+                        clearCart();
+                        toast.success('Payment & Order placed successfully');
+                        useOrderPlacedModalStore.getState().open();
+                        navigate('/orders');
+                    } else {
+                        toast.error('Order placement failed after payment. Please contact support.');
+                    }
+                    setIsPlacingOrder(false);
+                },
+            };
+            const rzp = new window.Razorpay(options);
+            rzp.open();
+        } catch (err) {
+            setIsPlacingOrder(false);
+            throw err;
+        }
     };
 
     if (items.length === 0) {
         return (
-            <div className='flex md:bg-gray-100 items-center justify-center h-[80vh]'>
-                <div className='flex flex-col gap-5'>
-                    <img src="/shopping.png" className='w-2/3 mx-auto' alt="Empty cart" />
-                    <p className='text-2xl font-semibold text-center'>Your cart is empty.</p>
-                    <Button onClick={() => navigate('/shop')} variant='primary'>Go to Shop</Button>
+            <div className='relative flex items-center justify-center min-h-[70vh] md:min-h-[80vh] bg-gray-50 overflow-hidden'>
+                {/* Animated gradient background */}
+                <div className="absolute inset-0 z-0 animate-gradient bg-gradient-to-br from-yellow-100 via-purple-100 to-orange-100 opacity-80" />
+                {/* Floating emojis - responsive */}
+                <div className="absolute left-4 top-6 text-2xl md:text-4xl lg:text-5xl animate-float-slow select-none">🍕</div>
+                <div className="absolute right-6 top-16 text-xl md:text-3xl lg:text-4xl animate-float-fast select-none">🛒</div>
+                <div className="absolute left-[12vw] bottom-20 text-2xl md:text-4xl lg:text-5xl animate-float-mid select-none">🥲</div>
+                <div className="absolute right-[14vw] bottom-10 text-xl md:text-3xl lg:text-4xl animate-float-mid select-none">🍔</div>
+                <div className='flex flex-col gap-6 z-10 items-center w-full px-4'>
+                    {/* Cart image with bounce, responsive */}
+                    <img src="/shopping.png" className='mx-auto animate-bounce-slow max-w-[180px] sm:max-w-xs md:max-w-sm lg:max-w-md w-full' alt="Empty cart" />
+                    <p className='text-xl sm:text-2xl font-semibold text-center flex flex-col items-center'>Your cart is empty <span className="text-xl sm:text-2xl mt-1">😔</span></p>
+                    <Button onClick={() => navigate('/shop')} variant='primary' className="transition-transform duration-200 hover:scale-105 active:scale-95 px-8 sm:px-10 py-3 text-base sm:text-lg rounded-full shadow-lg">Go to Shop</Button>
                 </div>
+                {/* Animations CSS */}
+                <style>{`
+                  @keyframes gradient {
+                    0% {background-position: 0% 50%;}
+                    50% {background-position: 100% 50%;}
+                    100% {background-position: 0% 50%;}
+                  }
+                  .animate-gradient {
+                    background-size: 200% 200%;
+                    animation: gradient 8s ease-in-out infinite;
+                  }
+                  @keyframes float-slow {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-18px); }
+                  }
+                  .animate-float-slow { animation: float-slow 4s ease-in-out infinite; }
+                  @keyframes float-fast {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-30px); }
+                  }
+                  .animate-float-fast { animation: float-fast 2.5s ease-in-out infinite; }
+                  @keyframes float-mid {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-12px); }
+                  }
+                  .animate-float-mid { animation: float-mid 3.2s ease-in-out infinite; }
+                  @keyframes bounce-slow {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-10px); }
+                  }
+                  .animate-bounce-slow { animation: bounce-slow 2.2s infinite; }
+                `}</style>
             </div>
         )
     }
 
     return (
-        <div className=' bg-gray-50'>
-            <div className='max-w-2xl mx-auto px-4 py-8'>
-                <div className='flex justify-between items-center  mb-5'>
-                    <h1 className='text-3xl font-semibold lancelot text-gray-800'>Checkout</h1>
+        <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+            <div className="max-w-7xl mx-auto">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className='flex justify-between items-center mb-8 z-10'
+                >
+                    <h1 className="lancelot text-4xl sm:text-5xl font-bold text-gray-900 opacity-100 z-10">Checkout</h1>
+                </motion.div>
 
-                    <Button variant='success' size='sm' onClick={() => navigate('/shop')}>
-                        <ShoppingBag size={20} />
-                        <p>Add More Item</p>
-                    </Button>
-                </div>
+                <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
+                    <div className='lg:col-span-2 space-y-8'>
+                        <CartSection items={items} updateItemQuantity={updateItemQuantity} />
+                        {/* Add Items, Cooking requests, and Send cutlery in one row */}
+                        <div className="flex flex-row gap-2 items-center mb-4">
+                            <Button variant="secondary" onClick={() => navigate('/shop')}>
+                                + Add Items
+                            </Button>
+                            <Button variant="secondary" onClick={() => setShowInstructions(!showInstructions)}>
+                                Cooking requests
+                            </Button>
+                            <label className="flex items-center gap-2 cursor-pointer select-none text-sm font-medium">
+                                <input
+                                    type="checkbox"
+                                    checked={sendCutlery}
+                                    onChange={e => setSendCutlery(e.target.checked)}
+                                    className="accent-orange-500 w-4 h-4"
+                                />
+                                Send cutlery
+                            </label>
+                        </div>
+                        {/* Expandable Special Instructions */}
+                        {showInstructions && (
+                            <div className="bg-white rounded-2xl shadow-lg p-4 mb-2 animate-fade-in">
+                            <textarea
+                                    value={tempNote}
+                                    onChange={(e) => setTempNote(e.target.value)}
+                                rows={3}
+                                    className="w-full p-3 rounded-lg border focus:ring-primary-500 focus:border-primary-500 transition mb-4"
+                                placeholder="E.g., Please make it less spicy"
+                            />
+                                <div className="flex justify-end gap-2">
+                                    <button
+                                        onClick={() => {
+                                            setTempNote('');
+                                            setNote('');
+                                            setNoteSaved(false);
+                                            setShowInstructions(false);
+                                        }}
+                                        className="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 bg-gray-50 hover:bg-gray-100 transition font-medium"
+                                        type="button"
+                                    >
+                                        Clear
+                                    </button>
+                                    <button
+                                        onClick={async () => {
+                                            setIsSavingNote(true);
+                                            await new Promise(res => setTimeout(res, 900)); // Simulate save
+                                            setNote(tempNote);
+                                            setNoteSaved(!!tempNote);
+                                            setIsSavingNote(false);
+                                            setShowInstructions(false);
+                                            toast.success('Instruction has been added');
+                                        }}
+                                        className="px-4 py-2 rounded-lg bg-green-500 text-white font-semibold hover:bg-green-600 transition flex items-center gap-2 disabled:opacity-60 shadow-md"
+                                        disabled={isSavingNote || !tempNote.trim()}
+                                        type="button"
+                                    >
+                                        {isSavingNote ? <Loader2 className="animate-spin w-4 h-4" /> : 'Send'}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                        {/* Show saved note like Zomato/Swiggy */}
+                        {noteSaved && note && !showInstructions && (
+                            <div
+                                className="flex items-start gap-3 bg-white rounded-2xl shadow p-4 mb-2 border border-gray-100 cursor-pointer hover:bg-gray-50 transition"
+                                onClick={() => {
+                                    setShowInstructions(true);
+                                    setTempNote(note);
+                                }}
+                                title="Click to edit your note"
+                            >
+                                <FileText className="w-5 h-5 mt-1 text-primary-500" />
+                                <div>
+                                    <div className="font-semibold text-gray-800 mb-1">Note for the restaurant</div>
+                                    <div className="text-gray-700 break-words">{note}</div>
+                                </div>
+                        </div>
+                        )}
+                        <AddressSection uid={userDetails!.uid} />
+                        {/* Preferred Delivery Time */}
+                        <div className="bg-white rounded-2xl shadow-lg p-6">
+                            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Preferred Delivery Time</h2>
+                            <div className='flex gap-3 items-center'>
+                                <input
+                                    type='time'
+                                    value={preferredDeliveryTime}
+                                    onChange={e => setDeliveryTime(e.target.value)}
+                                    className='w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition bg-white'
+                                    required
+                                />
+                                <select
+                                    value={preferredDeliveryPeriod}
+                                    onChange={e => setDeliveryPeriod(e.target.value)}
+                                    className='p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition bg-white'
+                                >
+                                    <option>AM</option>
+                                    <option>PM</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
 
-                <div className='flex flex-col gap-3'>
-
-                    {/* ----cart--- */}
-                    <CartSection
-                        items={items}
-                        updateItemQuantity={updateItemQuantity}
-                    />
-
-                    {/* -- note -- */}
-                    <div className='bg-white rounded-xl shadow-sm p-6 space-y-3'>
-                        <p className='text-sm text-orange-500 flex items-center justify-center gap-2'><PenBoxIcon size={18} /> Add any special instructions or note here</p>
-                        <textarea
-                            rows={1}
-                            value={note}
-                            onChange={(e) => setNote(e.target.value)}
-                            className="w-full text-sm p-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                            placeholder="Add any special instructions or note here"
-
+                    {/* Right Column */}
+                    <div className="lg:col-span-1">
+                        <OrderSummary
+                            grossTotalPrice={grossTotalPrice}
+                            voucherDiscount={voucherDiscount}
+                            deliveryPrice={DELIVERY_PRICE}
+                            totalPrice={totalPrice}
+                            appliedVoucher={appliedVoucher}
+                            onApplyVoucher={onOpen}
+                            onRemoveVoucher={() => {
+                                setAppliedVoucher(null);
+                                setVoucherDiscount(0);
+                                toast.success('Voucher removed');
+                            }}
+                            paymentMode={paymentMode as 'online' | 'cod'}
+                            onPaymentModeChange={(mode) => setPaymentMode(mode)}
+                            onHandlePayment={handlePaymentClick}
+                            isLoading={false} // You might want to connect this to a loading state
                         />
                     </div>
-
-                    <div className='bg-white rounded-xl shadow-sm p-6'>
-                        <h2 className=' md:text-xl font-semibold mb-6'>Delivery Information</h2>
-
-                        <AddressSection uid={userDetails?.uid || ""} />
-
-                        <div className='pt-6 flex flex-col gap-6 justify-between'>
-                            <div >
-                                <h3 className='text-sm text-orange-500 font-medium mb-1'>Preferred Delivery Time</h3>
-                                <div className='flex gap-2 items-center'>
-                                    <input
-                                        type='time'
-                                        value={preferredDeliveryTime}
-                                        onChange={e => setPreferredDeliveryTime(e.target.value)}
-                                        className='w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent'
-                                        required
-                                        placeholder='Enter preferred delivery time'
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <h3 className='text-sm text-orange-500 font-medium mb-1'>Payment Mode</h3>
-                                <div className='flex gap-2 items-center '>
-                                    <RadioGroup size='sm' value={paymentMode} onValueChange={setPaymentMode}>
-                                        <Radio value="cod">Cash on Delivery</Radio>
-                                        <Radio description='UPI, Card, NetBanking' value="online">Online (via Razorpay)</Radio>
-                                    </RadioGroup>
-                                </div>
-                            </div>
-
-
-                        </div>
-                    </div>
-
-                    {
-                        appliedVoucher ? (
-
-                            <div className='bg-white border border-dashed hover:border-green-500 rounded-xl shadow-sm p-6'>
-                                <div className='flex gap-5 justify-between items-center'>
-                                    <div>
-                                        <p className='font-bold  capitalize'>'{appliedVoucher.code}'</p>
-                                        <p className='text-xs'>Discount applied on the bill</p>
-                                    </div>
-                                    <button onClick={() => setAppliedVoucher(null)} className='text-sm hover:text-red-500 font-bold'>REMOVE</button>
-                                </div>
-                            </div>
-                        ) :
-                            (
-                                <button className='bg-white border-2 hover:border-green-500 cursor-pointer border-dashed rounded-xl  p-4' onClick={onOpen} >
-                                    <div className='flex gap-5 items-center'>
-                                        <BadgePercent strokeWidth={1} color='gray' />
-                                        <p>Apply Voucher </p>
-                                    </div>
-                                </button>
-                            )
-                    }
-
-
-                    <div className='bg-white rounded-xl shadow-sm overflow-hidden'>
-                        <div className='p-6'>
-                            <h2 className='text-xl font-semibold mb-6 flex items-center gap-2'>
-                                <span>Bill Summary</span>
-                                <div className="px-2 py-1 bg-green-100 rounded-full text-xs text-green-700 font-medium">
-                                    {items.reduce((total, item) => total + item.quantity, 0)} items
-                                </div>
-                            </h2>
-
-                            <div className=' mb-6'>
-
-                                {items.map((item, index) => (
-                                    <div key={index} className='flex justify-between items-center text-gray-600 py-2 text-sm'>
-                                        <span className="text-gray-800">{item.productName}{item.quantity > 1 ? ` x ${item.quantity}` : ''}</span>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-gray-800 font-medium">₹{item.offerPrice * item.quantity}</span>
-                                        </div>
-                                    </div>
-                                ))}
-
-                                {
-                                    appliedVoucher && (
-                                        <div className='flex justify-between items-center border-t border-b border-dashed text-green-600 py-2 text-sm'>
-                                            <div className="flex items-center gap-2">
-                                                <span className="">Voucher Discount</span>
-                                            </div>
-                                            <span className=" font-medium">-₹{voucherDiscount.toFixed(2)}</span>
-                                        </div>
-                                    )
-                                }
-
-
-                                <div className='flex justify-between items-center text-gray-600 py-2 text-sm'>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-gray-800">Delivery Charge</span>
-
-                                    </div>
-                                    <span className="text-gray-800 font-medium">₹{DELIVERY_PRICE.toFixed(2)}</span>
-                                </div>
-
-                                {/* <div className='flex justify-between items-center text-gray-600 py-2 text-sm'>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-gray-800">GST</span>
-                                        <div className="px-1.5 py-0.5 bg-gray-100 rounded text-xs">
-                                            {(TAX_RATE * 100).toFixed()}%
-                                        </div>
-                                    </div>
-                                    <span className="text-gray-800 font-medium">₹{(grossTotalPrice * TAX_RATE).toFixed(2)}</span>
-                                </div> */}
-
-                            </div>
-
-                            <div className='pt-4 border-t border-gray-500'>
-                                <div className='flex justify-between items-start'>
-                                    <div>
-                                        <h3 className="text-lg font-bold text-gray-900">Total Amount</h3>
-                                        <p className="text-sm text-gray-500">Inclusive of all taxes</p>
-                                    </div>
-                                    <div className="text-right">
-                                        <div className="text-2xl font-bold text-gray-900">₹{totalPrice.toFixed(2)}</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <motion.button
-                                whileHover={{ scale: 1.01 }}
-                                whileTap={{ scale: 0.99 }}
-                                onClick={handlePaymentClick}
-                                className='w-full mt-6 bg-gradient-to-r text-lg from-green-400 to-green-600 text-white py-4 rounded-2xl hover:from-orange-400 hover:to-orange-400 transition-colors duration-300 flex items-center justify-center gap-2 font-medium shadow-xl shadow-green-100'
-                            >
-                                <span>{paymentMode === 'online' ? 'Proceed to Payment' : 'Place Order'}</span>
-                                <span className="text-2xl">•</span>
-                                <span>₹{totalPrice.toFixed(2)}</span>
-                            </motion.button>
-
-                            <div className="mt-4 flex items-center justify-center gap-2 text-gray-500">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                                </svg>
-                                <p className="text-xs">
-                                    Secure payment via Razorpay
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {
-                        appliedVoucher && (
-                            <div className="bg-green-50 px-4 py-2 border border-green-400 rounded-lg mb-6">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
-                                            <BadgePercent strokeWidth={1} color='green' />
-                                        </div>
-                                        <p className="text-green-800 font-medium">Total Savings</p>
-                                    </div>
-                                    <span className="text-green-700 font-bold">₹{voucherDiscount}</span>
-                                </div>
-                            </div>
-                        )
-                    }
-
                 </div>
-
-                <VoucherModal
-                    isOpen={isOpen}
-                    onOpenChange={onOpenChange}
-                    onOpen={onOpen}
-                    onValidVoucher={(voucher) => {
-                        setAppliedVoucher(voucher)
-                    }}
-                    onOpenVoucherAppliedModal={onOpenVoucherAppliedModal} />
-                <VoucherAppliedModal
-                    isOpen={isVoucherAppliedModalOpen}
-                    onOpenChange={onOpenVoucherAppliedModalChange}
-                    voucherCode={appliedVoucher?.code || ''}
-                    discount={voucherDiscount}
-                />
-                
             </div>
-        </div>
-    )
-}
 
-export default Checkout
+            <VoucherModal
+                isOpen={isOpen}
+                onOpenChange={onOpenChange}
+                onOpen={onOpen}
+                onValidVoucher={(voucher) => {
+                    const error = validateVoucher(
+                        voucher,
+                        userDetails?.phoneNumber || '',
+                        grossTotalPrice + DELIVERY_PRICE
+                    );
+                    if (error) {
+                        toast.error(error);
+                    } else {
+                        setAppliedVoucher(voucher);
+                        let discount = 0;
+                        if (voucher.discountType === 'percentage') {
+                            discount = (grossTotalPrice * voucher.discountValue) / 100;
+                        } else {
+                            discount = voucher.discountValue;
+                        }
+                        setVoucherDiscount(discount);
+                        calculateTotalPrice(DELIVERY_PRICE, TAX_RATE);
+                        toast.success('Voucher applied!');
+                        onOpenVoucherAppliedModal();
+                    }
+                }}
+                onOpenVoucherAppliedModal={onOpenVoucherAppliedModal}
+            />
+
+            <VoucherAppliedModal
+                isOpen={isVoucherAppliedModalOpen}
+                onOpenChange={onOpenVoucherAppliedModalChange}
+                voucherCode={appliedVoucher?.code || ''}
+                discount={voucherDiscount}
+            />
+
+            <OrderPlacedModal />
+        </div>
+    );
+};
+
+export default Checkout;

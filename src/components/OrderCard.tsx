@@ -17,7 +17,6 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
         // toast.success(`Order for ${order.customer.name} is ${status}`);
 
     };
-    const address = `${order.address.flatNumber}, ${order.address.buildingName}, ${order.address.streetAddress}, ${order.address.area}, ${order.address.pincode}`;
 
     // Format the createdAt date and time
      const formatOrderDateTime = (dateString) => {
@@ -125,7 +124,7 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                             <Clock size={16} /> {order.deliveryTime}
                         </p>
                         <p className="inline-flex items-center gap-2">
-                            <Home size={16} /> {address}
+                            <Home size={16} /> {order.address}
                         </p>
                     </div>
                     <hr className=" md:hidden border border-gray-400 my-2" />
@@ -247,11 +246,7 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                     {/* Address Breakdown */}
                                     <div>
                                         <h3 className="font-semibold lancelot text-purple-700 mb-2 flex gap-2 item-center"><MapPin size={19} /> Address</h3>
-                                        <p><strong>Flat Number: </strong> {order.address.flatNumber}</p>
-                                        <p><strong>Building Name: </strong> {order.address.buildingName}</p>
-                                        <p><strong>Street Address:</strong> {order.address.streetAddress}</p>
-                                        <p><strong>Area:</strong> {order.address.area}</p>
-                                        <p><strong>Pincode:</strong> {order.address.pincode}</p>
+                                        <p>{order.address}</p>
                                     </div>
 
                                     {/* Payment Details */}
@@ -320,11 +315,7 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                     {/* Address Breakdown */}
                                     <div>
                                         <h3 className="font-semibold lancelot text-2xl mb-2">Address</h3>
-                                        <p className='flex justify-between '><strong>Flat Number:</strong> {order.address.flatNumber}</p>
-                                        <p className='flex justify-between '><strong>Building Name:</strong> {order.address.buildingName}</p>
-                                        <p className='flex justify-between '><strong>Street Address:</strong> {order.address.streetAddress}</p>
-                                        <p className='flex justify-between '><strong>Area:</strong> {order.address.area}</p>
-                                        <p className='flex justify-between '><strong>Pincode:</strong> {order.address.pincode}</p>
+                                        <p>{order.address}</p>
                                     </div>
 
                                     <hr className='md:hidden border border-gray-400 my-1' />

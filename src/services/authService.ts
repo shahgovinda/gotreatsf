@@ -1,11 +1,14 @@
 import { collection, doc, getDoc, getDocs, setDoc, updateDoc } from "firebase/firestore";
-import { auth, db } from "../config/firebaseConfig";
+import { auth, db, storage } from "../config/firebaseConfig";
 import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { useAuthStore } from "../store/authStore";
 import { signOut } from "firebase/auth";
 import { httpsCallable } from 'firebase/functions'
 import { functions } from '../config/firebaseConfig'
 import axios from 'axios';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { UserDetails } from '../store/authStore';
+import toast from 'react-hot-toast';
 
 const BASE_URL = 'https://us-central1-chanda-home-essentials.cloudfunctions.net';// Replace with your actual base URL
 
@@ -36,10 +39,12 @@ export const handleEmailAccountCreation = async (
             phoneNumber: phoneNumber,
             photoURL: newUser.photoURL,
             address: null,
-            role:'customer'
+            role:'customer',
+            profileImage: newUser.photoURL || '',
         });
         const userDetails = await getUserFromDb(newUser.uid);
         useAuthStore.getState().setUserDetails(userDetails);
+        toast.success(`Account created! Welcome, ${name || 'there'}!`);
         console.log("Account created successfully with email");
     } catch (err) {
         throw err
@@ -52,6 +57,7 @@ export const handleEmailAccountLogin = async (email: string, password: string) =
         const result = await signInWithEmailAndPassword(auth, email, password);
         const userDetails = await getUserFromDb(result.user.uid);
         useAuthStore.getState().setUserDetails(userDetails);
+        toast.success(`Welcome back, ${userDetails?.displayName || 'there'}!`);
     } catch (err) {
         throw (err instanceof Error ? err : new Error('Failed to sign in with email'));
     }
@@ -75,15 +81,18 @@ export const handlesignInWithGoogle = async () => {
                 photoURL: user.photoURL,
                 uid: user.uid,
                 address: null,
-                role: 'customer'
+                role: 'customer',
+                profileImage: user.photoURL || '',
             };
             await setDoc(doc(db, "users", user.uid), newUserDetails);
 
             // Update the auth store with the new user's details
             useAuthStore.getState().setUserDetails(newUserDetails);
+            toast.success(`Account created! Welcome, ${user.displayName || 'there'}!`);
         } else {
             // Returning user - update the auth store with existing document
             useAuthStore.getState().setUserDetails(userDoc);
+            toast.success(`Welcome back, ${userDoc.displayName || 'there'}!`);
         }
 
         // Update the auth store with the user object
@@ -94,16 +103,26 @@ export const handlesignInWithGoogle = async () => {
     }
 }
 
-
-export async function getUserFromDb(uid: string) {
-    try {
-        const docSnap = await getDoc(doc(db, "users", uid));
-        // console.log("docSnap", docSnap.data());
-        return (docSnap.data());
-    } catch (e) {
-        console.log(e);
-    }
+export function mapToUserDetails(data: any, uid: string): UserDetails {
+  return {
+    uid,
+    email: data.email || '',
+    displayName: data.displayName || '',
+    phoneNumber: data.phoneNumber || '',
+    address: data.address || '',
+    profileImage: data.profileImage || '',
+  };
 }
+
+export const getUserFromDb = async (uid: string): Promise<UserDetails | null> => {
+  const userRef = doc(db, 'users', uid);
+  const userSnap = await getDoc(userRef);
+  if (userSnap.exists()) {
+    return mapToUserDetails(userSnap.data(), uid);
+  }
+  return null;
+};
+
 export async function getAllCustomersFromDb() {
     try {
         const querySnapshot = await getDocs(collection(db, "users"));
@@ -201,5 +220,63 @@ export const validateAdminPassword = async (password: string): Promise<boolean> 
 //         return false;
 //     }
 // };
+
+export const updateUserProfile = async (uid: string, updates: any) => {
+    const userRef = doc(db, 'users', uid);
+    await updateDoc(userRef, updates);
+};
+
+export const uploadProfileImage = async (uid: string, file: File) => {
+    try {
+        // Create a storage reference
+        const storageRef = ref(storage, `profile_images/${uid}`);
+        
+        // Upload the file
+        await uploadBytes(storageRef, file);
+        
+        // Get the download URL
+        const downloadURL = await getDownloadURL(storageRef);
+        
+        // Update user profile with new image URL
+        const userRef = doc(db, 'users', uid);
+        await updateDoc(userRef, {
+            profileImage: downloadURL
+        });
+        
+        return downloadURL;
+    } catch (error) {
+        console.error('Error uploading profile image:', error);
+        throw error;
+    }
+};
+
+export const deleteProfileImage = async (uid: string) => {
+  try {
+    // Get the current user document
+    const userRef = doc(db, 'users', uid);
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) return false;
+    const data = userSnap.data();
+    const imageUrl = data.profileImage;
+    if (!imageUrl) return false;
+
+    // Delete from Firebase Storage
+    // Extract the path from the URL
+    const matches = imageUrl.match(/profile_images%2F([^?]+)/);
+    if (matches && matches[1]) {
+      const imagePath = decodeURIComponent('profile_images/' + matches[1]);
+      const imageRef = ref(storage, imagePath);
+      const { deleteObject } = await import('firebase/storage');
+      await deleteObject(imageRef);
+    }
+
+    // Remove profileImage field from Firestore
+    await updateDoc(userRef, { profileImage: '' });
+    return true;
+  } catch (error) {
+    console.error('Error deleting profile image:', error);
+    return false;
+  }
+};
 
 

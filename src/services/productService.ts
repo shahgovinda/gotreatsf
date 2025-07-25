@@ -1,4 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, setDoc, updateDoc } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, setDoc, updateDoc, query, where } from "firebase/firestore";
 import { db, storage } from "../config/firebaseConfig";
 import { customAlphabet } from 'nanoid';
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
@@ -143,3 +143,80 @@ export const updateProduct = async (productId: string, updatedData: any) => {
     throw e;
   }
 }
+
+// Add a rating and review for an item
+export const addItemRating = async ({ itemId, userId, orderId, rating, review, userName }: {
+  itemId: string,
+  userId: string,
+  orderId: string,
+  rating: number,
+  review: string,
+  userName?: string
+}) => {
+  try {
+    const ratingsCollection = collection(db, 'ratings');
+    await addDoc(ratingsCollection, {
+      itemId,
+      userId,
+      orderId,
+      rating,
+      review,
+      userName: userName || 'User',
+      createdAt: new Date().toISOString(),
+    });
+    return true;
+  } catch (e) {
+    console.error('Error adding item rating:', e);
+    throw e;
+  }
+};
+
+// Get all ratings for an item
+export const getItemRatings = async (itemId: string) => {
+  try {
+    const ratingsCollection = collection(db, 'ratings');
+    const q = query(ratingsCollection, where('itemId', '==', itemId));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (e) {
+    console.error('Error fetching item ratings:', e);
+    return [];
+  }
+};
+
+// Get all ratings for a user
+export const getUserRatings = async (userId: string) => {
+  try {
+    const ratingsCollection = collection(db, 'ratings');
+    const q = query(ratingsCollection, where('userId', '==', userId));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (e) {
+    console.error('Error fetching user ratings:', e);
+    return [];
+  }
+};
+
+// Delete a rating/review by id
+export const deleteUserRating = async (reviewId: string) => {
+  try {
+    const reviewDoc = doc(db, 'ratings', reviewId);
+    await deleteDoc(reviewDoc);
+    return true;
+  } catch (e) {
+    console.error('Error deleting user rating:', e);
+    return false;
+  }
+};
+
+// Update a rating/review by id
+export const updateUserRating = async (reviewId: string, data: { rating: number; review: string }) => {
+  try {
+    const reviewDoc = doc(db, 'ratings', reviewId);
+    await updateDoc(reviewDoc, data);
+    return true;
+  } catch (e) {
+    console.error('Error updating user rating:', e);
+    return false;
+  }
+};

@@ -5,12 +5,20 @@ import OrderSummary from '../components/OrderSummary';
 import { fetchUserOrders } from '../services/orderService';
 import { useAuthStore } from '../store/authStore';
 import { StatusBadge } from '../components/StatusBadge';
-import { ArrowLeft, ArrowRight, CheckCircle, CircleHelp, HandCoins, Home, RefreshCcw, Store, XIcon } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, CircleHelp, HandCoins, Home, RefreshCcw, Store, XIcon, Info } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerBody, DrawerFooter } from "@heroui/drawer";
 import { useDisclosure } from '@/hooks/useDisclosure';
 import { useCartStore } from '../store/cartStore'; // Import the cart store
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { getProductById } from '@/services/productService';
+import PriceChangeModal from '@/components/PriceChangeModal';
+import { CartItem } from '@/types/CartTypes';
+import ItemRatingModal from '../components/ItemRatingModal';
+import { addItemRating } from '../services/productService';
+import { getDocs, collection, query, where } from 'firebase/firestore';
+import { db } from '../config/firebaseConfig';
 
 const Orders = () => {
     const [detailOpen, setDetailOpen] = useState(false);
@@ -18,16 +26,95 @@ const Orders = () => {
     const userDetails = useAuthStore((state) => state.userDetails);
     const { isOpen, onOpen, onClose } = useDisclosure();
     const navigate = useNavigate()
+    const reorderItems = useCartStore((state) => state.reorderItems);
 
-    useEffect(() => window.scrollTo(0, 0), [])
+    const [isPriceModalOpen, setPriceModalOpen] = useState(false);
+    const [priceChanges, setPriceChanges] = useState([]);
+    const [itemsToReorder, setItemsToReorder] = useState<CartItem[]>([]);
 
-    // Use React Query to fetch orders
+    const [ratingModal, setRatingModal] = useState<{
+        open: boolean,
+        item: any | null,
+        orderId: string | null
+    }>({ open: false, item: null, orderId: null });
+    const [ratedItems, setRatedItems] = useState<{ [key: string]: boolean }>({}); // key: orderId_itemId
+    const [checkingRatings, setCheckingRatings] = useState(false);
+
+    useEffect(() => window.scrollTo(0, 0), []);
+
     const { data: orders = [], isLoading, isError } = useQuery({
-        queryKey: ['userOrders', userDetails?.uid], // Query key
-        queryFn: () => fetchUserOrders(userDetails?.uid), // Fetch function
-        enabled: !!userDetails?.uid, // Only fetch if userDetails.uid exists
-        refetchInterval: 5000, // Polling every 5 seconds for real-time updates
+        queryKey: ['userOrders', userDetails?.uid],
+        queryFn: () => fetchUserOrders(userDetails?.uid),
+        enabled: !!userDetails?.uid,
+        refetchInterval: 5000,
     });
+
+    useEffect(() => {
+        // If a selected order is open in the drawer, check for its updates from the refetched orders list
+        if (selectedOrder && orders.length > 0) {
+            const updatedOrderInList = orders.find(order => order.id === selectedOrder.id);
+            // If the order is found and its data is different from what's in the state, update it
+            if (updatedOrderInList && JSON.stringify(updatedOrderInList) !== JSON.stringify(selectedOrder)) {
+                setSelectedOrder(updatedOrderInList);
+            }
+        }
+    }, [orders, selectedOrder]); // Rerun when orders data or selectedOrder changes
+
+    // Check for unrated delivered items after orders load
+    useEffect(() => {
+        if (!orders || orders.length === 0 || checkingRatings) return;
+        setCheckingRatings(true);
+        (async () => {
+            for (const order of orders) {
+                if (order.orderStatus === 'delivered' && order.items) {
+                    for (const item of order.items) {
+                        const key = `${order.id}_${item.id}`;
+                        if (ratedItems[key]) continue; // already rated/skipped in this session
+                        // Check Firestore if this user has rated this item for this order
+                        const q = query(
+                            collection(db, 'ratings'),
+                            where('itemId', '==', item.id),
+                            where('orderId', '==', order.id),
+                            where('userId', '==', userDetails?.uid || '')
+                        );
+                        const snap = await getDocs(q);
+                        if (snap.empty) {
+                            // Show modal for this item
+                            setRatingModal({ open: true, item, orderId: order.id });
+                            setCheckingRatings(false);
+                            return;
+                        }
+                    }
+                }
+            }
+            setCheckingRatings(false);
+        })();
+        // eslint-disable-next-line
+    }, [orders, userDetails, ratedItems]);
+
+    // Handler for submitting rating
+    const handleSubmitRating = async (rating: number, review: string) => {
+        if (!ratingModal.item || !ratingModal.orderId) return;
+        await addItemRating({
+            itemId: ratingModal.item.id,
+            userId: userDetails?.uid,
+            orderId: ratingModal.orderId,
+            rating,
+            review,
+            userName: userDetails?.displayName || 'User', // <-- Added userName
+        });
+        // Mark as rated in this session
+        setRatedItems(prev => ({ ...prev, [`${ratingModal.orderId}_${ratingModal.item.id}`]: true }));
+        setRatingModal({ open: false, item: null, orderId: null });
+    };
+
+    // Handler for skipping rating (remind later)
+    const handleSkipRating = () => {
+        if (!ratingModal.item || !ratingModal.orderId) return;
+        // Mark as skipped in this session (not in DB, so will remind next time)
+        setRatedItems(prev => ({ ...prev, [`${ratingModal.orderId}_${ratingModal.item.id}`]: true }));
+        setRatingModal({ open: false, item: null, orderId: null });
+    };
 
     if (isLoading) {
         return <div className='text-center py-10'>Loading orders...</div>;
@@ -47,8 +134,65 @@ const Orders = () => {
         (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
 
-    const formattedAddress = `${selectedOrder?.address.flatNumber}, ${selectedOrder?.address.buildingName}, 
-    ${selectedOrder?.address.streetAddress}, ${selectedOrder?.address.area}, ${selectedOrder?.address.pincode}`;
+    const formatAddress = (addr: any): string => {
+        if (!addr) return "No address provided";
+        if (typeof addr === 'string') return addr;
+        if (typeof addr === 'object' && addr !== null) {
+            return [
+                addr.flatNumber,
+                addr.buildingName,
+                addr.streetAddress,
+                addr.landmark,
+                addr.area,
+                addr.pincode
+            ].filter(Boolean).join(', ');
+        }
+        return "Invalid address format";
+    };
+
+    const handleReorder = async (orderItems: CartItem[]) => {
+        onClose(); // Close the details drawer immediately
+        const updatedItems: CartItem[] = [];
+        const changes: any = [];
+        let isAvailable = true;
+
+        for (const item of orderItems) {
+            const currentProduct = await getProductById(item.id);
+            if (!currentProduct || !currentProduct.isAvailable) {
+                toast.error(`${item.productName} is no longer available.`);
+                isAvailable = false;
+                break;
+            }
+
+            const newItem = { ...item, offerPrice: Number(currentProduct.offerPrice) };
+            updatedItems.push(newItem);
+
+            if (Number(item.offerPrice) !== Number(currentProduct.offerPrice)) {
+                changes.push({
+                    productName: item.productName,
+                    oldPrice: Number(item.offerPrice),
+                    newPrice: Number(currentProduct.offerPrice),
+                });
+            }
+        }
+
+        if (!isAvailable) return;
+
+        setItemsToReorder(updatedItems);
+        if (changes.length > 0) {
+            setPriceChanges(changes);
+            setPriceModalOpen(true);
+        } else {
+            confirmReorder(updatedItems);
+        }
+    };
+
+    const confirmReorder = (items: CartItem[]) => {
+        reorderItems(items);
+        toast.success("Items added to cart!");
+        navigate('/checkout');
+        setPriceModalOpen(false);
+    };
 
     // Get dynamic border color based on order status
     const getBorderColor = (status: string) => {
@@ -87,15 +231,25 @@ const Orders = () => {
     };
 
     return (
-        <div className='md:bg-gray-100 min-h-screen'>
-            <div className='max-w-3xl px-5 mx-auto'>
-                <div className='flex justify-between items-center'>
-                    <h1 className='text-3xl md:text-4xl font-semibold lancelot py-5 md:py-10 text-gray-700'>Past Orders</h1>
-                    <button className='flex justify-between items-center gap-2 p-1 rounded-full hover:bg-gray-200 underline text-green-600 cursor-pointer'
-                        onClick={() => navigate('/contact')}>
-                        <CircleHelp size={18} />
+        <div className='bg-white min-h-screen'>
+            <div className='w-full sm:max-w-3xl sm:px-5 sm:mx-auto px-2'>
+                <div className='flex flex-col sm:flex-row sm:justify-between sm:items-center items-start'>
+                    <h1 className='text-2xl sm:text-4xl font-semibold lancelot py-5 sm:py-10 text-gray-700'>Past Orders</h1>
+                    {/* Desktop: Prominent Need Help Button */}
+                    <button
+                        className='hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-600 text-white font-semibold shadow-md hover:bg-purple-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2'
+                        onClick={() => navigate('/contact')}
+                    >
+                        <Info size={22} className='text-white' /> Need help?
                     </button>
                 </div>
+                {/* Mobile: Full-width Need Help Button */}
+                <button
+                    className='flex sm:hidden w-full items-center justify-center gap-2 px-4 py-3 rounded-lg bg-purple-600 text-white font-semibold shadow-md hover:bg-purple-700 transition-all duration-200 mb-4 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2'
+                    onClick={() => navigate('/contact')}
+                >
+                    <Info size={22} className='text-white' /> Need help?
+                </button>
                 {sortedOrders.length === 0 ? (
                     <div className='flex flex-col items-center gap-5 py-10 text-gray-500'>
                         <p>You have not placed any order yet.</p>
@@ -110,43 +264,42 @@ const Orders = () => {
                                     initial={{ opacity: 0, x: -50 }} // Mount animation: from top
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ duration: 0.2, delay: i * 0.1 }}
-                                    className={`md:p-8 p-5 w-full border rounded-xl border-l-5 ${getBorderColor(order.orderStatus)} ${getBackgroundColor(order.orderStatus)}`}
+                                    className={`sm:p-8 p-3 w-full border rounded-xl border-l-5 ${getBorderColor(order.orderStatus)} ${getBackgroundColor(order.orderStatus)}`}
                                 >
                                     <div className='flex flex-col gap-4 justify-between'>
                                         <div className='flex justify-between items-center'>
                                             <div>
-                                                <h4 className='mb-1 text-lg font-semibold md:text-xl'>Order #{order.id.slice(-6)}</h4>
-                                                <div className='flex text-sm gap-2 text-neutral-500 items-center '>
+                                                <h4 className='mb-1 text-base sm:text-lg font-semibold sm:text-xl'>Order #{order.id.slice(-6)}</h4>
+                                                <div className='flex text-xs sm:text-sm gap-2 text-neutral-500 items-center '>
                                                     <p>{new Date(order.createdAt).toLocaleDateString()}</p> |
                                                     <p>{new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                                                 </div>
                                             </div>
                                             <StatusBadge status={order.orderStatus} />
                                         </div>
-
-                                        <div className='text-neutral-700 md:px-20'>
+                                        <div className='text-neutral-700 sm:px-20'>
                                             {order.items.map((item: any, idx: number) => (
-                                                <h2 key={idx} className='text-sm flex justify-between'>
+                                                <h2 key={idx} className='text-xs sm:text-sm flex justify-between'>
                                                     {item.productName} <span className='font-semibold'>X {item.quantity}</span>
                                                 </h2>
                                             ))}
                                         </div>
-
-                                        <div className='flex justify-between items-center'>
-                                            <p className='text-neutral-600 text-lg flex gap-2'>
-                                                <p>{order.paymentStatus === 'pending' && order?.orderStatus !== 'delivered' ? "To Pay : " : "Total Paid : "}</p> <span className='font-bold text-neutral-800'>₹{order.totalAmount}</span>
-                                            </p>
+                                        <div className='flex justify-between items-center mt-4'>
+                                            <button
+                                                onClick={() => handleReorder(order.items)}
+                                                className='text-green-600 font-semibold inline-flex items-center gap-2 hover:underline cursor-pointer'
+                                            >
+                                                <RefreshCcw size={16} /> Reorder
+                                            </button>
                                             <button
                                                 onClick={() => {
                                                     setSelectedOrder(order);
-                                                    // setDetailOpen(true);
                                                     onOpen();
                                                 }}
                                                 className='text-orange-600 font-semibold inline-flex items-center gap-2 hover:underline cursor-pointer'
                                             >
                                                 View Details <ArrowRight size={16} />
                                             </button>
-
                                         </div>
                                     </div>
                                 </motion.div>
@@ -182,7 +335,7 @@ const Orders = () => {
                                             <span className="text-gray-800 font-medium">
                                                 {selectedOrder?.customer?.name || 'N/A'}
                                             </span>
-                                            <p>{formattedAddress || 'No address found'}</p>
+                                            <p>{formatAddress(selectedOrder?.address)}</p>
                                         </div>
 
                                         <StatusBadge status={selectedOrder?.orderStatus} />
@@ -247,6 +400,14 @@ const Orders = () => {
                                         <span>₹{selectedOrder?.totalAmount || '0.00'}</span>
                                     </div>
 
+                                    <Button
+                                        variant='primary'
+                                        className='w-full mt-4'
+                                        onClick={() => handleReorder(selectedOrder.items)}
+                                    >
+                                        Reorder
+                                    </Button>
+
                                     {
                                         selectedOrder?.note && (
                                             <p>📝 "{selectedOrder?.note}"</p>
@@ -306,6 +467,18 @@ const Orders = () => {
                     )}
                 </DrawerContent >
             </Drawer >
+            <PriceChangeModal
+                isOpen={isPriceModalOpen}
+                onClose={() => setPriceModalOpen(false)}
+                onConfirm={() => confirmReorder(itemsToReorder)}
+                priceChanges={priceChanges}
+            />
+            <ItemRatingModal
+                isOpen={ratingModal.open}
+                itemName={ratingModal.item?.productName || ''}
+                onClose={handleSkipRating}
+                onSubmit={handleSubmitRating}
+            />
             {/* {detailOpen && selectedOrder && (
                 <div className='w-full h-screen fixed backdrop-blur-sm inset-0 z-10' onClick={() => setDetailOpen(false)}>
                     <OrderSummary 

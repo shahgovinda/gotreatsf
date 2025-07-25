@@ -1,57 +1,73 @@
 import React, { useEffect } from 'react'
 
 const PrivacyPolicy = () => {
-
     useEffect(() => window.scrollTo(0, 0), [])
     return (
-        <div className='max-w-full'>
-            <div className='bg-orange-500 text-center py-10'>
-                <h1 className='lancelot text-5xl text-white'>Privacy Policy</h1>
+        <div className="w-full min-h-screen bg-white">
+            <div className="bg-orange-500 text-center py-10 px-2">
+                <h1 className="lancelot text-4xl md:text-5xl text-white font-bold">Privacy Policy</h1>
             </div>
-            <div className='container mx-auto px-4 md:px-8 lg:px-16 flex flex-col justify-center gap-5 text-sm py-8'>
-                <p><strong>Last Updated: May 10, 2025</strong></p>
-                <p>
-                    At GoTreats, we are committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your personal information when you use our online food ordering and delivery services.
-                </p>
-                <h2 className='text-lg font-bold'>Information We Collect:</h2>
-                <ul className='list-disc list-inside space-y-2'>
-                    <li><strong>Personal Identification Information:</strong> This may include your name, email address, phone number, and delivery address.</li>
-                    <li><strong>Payment Information:</strong> We collect necessary payment details (e.g., credit/debit card information, UPI details) to process your orders. This information is securely processed by our payment gateway providers (RazorPay) and is not stored by us.</li>
-                    <li><strong>Order Information:</strong> Details of the food items you order, order history, and any special instructions.</li>
-                    <li><strong>Device and Usage Information:</strong> We may collect information about your device (e.g., IP address, browser type, operating system) and how you interact with our website or mobile application (e.g., pages visited, time spent).</li>
-                    <li><strong>Communications:</strong> Records of your communication with us, including inquiries and feedback.</li>
-                </ul>
-                <h2 className='text-lg font-bold'>How We Use Your Information:</h2>
-                <ul className='list-disc list-inside space-y-2'>
-                    <li>To process and fulfill your orders, including delivery of your Go Treats.</li>
-                    <li>To manage your account and provide customer support related to your Go Treats orders.</li>
-                    <li>To personalize your experience and offer relevant Go Treats recommendations.</li>
-                    <li>To communicate with you about your orders, promotions, and updates from Go Treats (with your consent where required).</li>
-                    <li>To improve our Services and develop new Go Treats offerings.</li>
-                    <li>To detect and prevent fraud and ensure the security of our Go Treats platform.</li>
-                    <li>To comply with legal obligations.</li>
-                </ul>
-                <h2 className='text-lg font-bold'>Disclosure of Your Information:</h2>
-                <ul className='list-disc list-inside space-y-2'>
-                    <li><strong>Service Providers:</strong> Third-party vendors who assist us in providing the Services, such as payment processors. These providers are contractually obligated to protect your information.</li>
-                    <li><strong>Legal Authorities:</strong> If required by law or legal process, we may disclose your information to government authorities or law enforcement agencies.</li>
-                </ul>
-                <h2 className='text-lg font-bold'>Data Security:</h2>
-                <p>
-                    We implement reasonable security measures to protect your personal information from unauthorized access, use, or disclosure. These measures include encryption and firewalls. However, no method of transmission over the internet or electronic storage is completely secure, and we cannot guarantee absolute security.
-                </p>
-                <h2 className='text-lg font-bold'>Your Rights:</h2>
-                <p>You may have certain rights regarding your personal information, including the right to:</p>
-                <ul className='list-disc list-inside space-y-2'>
-                    <li>Access the personal information we hold about you.</li>
-                    <li>Request correction of inaccurate or incomplete information.</li>
-                    <li>Request deletion of your personal information (subject to legal limitations).</li>
-                    <li>Object to the processing of your personal information for certain purposes.</li>
-                    <li>Withdraw your consent to marketing communications from Go Treats at any time.</li>
-                </ul>
-                <p>
-                    To exercise these rights, please contact us at <a href="mailto:govindashah603@gmail.com" className='text-blue-500'>govindashah603@gmail.com</a> or call us at <a href="tel:7045617506" className='text-blue-500'>7045617506</a>.
-                </p>
+            <div className="max-w-5xl mx-auto px-4 sm:px-8 md:px-16 lg:px-24 xl:px-32 py-10 text-base md:text-lg text-gray-800">
+                <section className="mb-8">
+                    <p className="mb-2 text-sm text-gray-500">Last Updated: May 10, 2025</p>
+                    <p className="mb-4 text-justify">
+                        At GoTreats, we are committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your personal information when you use our online food ordering and delivery services.
+                    </p>
+                </section>
+                <section className="mb-8">
+                    <h2 className="font-semibold text-lg md:text-xl mb-2 text-orange-600">1. Information We Collect</h2>
+                    <ul className="list-disc pl-6 space-y-2 text-justify">
+                        <li><strong>Personal Identification Information:</strong> Name, email address, phone number, and delivery address.</li>
+                        <li><strong>Payment Information:</strong> Payment details (e.g., card or UPI info) processed securely by our payment gateway (RazorPay); not stored by us.</li>
+                        <li><strong>Order Information:</strong> Food items ordered, order history, and special instructions.</li>
+                        <li><strong>Device and Usage Information:</strong> Device details (IP, browser, OS) and usage data (pages visited, time spent).</li>
+                        <li><strong>Communications:</strong> Records of your communication with us, including inquiries and feedback.</li>
+                    </ul>
+                </section>
+                <section className="mb-8">
+                    <h2 className="font-semibold text-lg md:text-xl mb-2 text-orange-600">2. How We Use Your Information</h2>
+                    <ul className="list-disc pl-6 space-y-2 text-justify">
+                        <li>To process and fulfill your orders, including delivery.</li>
+                        <li>To manage your account and provide customer support.</li>
+                        <li>To personalize your experience and offer relevant recommendations.</li>
+                        <li>To communicate with you about orders, promotions, and updates (with your consent where required).</li>
+                        <li>To improve our services and develop new offerings.</li>
+                        <li>To detect and prevent fraud and ensure platform security.</li>
+                        <li>To comply with legal obligations.</li>
+                    </ul>
+                </section>
+                <section className="mb-8">
+                    <h2 className="font-semibold text-lg md:text-xl mb-2 text-orange-600">3. Disclosure of Your Information</h2>
+                    <ul className="list-disc pl-6 space-y-2 text-justify">
+                        <li><strong>Service Providers:</strong> Third-party vendors (e.g., payment processors) who help us provide services. They are contractually obligated to protect your information.</li>
+                        <li><strong>Legal Authorities:</strong> We may disclose your information to government authorities or law enforcement if required by law.</li>
+                    </ul>
+                </section>
+                <section className="mb-8">
+                    <h2 className="font-semibold text-lg md:text-xl mb-2 text-orange-600">4. Data Security</h2>
+                    <p className="text-justify mb-2">
+                        We implement reasonable security measures (encryption, firewalls) to protect your personal information. However, no method of transmission or storage is completely secure, and we cannot guarantee absolute security.
+                    </p>
+                </section>
+                <section className="mb-8">
+                    <h2 className="font-semibold text-lg md:text-xl mb-2 text-orange-600">5. Your Rights</h2>
+                    <p className="text-justify mb-2">You may have certain rights regarding your personal information, including the right to:</p>
+                    <ul className="list-disc pl-6 space-y-2 text-justify">
+                        <li>Access the personal information we hold about you.</li>
+                        <li>Request correction of inaccurate or incomplete information.</li>
+                        <li>Request deletion of your personal information (subject to legal limitations).</li>
+                        <li>Object to the processing of your personal information for certain purposes.</li>
+                        <li>Withdraw your consent to marketing communications at any time.</li>
+                    </ul>
+                </section>
+                <section className="mb-8">
+                    <h2 className="font-semibold text-lg md:text-xl mb-2 text-orange-600">6. Contact Us</h2>
+                    <p className="text-justify mb-2">To exercise your rights or if you have questions about this Privacy Policy, please contact us at:</p>
+                    <p className="text-justify">
+                        Email: <a href="mailto:govindashah603@gmail.com" className="text-blue-500">govindashah603@gmail.com</a><br />
+                        Phone: <a href="tel:7045617506" className="text-blue-500">7045617506</a>
+                    </p>
+                </section>
             </div>
         </div>
     )

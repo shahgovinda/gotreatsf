@@ -23,9 +23,7 @@ const Login = () => {
         setError("");
         try {
             await handleEmailAccountLogin(email, password);
-            toast.success("Welcome Back");
             navigate("/")
-
         } catch (error) {
             console.error(error?.message);
             setErrorMsg(error?.message);
@@ -105,7 +103,6 @@ const Login = () => {
                     type='button'
                     onClick={async () => {
                         await handlesignInWithGoogle();
-                        toast.success("Login successful")
                         navigate("/");
                     }}
                     className='auth-button auth-google-btn'>

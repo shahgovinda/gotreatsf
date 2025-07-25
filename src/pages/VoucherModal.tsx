@@ -90,7 +90,7 @@ const VoucherModal = (
 
 
     return (
-        <Modal isOpen={isOpen} placement="center" onOpenChange={onOpenChange} size='lg' scrollBehavior='inside' backdrop='blur'>
+        <Modal isOpen={isOpen} placement="center" onOpenChange={onOpenChange} size='lg' scrollBehavior='inside' backdrop='opaque' className="!bg-white">
             <ModalContent>
                 {(onClose) => (
                     <>

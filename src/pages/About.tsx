@@ -83,19 +83,21 @@ const About = () => {
         >
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold">
             Welcome to{" "}
-            <motion.span
-              variants={wordVariants}
-              className="inline-block bg-gradient-to-r from-orange-500 via-orange-400 to-orange-500 text-transparent bg-clip-text bg-[length:200%_100%]"
-            >
-              GoTreats
-            </motion.span>
+            <div className="inline-block">
+              <motion.span
+                variants={wordVariants}
+                className="inline-block bg-gradient-to-r from-orange-500 via-orange-400 to-orange-500 text-transparent bg-clip-text bg-[length:200%_100%]"
+              >
+                GoTreats
+              </motion.span>
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: "100%" }}
+                transition={{ duration: 1, delay: 0.5 }}
+                className="h-1 bg-gradient-to-r from-orange-500 via-orange-400 to-orange-500 mx-auto rounded-full"
+              />
+            </div>
           </h1>
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: "100%" }}
-            transition={{ duration: 1, delay: 0.5 }}
-            className="h-1 bg-gradient-to-r from-orange-500 via-orange-400 to-orange-500 mx-auto mt-4 max-w-[200px] rounded-full"
-          />
         </motion.div>
 
         <p className="text-lg sm:text-xl text-gray-700 max-w-3xl mx-auto">

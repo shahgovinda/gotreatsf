@@ -1,61 +1,76 @@
 import React, { useEffect } from 'react'
 
 const TermsConditions = () => {
-
-        useEffect(() => window.scrollTo(0, 0), [])
+    useEffect(() => window.scrollTo(0, 0), [])
     return (
-        <div className='max-w-full'>
-            <div className='bg-orange-500 text-center py-10'>
-                <h1 className='lancelot text-5xl text-white'>Terms and Conditions</h1>
+        <div className="w-full min-h-screen bg-white">
+            <div className="bg-orange-500 text-center py-10 px-2">
+                <h1 className="lancelot text-4xl md:text-5xl text-white font-bold">Terms and Conditions</h1>
             </div>
-            <div className='container mx-auto px-4 md:px-8 lg:px-16 flex flex-col justify-center gap-5 text-sm py-8'>
-                <p>
-                    These Terms and Conditions, along with privacy policy or other terms ("Terms") constitute a binding
-                    agreement by and between GOVINDA JAYPRAKASH SHAH, ( "Website Owner" or "we" or "us" or
-                    "our") and you ("you" or "your") and relate to your use of our website, goods (as applicable) or services
-                    (as applicable) (collectively, "Services")
-                </p>
-                <p>
-                    By using our website and availing the Services, you agree that you have read and accepted these Terms
-                    (including the Privacy Policy). We reserve the right to modify these Terms at any time and without
-                    assigning any reason. It is your responsibility to periodically review these Terms to stay informed of
-                    updates
-                </p>
-                <p>
-                    The use of this website or availing of our Services is subject to the following terms of use:
-                </p>
-                <ol className='list-decimal list-outside space-y-4'>
-                    <li>To access and use the Services, you agree to provide true, accurate, and complete information during and after registration, and you shall be responsible for all acts done through your registered account.</li>
+            <div className="max-w-5xl mx-auto px-4 sm:px-8 md:px-16 lg:px-24 xl:px-32 py-10 text-base md:text-lg text-gray-800">
+                <section className="mb-8">
+                    <p className="mb-4 text-justify">
+                        Welcome to our website. Please read these Terms and Conditions carefully before using our services. By accessing or using our website, you agree to be bound by these Terms, our Privacy Policy, and any other policies referenced here.
+                    </p>
+                    <p className="mb-4 text-justify">
+                        We may update these Terms at any time. Please check this page regularly to stay informed of any changes.
+                    </p>
+                </section>
 
-                    <li>Neither we nor any third parties provide any warranty or guarantee as to the accuracy, timeliness, performance, completeness, or suitability of the information and materials offered on this website or through the Services, for any specific purpose.</li>
+                <section className="mb-8">
+                    <h2 className="font-semibold text-lg md:text-xl mb-2 text-orange-600">1. General Use</h2>
+                    <ul className="list-disc pl-6 space-y-2 text-justify">
+                        <li>You must provide accurate and complete information during registration and are responsible for all activity under your account.</li>
+                        <li>We do not guarantee the accuracy, completeness, or suitability of any information or materials on this website for any particular purpose.</li>
+                        <li>Information and materials may contain errors or inaccuracies. We are not liable for any such errors to the fullest extent permitted by law.</li>
+                        <li>Your use of our website and services is at your own risk. Please ensure our services meet your needs before using them.</li>
+                    </ul>
+                </section>
 
-                    <li>You acknowledge that such information and materials may contain inaccuracies or errors, and we expressly exclude liability for any such inaccuracies or errors to the fullest extent permitted by law.</li>
+                <section className="mb-8">
+                    <h2 className="font-semibold text-lg md:text-xl mb-2 text-orange-600">2. Intellectual Property</h2>
+                    <ul className="list-disc pl-6 space-y-2 text-justify">
+                        <li>All content on this website is owned by us. You may not claim any intellectual property rights to our content or services.</li>
+                        <li>Unauthorized use of our website or services may result in legal action.</li>
+                    </ul>
+                </section>
 
-                    <li>Your use of our Services and the website is solely at your own risk and discretion. You are required to independently assess and ensure that the Services meet your requirements.</li>
+                <section className="mb-8">
+                    <h2 className="font-semibold text-lg md:text-xl mb-2 text-orange-600">3. User Responsibilities</h2>
+                    <ul className="list-disc pl-6 space-y-2 text-justify">
+                        <li>You agree to pay all charges associated with using our services.</li>
+                        <li>You must not use our website or services for any unlawful or prohibited purpose.</li>
+                        <li>Our website may contain links to third-party sites. We are not responsible for the content or policies of those sites.</li>
+                    </ul>
+                </section>
 
-                    <li>The contents of the Website and the Services are proprietary to us, and you will not have any authority to claim any intellectual property rights, title, or interest in its contents.</li>
+                <section className="mb-8">
+                    <h2 className="font-semibold text-lg md:text-xl mb-2 text-orange-600">4. Transactions & Refunds</h2>
+                    <ul className="list-disc pl-6 space-y-2 text-justify">
+                        <li>By making a purchase, you enter into a legally binding contract with us.</li>
+                        <li>If we are unable to provide a service you paid for, you may request a refund within the time period specified in our policies. Refunds are not available after this period.</li>
+                    </ul>
+                </section>
 
-                    <li>You acknowledge that unauthorized use of the Website or the Services may lead to action against you as per these Terms or applicable laws.</li>
+                <section className="mb-8">
+                    <h2 className="font-semibold text-lg md:text-xl mb-2 text-orange-600">5. Limitation of Liability</h2>
+                    <ul className="list-disc pl-6 space-y-2 text-justify">
+                        <li>We are not liable for any failure to perform our obligations due to events beyond our control (force majeure).</li>
+                    </ul>
+                </section>
 
-                    <li>You agree to pay us the charges associated with availing the Services.</li>
+                <section className="mb-8">
+                    <h2 className="font-semibold text-lg md:text-xl mb-2 text-orange-600">6. Governing Law & Disputes</h2>
+                    <ul className="list-disc pl-6 space-y-2 text-justify">
+                        <li>These Terms are governed by the laws of India.</li>
+                        <li>All disputes will be subject to the exclusive jurisdiction of the courts in Borivali West, Maharashtra.</li>
+                    </ul>
+                </section>
 
-                    <li>You agree not to use the website and/or Services for any purpose that is unlawful, illegal, or forbidden by these Terms, or Indian or local laws that might apply to you.</li>
-
-                    <li>You agree and acknowledge that the website and the Services may contain links to third-party websites. On accessing these links, you will be governed by the terms of use, privacy policy, and other policies of such third-party websites.</li>
-
-                    <li>You understand that upon initiating a transaction for availing the Services, you are entering into a legally binding and enforceable contract with us for the Services.</li>
-
-                    <li>You shall be entitled to claim a refund of the payment made by you in case we are not able to provide the Service. The timelines for such return and refund will be according to the specific Service you have availed or within the time period provided in our policies (as applicable). In case you do not raise a refund claim within the stipulated time, then this would make you ineligible for a refund.</li>
-
-                    <li>Notwithstanding anything contained in these Terms, the parties shall not be liable for any failure to perform an obligation under these Terms if performance is prevented or delayed by a force majeure event.</li>
-
-                    <li>These Terms and any dispute or claim relating to it, or its enforceability, shall be governed by and construed in accordance with the laws of India.</li>
-
-                    <li>All disputes arising out of or in connection with these Terms shall be subject to the exclusive jurisdiction of the courts in Borivali West, Maharashtra.</li>
-
-                    <li>All concerns or communications relating to these Terms must be communicated to us using the contact information provided on this website.</li>
-                </ol>
-
+                <section className="mb-8">
+                    <h2 className="font-semibold text-lg md:text-xl mb-2 text-orange-600">7. Contact</h2>
+                    <p className="text-justify">If you have any questions or concerns about these Terms, please contact us using the information provided on our website.</p>
+                </section>
             </div>
         </div>
     )

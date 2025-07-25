@@ -2,18 +2,30 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import Button from './Button';
+import { useEffect } from 'react';
 
 interface ModalProps {
   isOpen: boolean;
   title: string;
-  message: string;
-  confirmLabel: string;
+  message?: string;
+  confirmLabel?: string;
   cancelLabel: string;
-  onConfirm: () => void;
+  onConfirm?: () => void;
   onCancel: () => void;
+  children?: React.ReactNode;
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, title, message, confirmLabel, cancelLabel, onConfirm, onCancel }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, title, message, confirmLabel, cancelLabel, onConfirm, onCancel, children }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+    }
+    return () => {
+      document.body.classList.remove('overflow-hidden');
+    };
+  }, [isOpen]);
   return (
     <AnimatePresence>
       {isOpen && (
@@ -28,7 +40,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, title, message, confirmLabel, can
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
-            className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl mx-4"
+            className="bg-white rounded-xl p-6 max-w-full w-[95vw] md:w-[600px] lg:w-[700px] max-h-[90vh] shadow-xl mx-4"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-4">
@@ -41,23 +53,29 @@ const Modal: React.FC<ModalProps> = ({ isOpen, title, message, confirmLabel, can
               </button>
             </div>
 
-            <p className="text-gray-600 mb-6">{message}</p>
+            {message && <p className="text-gray-600 mb-6">{message}</p>}
+            {children}
 
-            <div className="flex gap-3 justify-end">
-              <Button
-                onClick={onCancel}
-                variant="secondary"
-              >
-                {cancelLabel}
-              </Button>
-              <Button
-                onClick={onConfirm}
-                variant="danger"
-              >
-               {confirmLabel}
-              </Button>
-              
-            </div>
+            {(confirmLabel || cancelLabel) && (
+              <div className="flex gap-3 justify-end mt-4">
+                {cancelLabel && (
+                  <Button
+                    onClick={onCancel}
+                    variant="secondary"
+                  >
+                    {cancelLabel}
+                  </Button>
+                )}
+                {confirmLabel && onConfirm && (
+                  <Button
+                    onClick={onConfirm}
+                    variant="danger"
+                  >
+                   {confirmLabel}
+                  </Button>
+                )}
+              </div>
+            )}
           </motion.div>
         </motion.div>
       )}

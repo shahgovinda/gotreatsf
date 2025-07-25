@@ -9,6 +9,7 @@ import Footer from './Footer'
 import ScrollToTop from '../components/ScrollToTop'
 import { useAuthStore } from '@/store/authStore'
 import OrderPlacedModal from './OrderPlacedModal'
+import ScrollToTopButton from '../components/ScrollToTopButton'
 
 function Layout() {
   const location = useLocation();
@@ -43,6 +44,7 @@ function Layout() {
       <Outlet />
 
       <ScrollToTop />
+      {location.pathname !== '/contact' && <ScrollToTopButton />}
       <Toaster />
       <Footer />
       <OrderPlacedModal />

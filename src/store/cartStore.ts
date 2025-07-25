@@ -12,8 +12,15 @@ interface CartStore {
   totalPrice: number
   itemCount: number
   voucherDiscount: number // NEW
+  note: string;
+  preferredDeliveryTime: string;
+  preferredDeliveryPeriod: string;
   setVoucherDiscount: (discount: number) => void // NEW
+  setNote: (note: string) => void;
+  setDeliveryTime: (time: string) => void;
+  setDeliveryPeriod: (period: string) => void;
   addItem: (item: Item) => void
+  reorderItems: (items: CartItem[]) => void
   removeItem: (itemId: string) => void
   updateQuantity: (itemId: string, quantity: number) => void
   clearCart: () => void
@@ -52,8 +59,26 @@ export const useCartStore = create<CartStore>()(
         totalPrice: 0,
         itemCount: 0,
         voucherDiscount: 0, // NEW
+        note: '',
+        preferredDeliveryTime: '',
+        preferredDeliveryPeriod: 'AM',
 
         setVoucherDiscount: (discount) => set({ voucherDiscount: discount }), 
+        setNote: (note) => set({ note }),
+        setDeliveryTime: (time) => set({ preferredDeliveryTime: time }),
+        setDeliveryPeriod: (period) => set({ preferredDeliveryPeriod: period }),
+
+        reorderItems: (newItems) => set({
+          items: newItems,
+          itemCount: newItems.reduce((sum, item) => sum + item.quantity, 0),
+          // Reset other cart-related states
+          grossTotalPrice: 0,
+          totalPrice: 0,
+          voucherDiscount: 0,
+          note: '',
+          preferredDeliveryTime: '',
+          preferredDeliveryPeriod: 'AM',
+        }),
 
         addItem: (item) => set((state) => {
           const existingItem = state.items.find((i) => i.id === item.id)
@@ -61,7 +86,13 @@ export const useCartStore = create<CartStore>()(
             ? state.items.map((i) =>
               i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
             )
-            : [...state.items, { ...item, id: item.id!, quantity: 1, addedAt: new Date() }]
+            : [...state.items, { 
+                ...item, 
+                id: item.id!, 
+                quantity: 1, 
+                addedAt: new Date(),
+                offerPrice: Number(item.offerPrice) // Ensure offerPrice is a number
+              }]
           
           return { 
             items: newItems,
@@ -93,7 +124,10 @@ export const useCartStore = create<CartStore>()(
           grossTotalPrice: 0,
           totalPrice: 0,
           itemCount: 0,
-          voucherDiscount: 0 // Reset on clear
+          voucherDiscount: 0, // Reset on clear
+          note: '',
+          preferredDeliveryTime: '',
+          preferredDeliveryPeriod: 'AM',
         }),
 
         calculateGrossTotalPrice: () => set((state) => ({
@@ -124,7 +158,10 @@ export const useCartStore = create<CartStore>()(
           grossTotalPrice: state.grossTotalPrice,
           totalPrice: state.totalPrice,
           itemCount: state.itemCount,
-          voucherDiscount: state.voucherDiscount // Persist discount
+          voucherDiscount: state.voucherDiscount, // Persist discount
+          note: state.note,
+          preferredDeliveryTime: state.preferredDeliveryTime,
+          preferredDeliveryPeriod: state.preferredDeliveryPeriod,
         })
       }
     )

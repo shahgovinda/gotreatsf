@@ -49,20 +49,20 @@ Message: ${message}
 
     useEffect(() => window.scrollTo(0, 0), [])
     return (
-        <div className=''>
-            <div className='text-center mt-16 py-10 px-5'>
+        <div className='min-h-screen bg-[#f8f5f2] pb-10'>
+            <div className='text-center mt-6 py-6 md:py-8 px-5'>
                 <motion.h1
-                    className='text-6xl font-bold mb-4 tracking-tight'
+                    className='text-5xl md:text-6xl font-bold mb-4 tracking-tight text-[#2d1a0a]'
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
                 >
                     Get In <motion.span
-                        className='text-orange-500 relative'
+                        className='text-[#ff7a1a] relative'
                     >
                         Touch
                         <motion.div
-                            className='absolute left-0 right-0 h-1 bg-orange-500 -bottom-4'
+                            className='absolute left-0 right-0 h-1 bg-[#ff7a1a] -bottom-4 rounded-full'
                             initial={{ width: 0 }}
                             animate={{ width: '100%' }}
                             transition={{ delay: 0.5, duration: 0.6 }}
@@ -73,107 +73,107 @@ Message: ${message}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.3, duration: 0.6 }}
-                    className="mt-8"
+                    className="mt-6 text-[#2d1a0a]"
                 >
                     Hi! 👋🏻 It's Govinda Jayprakash Shah. If you have any query just contact me
                 </motion.p>
             </div>
 
-            <div className='container mx-auto flex lg:flex-row px-10 flex-col justify-evenly gap-7 lg:gap-0 mt-10'>
-                <div className='group border-0 h-46 md:h-56 w-full lg:w-86 flex flex-col justify-between p-6 gap-5 rounded-xl bg-gradient-to-br from-orange-50 to-orange-100 hover:shadow-lg transition-all duration-300'>
-                    <MailIcon size={40} strokeWidth='1.4' className='group-hover:animate-bounce text-orange-500' />
+            <div className='container mx-auto flex lg:flex-row px-4 flex-col justify-evenly gap-7 lg:gap-0 mt-10'>
+                <div className='group border border-[#ff7a1a]/40 h-46 md:h-56 w-full lg:w-86 flex flex-col justify-between p-6 gap-5 rounded-xl bg-white hover:shadow-xl hover:scale-105 transition-all duration-300 shadow-md'>
+                    <MailIcon size={40} strokeWidth='1.4' className='group-hover:animate-bounce text-[#ff7a1a] transition-colors' />
                     <div>
-                        <h2 className='text-gray-900 text-xl tracking-tight'>Email Us</h2>
+                        <h2 className='text-[#2d1a0a] text-xl tracking-tight font-semibold'>Email Us</h2>
                         <p className='text-gray-600 text-sm'>Send us an email, we will get back to you.</p>
-                        <p className='text-orange-600 mt-3 group-hover:underline'>govindashah603@gmail.com</p>
+                        <a href="mailto:govindashah603@gmail.com" className='text-[#ff7a1a] mt-3 group-hover:underline group-hover:text-[#2d1a0a] transition-colors duration-200 break-all'>govindashah603@gmail.com</a>
                     </div>
                 </div>
 
-                <div className='group border-0 h-46 md:h-56 w-full lg:w-86 flex flex-col justify-between p-6 gap-5 rounded-xl bg-gradient-to-br from-green-50 to-green-100 hover:shadow-lg transition-all duration-300'>
-                    <Phone size={40} strokeWidth='1.4' className='group-hover:animate-bounce text-green-500' />
+                <div className='group border border-[#ff7a1a]/40 h-46 md:h-56 w-full lg:w-86 flex flex-col justify-between p-6 gap-5 rounded-xl bg-white hover:shadow-xl hover:scale-105 transition-all duration-300 shadow-md'>
+                    <Phone size={40} strokeWidth='1.4' className='group-hover:animate-bounce text-[#ff7a1a] transition-colors' />
                     <div>
-                        <h2 className='text-gray-900 text-xl tracking-tight'>Call Us</h2>
+                        <h2 className='text-[#2d1a0a] text-xl tracking-tight font-semibold'>Call Us</h2>
                         <p className='text-gray-600 text-sm'>Prefer to talk? Give us a call at.</p>
-                        <p className='text-green-600 mt-3 group-hover:underline'>+91-7045617506</p>
+                        <a href="tel:+917045617506" className='text-[#ff7a1a] mt-3 group-hover:underline group-hover:text-[#2d1a0a] transition-colors duration-200'>+91-7045617506</a>
                     </div>
                 </div>
 
-                <div className='group border-0 h-auto md:h-56 w-full lg:w-86 flex flex-col justify-between p-6 gap-5 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 hover:shadow-lg transition-all duration-300'>
-                    <Store size={40} strokeWidth='1.4' className='group-hover:animate-bounce text-blue-500' />
+                <div className='group border border-[#ff7a1a]/40 h-auto md:h-56 w-full lg:w-86 flex flex-col justify-between p-6 gap-5 rounded-xl bg-white hover:shadow-xl hover:scale-105 transition-all duration-300 shadow-md'>
+                    <Store size={40} strokeWidth='1.4' className='group-hover:animate-bounce text-[#ff7a1a] transition-colors' />
                     <div>
-                        <h2 className='text-gray-900 text-xl tracking-tight'>Visit Us</h2>
+                        <h2 className='text-[#2d1a0a] text-xl tracking-tight font-semibold'>Visit Us</h2>
                         <p className='text-gray-600 text-sm'>Operational Address</p>
-                        <p className='text-blue-600 mt-3 group-hover:underline'>
+                        <p className='text-[#ff7a1a] mt-3 group-hover:underline group-hover:text-[#2d1a0a] transition-colors duration-200 break-all'>
                             Room No.6, Ratnabai Chawl, Saibaba Nagar, Behind Nehru Garden, Borivali West, Maharashtra, PIN: 400092
                         </p>
                     </div>
                 </div>
             </div>
 
-            <div className='flex justify-center lg:mt-10 p-10 lg:p-0'>
-                <form className='mt-4 sm:mt-10 w-74 md:w-1/3 space-y-4 sm:space-y-6' onSubmit={onSubmit}>
+            <div className='flex justify-center lg:mt-10 p-4 lg:p-0'>
+                <form className='mt-4 sm:mt-10 w-full max-w-lg space-y-4 sm:space-y-6' onSubmit={onSubmit}>
                     <div className="relative">
-                        <p className='mb-2 text-orange-500 font-medium'>Name</p>
+                        <p className='mb-2 text-[#ff7a1a] font-medium'>Name</p>
                         <div className="relative">
                             <input
                                 type="text"
                                 value={name}
                                 required
                                 onChange={(e) => setName(e.target.value)}
-                                className='pl-12 border-2 border-orange-100 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-3 w-full 
-                                focus:outline-none focus:border-orange-300 focus:ring-2 focus:ring-orange-100 transition-all duration-300
+                                className='pl-12 border border-[#ff7a1a]/30 bg-white text-[#2d1a0a] rounded-xl p-3 w-full 
+                                focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/30 transition-all duration-300
                                 placeholder:text-gray-400'
                                 placeholder='Enter your name'
                             />
-                            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-400 w-5 h-5" />
+                            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ff7a1a] w-5 h-5" />
                         </div>
                     </div>
                     <div className="relative">
-                        <p className='mb-2 text-green-500 font-medium'>Phone number</p>
+                        <p className='mb-2 text-[#ff7a1a] font-medium'>Phone number</p>
                         <div className="relative">
                             <input
                                 type="number"
                                 value={phone}
                                 required
                                 onChange={(e) => setPhone(e.target.value)}
-                                className='pl-12 border-2 border-green-100 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-3 w-full 
-                                focus:outline-none focus:border-green-300 focus:ring-2 focus:ring-green-100 transition-all duration-300
+                                className='pl-12 border border-[#ff7a1a]/30 bg-white text-[#2d1a0a] rounded-xl p-3 w-full 
+                                focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/30 transition-all duration-300
                                 placeholder:text-gray-400'
                                 placeholder='Enter your number'
                             />
-                            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-green-400 w-5 h-5" />
+                            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ff7a1a] w-5 h-5" />
                         </div>
                     </div>
                     <div className="relative">
-                        <p className='mb-2 text-blue-500 font-medium'>Email</p>
+                        <p className='mb-2 text-[#ff7a1a] font-medium'>Email</p>
                         <div className="relative">
                             <input
                                 type="email"
                                 value={email}
                                 required
                                 onChange={(e) => setEmail(e.target.value)}
-                                className='pl-12 border-2 border-blue-100 bg-gradient-to-r from-blue-50 to-sky-50 rounded-xl p-3 w-full 
-                                focus:outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-100 transition-all duration-300
+                                className='pl-12 border border-[#ff7a1a]/30 bg-white text-[#2d1a0a] rounded-xl p-3 w-full 
+                                focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/30 transition-all duration-300
                                 placeholder:text-gray-400'
                                 placeholder='Enter your email'
                             />
-                            <MailIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-blue-400 w-5 h-5" />
+                            <MailIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ff7a1a] w-5 h-5" />
                         </div>
                     </div>
                     <div className="relative">
-                        <p className='mb-2 text-orange-500 font-medium'>Your Message</p>
+                        <p className='mb-2 text-[#ff7a1a] font-medium'>Your Message</p>
                         <div className="relative">
                             <textarea
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
                                 rows={3}
                                 required
-                                className='pl-12 border-2 border-orange-100 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-3 w-full 
-                                focus:outline-none focus:border-orange-300 focus:ring-2 focus:ring-orange-100 transition-all duration-300
+                                className='pl-12 border border-[#ff7a1a]/30 bg-white text-[#2d1a0a] rounded-xl p-3 w-full 
+                                focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/30 transition-all duration-300
                                 placeholder:text-gray-400 resize-none'
                                 placeholder='Write your message'
                             />
-                            <MessageSquare className="absolute left-4 top-6 text-orange-400 w-5 h-5" />
+                            <MessageSquare className="absolute left-4 top-6 text-[#ff7a1a] w-5 h-5" />
                         </div>
                     </div>
                     <div className="w-full mt-8">
@@ -181,8 +181,7 @@ Message: ${message}
                             type="submit"
                             disabled={submitting}
                             className={`w-full flex justify-center items-center gap-2 py-4 px-6 rounded-xl font-semibold text-lg relative overflow-hidden
-                            bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700
-                            transform hover:scale-[1.02] transition-all duration-300 shadow-md hover:shadow-lg
+                            bg-[#ff7a1a] text-white hover:bg-white hover:text-[#ff7a1a] border-2 border-[#ff7a1a] hover:scale-105 hover:shadow-xl transition-all duration-300
                             ${submitting ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                         >
                             {submitting ? 'Sending...' : 'Send Message'}

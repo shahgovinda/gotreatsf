@@ -16,6 +16,7 @@ import TypewriterText from '../components/TypewriterText';
 import ScrollingBanner from '../components/ScrollingBanner';
 import { Image } from '@heroui/react';
 import { deleteOrdersByCustomerUid } from '@/services/orderService';
+import { motion, Variants } from 'framer-motion';
 
 // Define the Review interface
 interface Review {
@@ -50,6 +51,30 @@ const Home = () => {
     refetchOnWindowFocus: false
   });
 
+  // For review card scrolling (copied from Customers page)
+  const [reviewStartIndex, setReviewStartIndex] = useState(0);
+  const getVisibleReviewCards = () => {
+    const cards = [];
+    for (let i = 0; i < reviews.length * 2; i++) {
+      const index = (reviewStartIndex + i) % reviews.length;
+      cards.push(reviews[index]);
+    }
+    return cards;
+  };
+  const handleReviewScroll = (direction: 'left' | 'right') => {
+    const container = document.querySelector('.scroll-container');
+    if (container) {
+      container.classList.remove('animate-scroll');
+      if (direction === 'right') {
+        setReviewStartIndex((prev) => (prev + 1) % reviews.length);
+      } else {
+        setReviewStartIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
+      }
+      setTimeout(() => {
+        container.classList.add('animate-scroll');
+      }, 500);
+    }
+  };
 
   const varieties = [
     {
@@ -84,34 +109,65 @@ const Home = () => {
   //   deleteOrders();
   // }, []);
   return (
-    <main className="min-h-[calc(100vh-64px)] w-full">
+    <main className="min-h-[calc(100vh-64px)] w-full overflow-x-hidden">
       <ScrollingBanner />
 
-      <Link to={'https://zomato.onelink.me/xqzv/ut3cavr1'} target='_blank' className='flex justify-center items-center bg-[#D94148] h-14'>
-        <span className='size-2 mr-4 block bg-white animate-pulse rounded-full'></span>
-        <p className='text-white inline-flex items-center gap-2 '> We Are Now Available on</p>
-        <Image className='w-40 h-10 ' isBlurred
-          src='https://cdn.brandfetch.io/idEql8nEWn/theme/light/logo.svg?c=1dxbfHSJFAPEGdCLU4o5B' />
-        <span className='size-2 block bg-white animate-pulse rounded-full'></span>
-      </Link>
+     <Link
+  to="https://zomato.onelink.me/xqzv/ut3cavr1"
+  target="_blank"
+  className="relative flex items-center justify-center h-14 bg-[#f44336] overflow-hidden group shadow-sm"
+>
+  {/* Subtle glowing dot left */}
+  <div className="absolute left-5 w-2 h-2 bg-white rounded-full animate-ping opacity-60"></div>
 
-      <section className='bg-[#fff9f2] '>
-        <div className="container mx-auto px-4 py-30 md:justify-between  gap-10 md:gap-0  sm:px-30 flex flex-col md:flex-row items-center  ">
+  {/* Shimmer animation */}
+  <div className="absolute inset-0 bg-white/10 blur-sm animate-slideBg pointer-events-none"></div>
+
+  {/* Text & Logo */}
+  <div className="relative z-10 flex items-center gap-3 text-white font-medium tracking-wide text-sm sm:text-base">
+    <span className="opacity-90 group-hover:opacity-100 transition-all duration-300">
+      Now Available On
+    </span>
+    <img
+      src="https://cdn.brandfetch.io/idEql8nEWn/theme/light/logo.svg?c=1dxbfHSJFAPEGdCLU4o5B"
+      alt="Zomato"
+      className="h-6 sm:h-8 transition-transform duration-300 ease-in-out group-hover:scale-105"
+    />
+  </div>
+
+  {/* Subtle glowing dot right */}
+  <div className="absolute right-5 w-2 h-2 bg-white rounded-full animate-ping opacity-60"></div>
+
+</Link>
+
+
+
+      <section className='bg-[#fff9f2]'>
+        <div className="container mx-auto px-4 py-10 md:py-30 flex flex-col md:flex-row items-center gap-4 md:gap-0 sm:px-30 md:justify-between">
 
           {/* Left Column */}
-          <div className="w-full  md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left ">
-            <h1 className="text-6xl sm:text-7xl lg:text-8xl lancelot mb-4 text-gray-900 animate-[fadeIn_0.6s_ease-out]">
-              <span className="text-green-600">Enjoy Delicious</span> &{' '}
-              <span className="text-orange-500">Tasty Meals</span>
-            </h1>
+          <div className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left justify-center md:justify-start mt-2 md:mt-0">
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl lancelot mb-3 text-gray-900 animate-[fadeIn_0.6s_ease-out] flex items-center gap-2">
+  <span className="text-green-600">Enjoy</span>
+  <div className="loader text-orange-500">
+    <div className="words">
+      <span className="word">Meals</span>
+      <span className="word">Pasta</span>
+      <span className="word">Maggi</span>
+      <span className="word">Deserts</span>
+      <span className="word">Snacks</span>
+    </div>
+  </div>
+</h1>
 
-            <p className="text-gray-600 text-base sm:text-lg lg:text-2xl mb-6 sm:mb-8 max-w-lg animate-[fadeIn_0.5s_ease-in]">
-              <TypewriterText
-                text="Order a healthy and well-balanced meal. It's all homemade… 'Ghar ka khana just the way you want.'"
-                speed={40}
-              />
-            </p>
-            <div className=''>
+            <p className="text-gray-700 text-base sm:text-lg lg:text-xl mb-4 sm:mb-6 max-w-xl leading-relaxed font-medium animate-[fadeIn_0.8s_ease-in] tracking-wide">
+  <TypewriterText
+    text="Freshly prepared with love — nutritious, homestyle meals delivered just the way you like it."
+    speed={50}
+  />
+</p>
+
+            <div className='mb-2'>
               {userDetails?.role === 'admin' ?
                 <button className="cssbuttons-io animate-pulse" onClick={() => navigate('/admin/view-all-orders')}>
                   <span className='flex items-center gap-2'>
@@ -120,16 +176,14 @@ const Home = () => {
                   </span>
                 </button>
                 :
-                <button className="bg-black px-5 cursor-pointer rounded-lg hover:bg-orange-600 transition-all ease-in-out  duration-100 active:scale-95  py-3 text-white " onClick={() => navigate("/shop")}>
-                  Order Now
-                </button>
+                <button className="animated-order-btn" onClick={() => navigate("/shop")}> <span>Order Now</span> </button>
               }
             </div>
 
           </div>
 
           {/* Right Column */}
-          <div className="w-full md:w-2/5 md:mt-0 ">
+          <div className="w-full md:w-2/5 md:mt-0 mt-4">
             <img
               src="/indian-plate.png"
               alt="Blog Hero Image"
@@ -140,231 +194,28 @@ const Home = () => {
         </div>
       </section>
 
-      {/* -------- Impact / Metrics Section -------- */}
-      <section className='bg-gradient-to-br from-green-50 to-green-100 py-20 mt-20 w-full'>
-        <div className='container mx-auto text-center px-4'>
-          <h2 className='text-4xl sm:text-5xl font-bold lancelot mb-12 text-green-800'>
-            Our Growing Presence
-          </h2>
-
-          <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10'>
-            {/* Countries */}
-            <div className='bg-white rounded-xl shadow-md p-8 hover:scale-105 transition'>
-              <h3 className='text-6xl font-bold text-green-600'>
-                <CountUp end={24} duration={3} />+
-              </h3>
-              <p className='text-lg mt-3 text-gray-700'>Areas Covered</p>
-            </div>
-
-            {/* Food Items */}
-            <div className='bg-white rounded-xl shadow-md p-8 hover:scale-105 transition'>
-              <h3 className='text-6xl font-bold text-green-600'>
-                <CountUp end={50} duration={3} />+
-              </h3>
-              <p className='text-lg mt-3 text-gray-700'>Food Varieties</p>
-            </div>
-
-            {/* Customers */}
-            <div className='bg-white rounded-xl shadow-md p-8 hover:scale-105 transition'>
-              <h3 className='text-6xl font-bold text-green-600'>
-                <CountUp end={200} duration={3} separator=',' />+
-              </h3>
-              <p className='text-lg mt-3 text-gray-700'>Happy Customers</p>
-            </div>
-
-            {/* Orders Served (new metric example) */}
-            <div className='bg-white rounded-xl shadow-md p-8 hover:scale-105 transition'>
-              <h3 className='text-6xl font-bold text-green-600'>
-                <CountUp end={2000} duration={3} separator=',' />+
-              </h3>
-              <p className='text-lg mt-3 text-gray-700'>Orders Served</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* -------- Offer Zone Section -------- */}
-      <section className="py-20 bg-gradient-to-r from-orange-50 to-orange-100">
-        <div className="container mx-auto px-4">
-          <h2 className="text-4xl md:text-5xl font-bold mb-12 lancelot text-center">
-            Special <span className="text-orange-600">Offers</span>
-          </h2>
-
-          <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
-            {/* Offer Image */}
-            <div className="relative w-full md:w-1/2 max-w-lg">
-              <img
-                src="/indian-plate.png"
-                alt="Indian Thali"
-                className="w-full h-auto rounded-2xl shadow-lg transform hover:scale-105 transition-duration-300"
-              />
-              <div className="absolute -top-4 -right-4 bg-red-500 text-white px-6 py-2 rounded-full transform rotate-12 shadow-lg">
-                Special Deal!
-              </div>
-            </div>
-
-            {/* Offer Details */}
-            <div className="w-full md:w-1/2 max-w-lg text-center md:text-left">
-              <h3 className="text-3xl md:text-4xl font-bold mb-6 text-green-800">
-                Buy 5 Combo Meals, Get 1 Coke <span className="bg-gradient-to-r from-green-500 to-green-600 text-white px-3 py-1 rounded-md inline-block transform -rotate-2 shadow-lg relative overflow-hidden free-badge">FREE!</span>
-              </h3>
-              <div className="bg-white p-6 rounded-xl shadow-md">
-                <ul className="space-y-4 text-lg text-gray-700 mb-8">
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span> Order any 5 combo meals
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span> Get a <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-green-600 free-text-shine">FREE</span> 200ml Coke
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span> Valid on all meal options
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span> Limited time offer - <span className="font-semibold text-red-600">Valid till August 20th</span>
-                  </li>
-                </ul>
-                <button
-                  onClick={() => navigate('/shop')}
-                  className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-full font-semibold transition-colors duration-300 transform hover:scale-105"
-                >
-                  Order Now
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* -----reviews----- */}
-      <section className='py-20 bg-gradient-to-b from-white to-green-50'>
-        <div className='container mx-auto px-4'>
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 lancelot">What Our Customers Say</h2>
-            <p className="text-gray-600 text-lg">Real feedback from our valued customers</p>
-          </div>
-
-          <div className='relative px-4 md:px-10'>
-            <button
-              className="swiper-button-prev-custom absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-white rounded-full shadow-lg hover:bg-gray-50 transition-all duration-200 border border-gray-100"
-            >
-              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-
-            <Swiper
-              modules={[Autoplay, Navigation]}
-              spaceBetween={30}
-              loop={true}
-              navigation={{
-                prevEl: '.swiper-button-prev-custom',
-                nextEl: '.swiper-button-next-custom',
-              }}
-              autoplay={{
-                delay: 5000,
-                disableOnInteraction: false,
-              }}
-              breakpoints={{
-                640: { slidesPerView: 1 },
-                768: { slidesPerView: 2 },
-                1024: { slidesPerView: 3 },
-              }}
-            >
-              {reviews.map((review, index) => (
-                <SwiperSlide key={index}>
-                  <div className='bg-white rounded-2xl shadow-md p-6 md:p-8 h-full flex flex-col transition-transform duration-300 hover:shadow-lg'>
-                    <div className='flex items-start mb-6'>
-                      <div className='relative'>
-                        <div className='w-16 h-16 rounded-full overflow-hidden ring-4 ring-green-500/20'>
-                          <img
-                            src={review.avatarUrl}
-                            alt={review.name}
-                            className='w-full h-full object-cover'
-                          />
-                        </div>
-                        <Quote className="absolute -bottom-2 -right-2 text-green-500 w-8 h-8 bg-white rounded-full p-1.5 shadow-md" />
-                      </div>
-                      <div className='ml-4 flex-1'>
-                        <h3 className='text-lg font-semibold text-gray-900'>{review.name}</h3>
-                        <p className='text-green-600 text-sm font-medium'>{review.work}</p>
-                        <div className='flex gap-1 mt-2'>
-                          {[...Array(5)].map((_, i) => (
-                            <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <p className='text-gray-600 flex-1 italic text-base md:text-lg leading-relaxed mb-4'>
-                      "{review.review}"
-                    </p>
-
-                    <div className='flex items-center text-gray-500 text-sm mt-auto'>
-                      <MapPin className="w-4 h-4 mr-1" />
-                      <span>{review.place}</span>
-                    </div>
-                  </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
-
-            <button
-              className="swiper-button-next-custom absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-white rounded-full shadow-lg hover:bg-gray-50 transition-all duration-200 border border-gray-100"
-            >
-              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </section>
-
-
-      {/* -------info----- */}
-      {/* <section className='bg-[#fff9f2] '>
-        <div className="container mx-auto px-4 pt-3 mt-12 gap-10 md:gap-0  sm:px-30 md:justify-between flex flex-col md:flex-row items-center  ">
-          <div className="w-full md:w-2/5     animate-[fadeIn_0.7s_ease-in]">
-            <img
-              src="/pav2.png"
-              alt="Blog Hero Image"
-              className="object-cover w-full rounded-2xl  hover:scale-101 transition-all duration-500   h-auto"
-            />
-          </div>
-
-          <div className="w-full  md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left ">
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl lancelot mb-4 text-gray-900 animate-[fadeIn_0.6s_ease-out]">
-              We Provide
-              Healthy food
-            </h1>
-            <p className="text-gray-600 text-base sm:text-lg lg:text-xl mb-6 sm:mb-8 max-w-lg animate-[fadeIn_0.5s_ease-in]">
-              Food For Us Comes From Our Relatives, Whether They
-              Have Wings Or Fins Or Roots. That IS How We Consider
-              Food. Food Has A Culture. It Has A History, It Has A
-              Story. It Has Relationships
-            </p>
-          </div>
-        </div>
-      </section> */}
-
       {/* ------varieties------ */}
-      <section>
-        <div className='container mx-auto py-14  md:py-20'>
-          <h1 className='text-center my-13 lancelot text-5xl sm:text-6xl lg:text-7xl flex items-center justify-center'>Explore Our Varities</h1>
-          <div className=' grid grid-cols-2 md:grid-cols-4 gap-5'>
-            {
-              varieties.map(variety => (
-                <div
-                  key={variety.id}
-                  onClick={() => navigate(variety.link)}
-                  className='p-2 flex flex-col items-center gap-4 cursor-pointer'
-                >
-                  <div className='hover:scale-105 transition-all duration-300 ease-in'>
-                    <img className='rounded-full object-cover size-40 md:size-44' src={variety.img} alt={variety.name} />
-                  </div>
-                  <p className='text-2xl font-semibold lancelot'>{variety.name}</p>
+      <section className="py-14 md:py-20 bg-gradient-to-b from-orange-50 via-white to-green-50 mt-10 md:mt-16 mb-10 md:mb-16">
+        <div className="container mx-auto">
+          <h1 className="text-center mb-10 lancelot text-3xl sm:text-4xl md:text-5xl flex items-center justify-center tracking-wide">
+            Explore&nbsp;
+            <span className="text-orange-600 font-bold transition duration-700 ease-in-out">Food</span>
+            &nbsp;Varieties
+          </h1>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10 px-2 md:px-8">
+            {varieties.map(variety => (
+              <div
+                key={variety.id}
+                onClick={() => navigate(variety.link)}
+                className="group p-3 md:p-4 flex flex-col items-center gap-3 cursor-pointer bg-white rounded-2xl shadow hover:shadow-lg border border-orange-100 transition-all duration-300 ease-in hover:-translate-y-1"
+              >
+                <div className="hover:scale-105 transition-all duration-300 ease-in rounded-full overflow-hidden border-4 border-orange-100 group-hover:border-orange-300 bg-white">
+                  <img className="rounded-full object-cover w-32 h-32 md:w-36 md:h-36" src={variety.img} alt={variety.name} />
                 </div>
-              ))
-            }
+                <p className="text-lg md:text-xl font-semibold lancelot text-center mt-2 text-gray-800 group-hover:text-orange-600 transition-colors duration-200">{variety.name}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -408,6 +259,67 @@ const Home = () => {
             </button>
           </div>
 
+        </div>
+      </section>
+
+      {/* -----reviews----- */}
+      <section className="py-16 md:py-24 bg-gradient-to-b from-green-100 via-white to-green-50 mt-10 md:mt-16 mb-10 md:mb-16">
+        <div className="container mx-auto px-2 sm:px-4 md:px-8">
+          <div className="text-center mb-10 md:mb-14">
+            <h2 className="text-3xl md:text-4xl font-bold lancelot mb-2 md:mb-4 text-gray-900">
+              What Our <span className="text-orange-500 animate-glow">Customers</span> Say
+            </h2>
+            <p className="text-gray-500 text-base md:text-lg font-medium">Real feedback from our valued customers</p>
+          </div>
+          <div className="relative max-w-[90%] mx-auto">
+            <button 
+              onClick={() => handleReviewScroll('left')}
+              className="absolute left-[-40px] top-1/2 -translate-y-1/2 z-10 bg-white p-3 rounded-full shadow-lg hover:bg-gray-50 hover:shadow-xl transition-all border border-gray-100"
+            >
+              <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <button 
+              onClick={() => handleReviewScroll('right')}
+              className="absolute right-[-40px] top-1/2 -translate-y-1/2 z-10 bg-white p-3 rounded-full shadow-lg hover:bg-gray-50 hover:shadow-xl transition-all border border-gray-100"
+            >
+              <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+            </button>
+            <div className="relative overflow-hidden py-8">
+              <div className="scroll-container animate-scroll flex gap-6">
+                {!isLoading && getVisibleReviewCards().map((review, index) => (
+                  <motion.div
+                    key={index}
+                    className="flex-none w-[280px]"
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div className="bg-white rounded-xl shadow-md hover:shadow-lg p-6 transition-all duration-300 border border-gray-100">
+                      <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 border-2 border-orange-200">
+                          <img
+                            src={review.avatarUrl}
+                            alt={review.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="font-semibold text-lg truncate">{review.name}</h3>
+                          <p className="text-gray-600 text-sm">{review.work}</p>
+                        </div>
+                      </div>
+                      <p className="text-gray-700 italic text-sm mt-4 line-clamp-3">
+                        "{review.review}"
+                      </p>
+                      <div className="mt-4 text-sm text-gray-500 flex items-center">
+                        <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 12.414a2 2 0 00-2.828 0l-4.243 4.243" /></svg>
+                        {review.place}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </main>

@@ -31,7 +31,7 @@ const Footer = () => {
                     width="28"
                     height="28"
                     viewBox="0 0 24 24"
-                    className="transition-all duration-300 hover:scale-125"
+                    className="transition-all duration-300 hover:scale-125 lg:grayscale lg:group-hover:grayscale-0"
                   >
                     <defs>
                       <linearGradient id="instaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -43,11 +43,14 @@ const Footer = () => {
                     </defs>
                     <path
                       d="M7 2C4.243 2 2 4.243 2 7v10c0 2.757 2.243 5 5 5h10c2.757 0 5-2.243 5-5V7c0-2.757-2.243-5-5-5H7zm10 2a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h10zM12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm4.5-.75a1.25 1.25 0 1 0 0-2.5 1.25 1.25 0 0 0 0 2.5z"
-                      className="lg:fill-white lg:group-hover:fill-[url(#instaGradient)] fill-[url(#instaGradient)] transition-all duration-300"
+                      className="fill-[url(#instaGradient)] lg:fill-white lg:group-hover:fill-[url(#instaGradient)] transition-all duration-300"
                     />
                   </svg>
                 </a>
-                <span className="absolute -top-12 left-1/2 -translate-x-1/2 z-20 origin-left scale-0 px-3 rounded-lg border border-gray-300 bg-white py-1.5 text-sm font-semibold text-black shadow-md transition-all duration-300 ease-in-out group-hover:scale-100">
+                <span className="absolute -top-12 left-1/2 -translate-x-1/2 z-20 origin-left scale-0 px-3 rounded-lg border border-gray-300 bg-white py-1.5 text-sm font-semibold text-black shadow-md transition-all duration-300 ease-in-out group-hover:scale-100 lg:group-hover:scale-100 lg:hidden block">
+                  Instagram
+                </span>
+                <span className="hidden lg:block absolute -top-12 left-1/2 -translate-x-1/2 z-20 origin-left scale-0 px-3 rounded-lg border border-gray-300 bg-white py-1.5 text-sm font-semibold text-black shadow-md transition-all duration-300 ease-in-out group-hover:scale-100">
                   Instagram
                 </span>
               </div>
@@ -63,11 +66,14 @@ const Footer = () => {
                     src="/google.svg"
                     width={26}
                     height={26}
-                    className="lg:grayscale lg:group-hover:grayscale-0 transition-all duration-300 hover:scale-125"
+                    className="transition-all duration-300 hover:scale-125 lg:grayscale lg:group-hover:grayscale-0"
                     alt="Google"
                   />
                 </a>
-                <span className="absolute -top-12 left-1/2 -translate-x-1/2 z-20 origin-left scale-0 px-3 rounded-lg border border-gray-300 bg-white py-1.5 text-sm font-semibold text-black shadow-md transition-all duration-300 ease-in-out group-hover:scale-100">
+                <span className="absolute -top-12 left-1/2 -translate-x-1/2 z-20 origin-left scale-0 px-3 rounded-lg border border-gray-300 bg-white py-1.5 text-sm font-semibold text-black shadow-md transition-all duration-300 ease-in-out group-hover:scale-100 lg:group-hover:scale-100 lg:hidden block">
+                  Google
+                </span>
+                <span className="hidden lg:block absolute -top-12 left-1/2 -translate-x-1/2 z-20 origin-left scale-0 px-3 rounded-lg border border-gray-300 bg-white py-1.5 text-sm font-semibold text-black shadow-md transition-all duration-300 ease-in-out group-hover:scale-100">
                   Google
                 </span>
               </div>
@@ -84,7 +90,7 @@ const Footer = () => {
                     width="28"
                     height="28"
                     viewBox="0 0 24 24"
-                    className="transition-all duration-300 hover:scale-125"
+                    className="transition-all duration-300 hover:scale-125 lg:grayscale lg:group-hover:grayscale-0"
                   >
                     <path
                       fill="#FF0000"
@@ -93,18 +99,35 @@ const Footer = () => {
                     />
                   </svg>
                 </a>
-                <span className="absolute -top-12 left-1/2 -translate-x-1/2 z-20 origin-left scale-0 px-3 rounded-lg border border-gray-300 bg-white py-1.5 text-sm font-semibold text-black shadow-md transition-all duration-300 ease-in-out group-hover:scale-100">
+                <span className="absolute -top-12 left-1/2 -translate-x-1/2 z-20 origin-left scale-0 px-3 rounded-lg border border-gray-300 bg-white py-1.5 text-sm font-semibold text-black shadow-md transition-all duration-300 ease-in-out group-hover:scale-100 lg:group-hover:scale-100 lg:hidden block">
+                  YouTube
+                </span>
+                <span className="hidden lg:block absolute -top-12 left-1/2 -translate-x-1/2 z-20 origin-left scale-0 px-3 rounded-lg border border-gray-300 bg-white py-1.5 text-sm font-semibold text-black shadow-md transition-all duration-300 ease-in-out group-hover:scale-100">
                   YouTube
                 </span>
               </div>
 
-              {/* Twitter */}
-              <Link to={'https://zomato.onelink.me/xqzv/ut3cavr1'} target='_blank' className="group relative cursor-pointer">
-                <img className='w-8 h-8' src="https://cdn.brandfetch.io/idEql8nEWn/theme/dark/symbol.svg?c=1dxbfHSJFAPEGdCLU4o5B" alt="" />
-                <span className="absolute -top-12 left-1/2 -translate-x-1/2 z-20 origin-left scale-0 px-3 rounded-lg border border-gray-300 bg-white py-1.5 text-sm font-semibold text-black shadow-md transition-all duration-300 ease-in-out group-hover:scale-100">
+              {/* Zomato */}
+              <div className="group relative cursor-pointer">
+                <a
+                  href="https://zomato.onelink.me/xqzv/ut3cavr1"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block"
+                >
+                  <img
+                    src="https://cdn.brandfetch.io/idEql8nEWn/theme/dark/symbol.svg?c=1dxbfHSJFAPEGdCLU4o5B"
+                    alt="Zomato"
+                    className="w-7 h-7 transition-all duration-300 hover:scale-125 lg:grayscale lg:group-hover:grayscale-0"
+                  />
+                </a>
+                <span className="absolute -top-12 left-1/2 -translate-x-1/2 z-20 origin-left scale-0 px-3 rounded-lg border border-gray-300 bg-white py-1.5 text-sm font-semibold text-black shadow-md transition-all duration-300 ease-in-out group-hover:scale-100 lg:group-hover:scale-100 lg:hidden block">
                   Zomato
                 </span>
-              </Link>
+                <span className="hidden lg:block absolute -top-12 left-1/2 -translate-x-1/2 z-20 origin-left scale-0 px-3 rounded-lg border border-gray-300 bg-white py-1.5 text-sm font-semibold text-black shadow-md transition-all duration-300 ease-in-out group-hover:scale-100">
+                  Zomato
+                </span>
+              </div>
             </div>
           </div>
 
@@ -218,32 +241,6 @@ const Footer = () => {
 
         {/* Copyright */}
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 dark:text-gray-500 text-sm">
-          {/* FSSAI License Information with QR Code */}
-          <div className="fssai-badge p-4 mb-6 inline-block mx-auto overflow-hidden relative">
-            <div className="flex flex-col md:flex-row items-center justify-center gap-4">
-              {/* Shield Icon */}
-              <div className="flex items-center gap-2 mb-3 md:mb-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-500">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                </svg>
-                <div className="flex flex-col">
-                  <span className="text-white text-sm md:text-base">FSSAI License - Registration ID:</span>
-                  <span className="text-green-500 font-semibold text-base md:text-lg">21525012000906</span>
-                </div>
-              </div>
-
-              {/* QR Code */}
-              <div className="flex flex-col items-center">
-                <img
-                  src="/qrcode.png"
-                  alt="FSSAI License QR Code"
-                  className="w-16 h-16 md:w-20 md:h-20 rounded-md bg-white p-1"
-                />
-                <span className="text-xs text-white mt-1">Scan to verify</span>
-              </div>
-            </div>
-          </div>
-
           <p>&copy; {new Date().getFullYear()} GoTreats. All rights reserved.</p>
         </div>
       </div>
