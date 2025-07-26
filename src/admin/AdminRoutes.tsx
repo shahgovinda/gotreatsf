@@ -1,4 +1,3 @@
-adminrouts.tsx GitHub
 import { Navigate, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { useEffect, useState } from 'react'
