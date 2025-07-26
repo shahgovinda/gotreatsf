@@ -94,6 +94,19 @@ const AdminLogin = () => {
                 toast.success("Admin account created!");
             }
 
+            // Update existing user to admin if they have admin phone but wrong role
+            if (userDetails && isAdminPhone(user.phoneNumber) && userDetails.role !== "admin") {
+                console.log("[AdminLogin] Updating existing user to admin...");
+                const updatedUser = {
+                    ...userDetails,
+                    role: "admin"
+                };
+                await saveNewUserToFirestore(updatedUser);
+                userDetails = await getUserFromDb(user.uid);
+                console.log("[AdminLogin] User updated to admin:", userDetails);
+                toast.success("User role updated to admin!");
+            }
+
             if (userDetails) {
                 console.log("[AdminLogin] User role:", userDetails.role);
                 if (userDetails.role !== "admin") {
