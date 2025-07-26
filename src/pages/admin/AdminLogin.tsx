@@ -10,6 +10,17 @@ import { getUserFromDb, handleLogout, saveNewUserToFirestore } from "@/services/
 import { Phone } from "lucide-react";
 import { auth } from "@/config/firebaseConfig";
 
+// Helper function to check if phone number is admin
+const isAdminPhone = (phoneNumber: string): boolean => {
+    const normalizedPhone = phoneNumber?.replace(/\s/g, '');
+    const adminPhones = [
+        "+917045617506",
+        // Add more admin numbers here if needed
+        // "+919876543210",
+    ];
+    return adminPhones.includes(normalizedPhone);
+};
+
 const AdminLogin = () => {
     const [phone, setPhone] = useState("");
     const [otp, setOtp] = useState("");
@@ -56,10 +67,20 @@ const AdminLogin = () => {
             const result = await confirmationResult.confirm(otp);
             const user = result.user;
 
+            console.log("[AdminLogin] OTP verified, UID:", user.uid);
+            console.log("[AdminLogin] Phone number from Firebase:", user.phoneNumber);
+
             let userDetails = await getUserFromDb(user.uid);
+            console.log("[AdminLogin] User details from Firestore:", userDetails);
+
+            // Normalize phone number for comparison (remove spaces, ensure +91 format)
+            const normalizedPhone = user.phoneNumber?.replace(/\s/g, '');
+            console.log("[AdminLogin] Normalized phone:", normalizedPhone);
+            console.log("[AdminLogin] Is admin phone:", isAdminPhone(user.phoneNumber));
 
             // Auto-create admin user if not found and phone matches
-            if (!userDetails && user.phoneNumber === "+917045617506") {
+            if (!userDetails && isAdminPhone(user.phoneNumber)) {
+                console.log("[AdminLogin] Creating new admin user...");
                 const newAdmin = {
                     uid: user.uid,
                     phoneNumber: user.phoneNumber,
@@ -69,11 +90,14 @@ const AdminLogin = () => {
                 };
                 await saveNewUserToFirestore(newAdmin);
                 userDetails = await getUserFromDb(user.uid);
+                console.log("[AdminLogin] New admin user created:", userDetails);
                 toast.success("Admin account created!");
             }
 
             if (userDetails) {
+                console.log("[AdminLogin] User role:", userDetails.role);
                 if (userDetails.role !== "admin") {
+                    console.log("[AdminLogin] User is not admin, denying access");
                     toast.error("You are not authorized as admin.");
                     await handleLogout();
                     setUser(null);
@@ -82,12 +106,14 @@ const AdminLogin = () => {
                     return;
                 }
                 // 🔐 Existing admin user
+                console.log("[AdminLogin] Admin login successful");
                 setUser(user);
                 setUserDetails(userDetails);
                 toast.success("Admin Logged In");
                 navigate("/dashboard");
             } else {
                 // New user but not admin
+                console.log("[AdminLogin] No user found and not admin number");
                 toast.error("No admin account found for this number.");
                 await handleLogout();
                 setUser(null);
