@@ -16,8 +16,10 @@ const Collections = lazy(() => import("../pages/admin/Collections"));
 
 
 export const admin_router = createBrowserRouter([
-
-
+  {
+    path: "/login",
+    element: <AdminLogin />
+  },
   {
     path: "/",
     element: <AdminRoutes />,
@@ -60,6 +62,5 @@ export const admin_router = createBrowserRouter([
         ]
       }
     ]
-
   }
 ])
