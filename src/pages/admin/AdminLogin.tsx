@@ -102,8 +102,17 @@ const AdminLogin = () => {
                     role: "admin"
                 };
                 await saveNewUserToFirestore(updatedUser);
+
+                // Wait a moment for Firestore to update
+                await new Promise(res => setTimeout(res, 500));
                 userDetails = await getUserFromDb(user.uid);
-                console.log("[AdminLogin] User updated to admin:", userDetails);
+
+                if (!userDetails || userDetails.role !== "admin") {
+                    // Try one more time after a short delay
+                    await new Promise(res => setTimeout(res, 1000));
+                    userDetails = await getUserFromDb(user.uid);
+                }
+                console.log("[AdminLogin] User updated to admin (after retry):", userDetails);
                 toast.success("User role updated to admin!");
             }
 
