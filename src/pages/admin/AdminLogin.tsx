@@ -10,17 +10,6 @@ import { getUserFromDb, handleLogout, saveNewUserToFirestore } from "@/services/
 import { Phone } from "lucide-react";
 import { auth } from "@/config/firebaseConfig";
 
-// Helper function to check if phone number is admin
-const isAdminPhone = (phoneNumber: string): boolean => {
-    const normalizedPhone = phoneNumber?.replace(/\s/g, '');
-    const adminPhones = [
-        "+917045617506",
-        // Add more admin numbers here if needed
-        // "+919876543210",
-    ];
-    return adminPhones.includes(normalizedPhone);
-};
-
 const AdminLogin = () => {
     const [phone, setPhone] = useState("");
     const [otp, setOtp] = useState("");
@@ -67,59 +56,11 @@ const AdminLogin = () => {
             const result = await confirmationResult.confirm(otp);
             const user = result.user;
 
-            console.log("[AdminLogin] OTP verified, UID:", user.uid);
-            console.log("[AdminLogin] Phone number from Firebase:", user.phoneNumber);
-
-            let userDetails = await getUserFromDb(user.uid);
-            console.log("[AdminLogin] User details from Firestore:", userDetails);
-
-            // Normalize phone number for comparison (remove spaces, ensure +91 format)
-            const normalizedPhone = user.phoneNumber?.replace(/\s/g, '');
-            console.log("[AdminLogin] Normalized phone:", normalizedPhone);
-            console.log("[AdminLogin] Is admin phone:", isAdminPhone(user.phoneNumber));
-
-            // Auto-create admin user if not found and phone matches
-            if (!userDetails && isAdminPhone(user.phoneNumber)) {
-                console.log("[AdminLogin] Creating new admin user...");
-                const newAdmin = {
-                    uid: user.uid,
-                    phoneNumber: user.phoneNumber,
-                    role: "admin",
-                    displayName: user.displayName || "Admin",
-                    email: user.email || "",
-                };
-                await saveNewUserToFirestore(newAdmin);
-                userDetails = await getUserFromDb(user.uid);
-                console.log("[AdminLogin] New admin user created:", userDetails);
-                toast.success("Admin account created!");
-            }
-
-            // Update existing user to admin if they have admin phone but wrong role
-            if (userDetails && isAdminPhone(user.phoneNumber) && userDetails.role !== "admin") {
-                console.log("[AdminLogin] Updating existing user to admin...");
-                const updatedUser = {
-                    ...userDetails,
-                    role: "admin"
-                };
-                await saveNewUserToFirestore(updatedUser);
-
-                // Wait a moment for Firestore to update
-                await new Promise(res => setTimeout(res, 500));
-                userDetails = await getUserFromDb(user.uid);
-
-                if (!userDetails || userDetails.role !== "admin") {
-                    // Try one more time after a short delay
-                    await new Promise(res => setTimeout(res, 1000));
-                    userDetails = await getUserFromDb(user.uid);
-                }
-                console.log("[AdminLogin] User updated to admin (after retry):", userDetails);
-                toast.success("User role updated to admin!");
-            }
+            // 👇 Since getUserFromDb returns `data()` or undefined, just check truthiness
+            const userDetails = await getUserFromDb(user.uid);
 
             if (userDetails) {
-                console.log("[AdminLogin] User role:", userDetails.role);
                 if (userDetails.role !== "admin") {
-                    console.log("[AdminLogin] User is not admin, denying access");
                     toast.error("You are not authorized as admin.");
                     await handleLogout();
                     setUser(null);
@@ -128,14 +69,12 @@ const AdminLogin = () => {
                     return;
                 }
                 // 🔐 Existing admin user
-                console.log("[AdminLogin] Admin login successful");
                 setUser(user);
                 setUserDetails(userDetails);
                 toast.success("Admin Logged In");
-                navigate("/dashboard");
+                navigate("/");
             } else {
-                // New user but not admin
-                console.log("[AdminLogin] No user found and not admin number");
+                // New user
                 toast.error("No admin account found for this number.");
                 await handleLogout();
                 setUser(null);
