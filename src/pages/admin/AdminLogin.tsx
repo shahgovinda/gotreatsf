@@ -85,7 +85,7 @@ const AdminLogin = () => {
                 setUser(user);
                 setUserDetails(userDetails);
                 toast.success("Admin Logged In");
-                navigate("/");
+                navigate("/dashboard");
             } else {
                 // New user but not admin
                 toast.error("No admin account found for this number.");
