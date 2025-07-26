@@ -56,8 +56,21 @@ const AdminLogin = () => {
             const result = await confirmationResult.confirm(otp);
             const user = result.user;
 
-            // 👇 Since getUserFromDb returns `data()` or undefined, just check truthiness
-            const userDetails = await getUserFromDb(user.uid);
+            let userDetails = await getUserFromDb(user.uid);
+
+            // Auto-create admin user if not found and phone matches
+            if (!userDetails && user.phoneNumber === "+917045617506") {
+                const newAdmin = {
+                    uid: user.uid,
+                    phoneNumber: user.phoneNumber,
+                    role: "admin",
+                    displayName: user.displayName || "Admin",
+                    email: user.email || "",
+                };
+                await saveNewUserToFirestore(newAdmin);
+                userDetails = await getUserFromDb(user.uid);
+                toast.success("Admin account created!");
+            }
 
             if (userDetails) {
                 if (userDetails.role !== "admin") {
@@ -74,7 +87,7 @@ const AdminLogin = () => {
                 toast.success("Admin Logged In");
                 navigate("/");
             } else {
-                // New user
+                // New user but not admin
                 toast.error("No admin account found for this number.");
                 await handleLogout();
                 setUser(null);
