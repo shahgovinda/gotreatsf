@@ -1,3 +1,4 @@
+GitHub admin not login code 
 import React, { useState } from "react";
 import { Input, InputOtp } from "@heroui/react";
 import { Link, useNavigate } from "react-router-dom";
@@ -34,7 +35,7 @@ const AdminLogin = () => {
             const verifier = new RecaptchaVerifier(auth, "recaptcha-container", {
                 size: "invisible",
             });
-            const result = await signInWithPhoneNumber(auth, `+91${phone}`, verifier);
+            const result = await signInWithPhoneNumber(auth, +91${phone}, verifier);
             setConfirmationResult(result);
             toast.success("OTP sent");
         } catch (error) {
@@ -56,7 +57,7 @@ const AdminLogin = () => {
             const result = await confirmationResult.confirm(otp);
             const user = result.user;
 
-            // 👇 Since getUserFromDb returns `data()` or undefined, just check truthiness
+            // 👇 Since getUserFromDb returns data() or undefined, just check truthiness
             const userDetails = await getUserFromDb(user.uid);
 
             if (userDetails) {
