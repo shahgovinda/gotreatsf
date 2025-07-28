@@ -1,189 +1,136 @@
 import React, { useState } from "react";
-import { Input, InputOtp } from "@heroui/react";
-import { useNavigate } from "react-router-dom";
+import { Input } from "@heroui/react";
+import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
-
-import { useAuthStore } from "@/store/authStore";
-import Button from "@/components/Button";
+import { auth } from "@/lib/firebase";
 import {
-    getUserFromDb,
-    handleLogout,
-    saveNewUserToFirestore,
-} from "@/services/authService";
-import { Phone } from "lucide-react";
-import { auth } from "@/config/firebaseConfig";
-
-// ✅ Fix TypeScript error for window.recaptchaVerifier
-declare global {
-    interface Window {
-        recaptchaVerifier?: RecaptchaVerifier;
-    }
-}
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  ConfirmationResult,
+} from "firebase/auth";
+import { getUserFromDb } from "@/services/authService";
+import { useAuthStore } from "@/store/authStore";
 
 const AdminLogin = () => {
-    const [phone, setPhone] = useState("");
-    const [otp, setOtp] = useState("");
-    const [confirmationResult, setConfirmationResult] = useState<any>(null);
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  const [otpSent, setOtpSent] = useState(false);
+  const setUser = useAuthStore((state) => state.setUser);
+  const navigate = useNavigate();
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
+  const sendOtp = async () => {
+    if (!phone) {
+      toast.error("Please enter phone number");
+      return;
+    }
 
-    const navigate = useNavigate();
-    const setUser = useAuthStore((state) => state.setUser);
-    const setUserDetails = useAuthStore((state) => state.setUserDetails);
+    try {
+      const appVerifier = new RecaptchaVerifier("recaptcha-container", {
+        size: "invisible",
+        callback: (response: any) => {
+          // reCAPTCHA solved
+        },
+      }, auth);
 
-    const handleSendOtp = async () => {
-        if (!/^[6-9]\d{9}$/.test(phone)) {
-            toast.error("Invalid phone number");
-            setError("Invalid phone number");
-            return;
-        }
-        setError("");
-        setLoading(true);
-        try {
-            if (!window.recaptchaVerifier) {
-                window.recaptchaVerifier = new RecaptchaVerifier(
-                    auth,
-                    "recaptcha-container",
-                    {
-                        size: "invisible",
-                    }
-                );
-            }
+      await appVerifier.render();
 
-            const result = await signInWithPhoneNumber(
-                auth,
-                `+91${phone}`,
-                window.recaptchaVerifier
-            );
-            setConfirmationResult(result);
-            toast.success("OTP sent");
-        } catch (error) {
-            console.error("[sendOtp]", error);
-            toast.error("Failed to send OTP");
-        } finally {
-            setLoading(false);
-        }
-    };
+      const result = await signInWithPhoneNumber(auth, "+91" + phone, appVerifier);
+      setConfirmationResult(result);
+      setOtpSent(true);
+      toast.success("OTP sent to " + phone);
+    } catch (error) {
+      console.error("OTP error:", error);
+      toast.error("Failed to send OTP");
+    }
+  };
 
-    const handleVerifyOtp = async () => {
-        if (!confirmationResult) {
-            toast.error("Please request OTP first");
-            return;
-        }
-        setError("");
-        setLoading(true);
-        try {
-            const result = await confirmationResult.confirm(otp);
-            const user = result.user;
+  const verifyOtp = async () => {
+    if (!otp || !confirmationResult) {
+      toast.error("Please enter OTP");
+      return;
+    }
 
-            const userDetails = await getUserFromDb(user.uid);
+    try {
+      const result = await confirmationResult.confirm(otp);
+      const user = result.user;
 
-            if (userDetails) {
-                if (userDetails.role !== "admin") {
-                    toast.error("You are not authorized as admin.");
-                    await handleLogout();
-                    setUser(null);
-                    setUserDetails(null);
-                    setLoading(false);
-                    return;
-                }
+      console.log("Signed in UID:", user.uid);
 
-                setUser(user);
-                setUserDetails(userDetails);
-                toast.success("Admin Logged In");
-                navigate("/");
-            } else {
-                toast.error("No admin account found for this number.");
-                await handleLogout();
-                setUser(null);
-                setUserDetails(null);
-            }
-        } catch (err) {
-            console.error("[verifyOtp]", err);
-            setError("Invalid OTP");
-            toast.error("Invalid OTP");
-        } finally {
-            setLoading(false);
-        }
-    };
+      const userDetails = await getUserFromDb(user.uid);
+      console.log("Fetched userDetails:", userDetails);
 
-    return (
-        <div className="h-svh bg-neutral-700 text-white">
-            <div className="text-white h-full flex items-center justify-center">
-                <div className="w-full m-4 md:w-1/3 rounded-4xl p-10">
-                    {/* Branding */}
-                    <div className="cursor-pointer flex justify-center mb-20">
-                        <p className="comfortaa flex items-end font-bold tracking-tighter text-2xl lg:text-3xl text-orange-600">
-                            <p className="text-white text-sm">admin .</p>
-                            <span className="text-green-500">go</span>treats
-                            <p className="text-white text-sm"> . in</p>
-                        </p>
-                    </div>
+      if (!userDetails || userDetails.role !== "admin") {
+        toast.error("Access denied: You are not an admin");
+        return;
+      }
 
-                    {/* Phone Input */}
-                    <div className="dark">
-                        <Input
-                            type="tel"
-                            autoFocus
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            label="Admin Number"
-                            placeholder="Enter Phone Number"
-                            variant="faded"
-                            labelPlacement="outside"
-                            size="lg"
-                            isInvalid={error !== ""}
-                            errorMessage={error}
-                            isRequired
-                            maxLength={10}
-                            startContent={
-                                <div className="flex items-center gap-2 text-white">
-                                    <Phone size={16} />|<p>+91</p>
-                                </div>
-                            }
-                        />
-                        <Button
-                            variant="primary"
-                            size="lg"
-                            onClick={handleSendOtp}
-                            className="mt-4 w-full"
-                            isLoading={loading}
-                        >
-                            Send OTP
-                        </Button>
-                    </div>
+      setUser({
+        uid: user.uid,
+        phone: user.phoneNumber ?? "",
+        role: userDetails.role,
+      });
 
-                    {/* OTP Input */}
-                    {confirmationResult && (
-                        <div className="dark flex flex-col items-center justify-center mt-6">
-                            <p>Enter OTP</p>
-                            <InputOtp
-                                value={otp}
-                                onValueChange={setOtp}
-                                length={6}
-                                variant="faded"
-                                size="lg"
-                                isInvalid={error !== ""}
-                                errorMessage={error}
-                                autoFocus
-                            />
-                            <Button
-                                variant="primary"
-                                onClick={handleVerifyOtp}
-                                className="mt-4 w-full"
-                                isLoading={loading}
-                            >
-                                Verify OTP
-                            </Button>
-                        </div>
-                    )}
-                </div>
-            </div>
-            <div id="recaptcha-container"></div>
+      toast.success("Welcome Admin!");
+      navigate("/admin/dashboard");
+    } catch (error) {
+      console.error("OTP Verification Error:", error);
+      toast.error("Invalid OTP or verification failed");
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gray-100 dark:bg-gray-900">
+      <div className="w-full max-w-md bg-white dark:bg-gray-800 shadow-md rounded p-6">
+        <h2 className="text-2xl font-bold text-center mb-6 text-gray-800 dark:text-white">
+          Admin Login
+        </h2>
+        <div className="mb-4">
+          <Input
+            label="Phone Number"
+            type="tel"
+            placeholder="Enter 10-digit phone number"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
         </div>
-    );
+
+        {otpSent && (
+          <div className="mb-4">
+            <Input
+              label="OTP"
+              type="text"
+              placeholder="Enter OTP"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+            />
+          </div>
+        )}
+
+        {!otpSent ? (
+          <button
+            onClick={sendOtp}
+            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+          >
+            Send OTP
+          </button>
+        ) : (
+          <button
+            onClick={verifyOtp}
+            className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition"
+          >
+            Verify OTP
+          </button>
+        )}
+
+        <div id="recaptcha-container"></div>
+
+        <p className="text-sm mt-4 text-center text-gray-600 dark:text-gray-400">
+          Not an admin? <Link to="/" className="text-blue-500">Go back</Link>
+        </p>
+      </div>
+    </div>
+  );
 };
 
 export default AdminLogin;
