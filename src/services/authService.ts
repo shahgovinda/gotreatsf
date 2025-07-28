@@ -4,28 +4,28 @@ import {
   getDoc,
   getDocs,
   setDoc,
-  updateDoc
+  updateDoc,
 } from "firebase/firestore";
 import {
   auth,
   db,
-  storage
+  storage,
+  functions
 } from "../config/firebaseConfig";
 import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithEmailAndPassword,
   signInWithPopup,
-  signOut
+  signOut,
 } from "firebase/auth";
 import { useAuthStore, UserDetails } from "../store/authStore";
-import { functions } from "../config/firebaseConfig";
 import axios from "axios";
 import {
   ref,
   uploadBytes,
   getDownloadURL,
-  deleteObject
+  deleteObject,
 } from "firebase/storage";
 import toast from "react-hot-toast";
 
@@ -54,7 +54,7 @@ export const handleEmailAccountCreation = async (
       email,
       password
     );
-    const newUser = userCredential?.user;
+    const newUser = userCredential.user;
 
     const userDetails: UserDetails = {
       uid: newUser.uid,
@@ -64,15 +64,11 @@ export const handleEmailAccountCreation = async (
       address: null,
       profileImage: newUser.photoURL || "",
       role: "customer",
-      name: name,
-      phone: phoneNumber
     };
 
     await setDoc(doc(db, "users", newUser.uid), userDetails);
-
     useAuthStore.getState().setUserDetails(userDetails);
     toast.success(`Account created! Welcome, ${name || "there"}!`);
-    console.log("Account created successfully with email");
   } catch (err) {
     throw err;
   }
@@ -85,10 +81,10 @@ export const handleEmailAccountLogin = async (
   try {
     const result = await signInWithEmailAndPassword(auth, email, password);
     const userDetails = await getUserFromDb(result.user.uid);
-    useAuthStore.getState().setUserDetails(userDetails);
-    toast.success(
-      `Welcome back, ${userDetails?.displayName || "there"}!`
-    );
+    if (userDetails) {
+      useAuthStore.getState().setUserDetails(userDetails);
+      toast.success(`Welcome back, ${userDetails.displayName || "there"}!`);
+    }
   } catch (err) {
     throw err instanceof Error ? err : new Error("Login failed");
   }
@@ -111,8 +107,6 @@ export const handlesignInWithGoogle = async () => {
         address: null,
         profileImage: user.photoURL || "",
         role: "customer",
-        name: user.displayName || "",
-        phone: user.phoneNumber || ""
       };
 
       await setDoc(doc(db, "users", user.uid), newUserDetails);
@@ -144,7 +138,7 @@ export async function getAllCustomersFromDb() {
   const querySnapshot = await getDocs(collection(db, "users"));
   return querySnapshot.docs.map((doc) => ({
     id: doc.id,
-    ...doc.data()
+    ...doc.data(),
   }));
 }
 
@@ -187,6 +181,8 @@ export const updateUserPhoneNumber = async (
 export const handleLogout = async () => {
   try {
     await signOut(auth);
+    useAuthStore.getState().setUser(null);
+    useAuthStore.getState().setUserDetails(null);
   } catch (err) {
     throw err;
   }
@@ -197,7 +193,7 @@ export const validateAdminPassword = async (
 ): Promise<boolean> => {
   try {
     const response = await axios.post(`${BASE_URL}/validateAdminPassword`, {
-      password
+      password,
     });
     return response.data.success;
   } catch (error) {
