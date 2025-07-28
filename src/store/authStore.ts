@@ -5,11 +5,13 @@ import { auth } from '../config/firebaseConfig';
 import { getUserFromDb } from '../services/authService';
 
 export interface UserDetails {
-  name: string;
+  uid: string;
+  displayName: string;
   email: string;
-  phone: string;
-  isAdmin?: boolean;
-  [key: string]: any; // for additional dynamic fields
+  phoneNumber: string;
+  role: string;
+  address: any;
+  profileImage: string;
 }
 
 interface AuthStore {
