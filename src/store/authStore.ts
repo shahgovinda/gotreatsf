@@ -1,19 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { User } from 'firebase/auth';
-import { onAuthStateChanged } from 'firebase/auth';
+import { User, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../config/firebaseConfig';
-import { getUserFromDb } from '../services/authService';
-
-export interface UserDetails {
-  uid: string;
-  email: string;
-  displayName: string;
-  phoneNumber: string;
-  address: string | { [key: string]: any };
-  profileImage: string;
-  role: string; // ✅ Always a string, no null or undefined
-}
+import { getUserFromDb, UserDetails } from '../services/authService';
 
 interface AuthStore {
   user: User | null;
@@ -47,14 +36,22 @@ export const useAuthStore = create<AuthStore>()(
   )
 );
 
-// Automatically set user and fetch their details
+// ✅ Automatically update store on Firebase auth change
 onAuthStateChanged(auth, async (user) => {
-  useAuthStore.getState().setUser(user);
+  const { setUser, setUserDetails, setLoading } = useAuthStore.getState();
+  setUser(user);
+
   if (user) {
-    const userDetails = await getUserFromDb(user.uid);
-    useAuthStore.getState().setUserDetails(userDetails);
+    try {
+      const userDetails = await getUserFromDb(user.uid);
+      setUserDetails(userDetails);
+    } catch (error) {
+      console.error("Failed to fetch user details:", error);
+      setUserDetails(null);
+    }
   } else {
-    useAuthStore.getState().setUserDetails(null);
+    setUserDetails(null);
   }
-  useAuthStore.getState().setLoading(false);
+
+  setLoading(false);
 });
