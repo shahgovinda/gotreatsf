@@ -56,7 +56,7 @@ onAuthStateChanged(auth, async (user) => {
       const userDetails = await getUserFromDb(user.uid);
       setUserDetails(userDetails);
     } catch (error) {
-      console.error("Failed to fetch user details:", error);
+      console.error('Failed to fetch user details:', error);
       setUserDetails(null);
     }
   } else {
