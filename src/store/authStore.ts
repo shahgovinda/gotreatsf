@@ -2,7 +2,15 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../config/firebaseConfig';
-import { getUserFromDb, UserDetails } from '../services/authService';
+import { getUserFromDb } from '../services/authService';
+
+interface UserDetails {
+  name: string;
+  email: string;
+  phone: string;
+  isAdmin?: boolean;
+  [key: string]: any; // for additional dynamic fields
+}
 
 interface AuthStore {
   user: User | null;
@@ -31,12 +39,12 @@ export const useAuthStore = create<AuthStore>()(
         })),
     }),
     {
-      name: 'auth-storage',
+      name: 'auth-storage', // localStorage key
     }
   )
 );
 
-// ✅ Automatically update store on Firebase auth change
+// Firebase auth state listener
 onAuthStateChanged(auth, async (user) => {
   const { setUser, setUserDetails, setLoading } = useAuthStore.getState();
   setUser(user);
