@@ -4,7 +4,7 @@ import { User, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../config/firebaseConfig';
 import { getUserFromDb } from '../services/authService';
 
-interface UserDetails {
+export interface UserDetails {
   name: string;
   email: string;
   phone: string;
