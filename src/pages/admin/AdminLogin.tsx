@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Input, InputOtp } from "@heroui/react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
@@ -13,6 +13,13 @@ import {
 } from "@/services/authService";
 import { Phone } from "lucide-react";
 import { auth } from "@/config/firebaseConfig";
+
+// ✅ Fix TypeScript error for window.recaptchaVerifier
+declare global {
+    interface Window {
+        recaptchaVerifier?: RecaptchaVerifier;
+    }
+}
 
 const AdminLogin = () => {
     const [phone, setPhone] = useState("");
@@ -35,7 +42,6 @@ const AdminLogin = () => {
         setError("");
         setLoading(true);
         try {
-            // ✅ Prevent RecaptchaVerifier reinitialization
             if (!window.recaptchaVerifier) {
                 window.recaptchaVerifier = new RecaptchaVerifier(
                     auth,
