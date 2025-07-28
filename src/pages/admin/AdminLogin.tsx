@@ -60,7 +60,7 @@ const AdminLogin = () => {
             const userDetails = await getUserFromDb(user.uid);
 
             if (userDetails) {
-                if (userDetails.role !== "admin") {
+                if (userDetails.role !=== "admin") {
                     toast.error("You are not authorized as admin.");
                     await handleLogout();
                     setUser(null);
