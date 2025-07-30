@@ -227,7 +227,7 @@ const VoucherForm = ({
                                 </div>
                                 <div className='flex gap-4'>
                                     <DateRangePicker
-                                        className=""
+                                        className="bg-white"
                                         label="Start and Expiry Date"
                                         variant='faded'
                                         labelPlacement='outside'
