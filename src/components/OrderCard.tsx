@@ -294,7 +294,7 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
             </div>
 
             <Drawer isOpen={isOpen} onOpenChange={onOpenChange}>
-                <DrawerContent>
+                <DrawerContent className= bg-white>
                     {(onClose) => (
                         <>
                             <DrawerHeader className="flex items-center gap-1 bg-white  border-b fixed  top-0 w-full z-[100] shadow-sm">
