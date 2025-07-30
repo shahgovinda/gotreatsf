@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchAllOrders, updateOrderStatus } from '../../services/orderService';
 import OrderCard from '../../components/OrderCard';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import Button from '@/components/Button';
 import { addToast, cn } from '@heroui/react';
 import { Box, X } from 'lucide-react';
@@ -10,9 +10,9 @@ import { Box, X } from 'lucide-react';
 const ManageOrders = () => {
   const [activeTab, setActiveTab] = useState<'Active' | 'Delivered' | 'Failed' | 'Cancelled' | 'All'>('Active');
   const [previousOrderCount, setPreviousOrderCount] = useState(0);
-  const [selectedOrder, setSelectedOrder] = useState<any>(null); // For showing detail modal
   const queryClient = useQueryClient();
 
+  // Fetch all orders using React Query
   const { data: orders = [], isLoading, isError } = useQuery({
     queryKey: ['orders'],
     queryFn: fetchAllOrders,
@@ -84,7 +84,7 @@ const ManageOrders = () => {
   if (isError) return <div>Error loading orders.</div>;
 
   return (
-    <div className="md:mx-4 w-full relative">
+    <div className="md:mx-4 w-full">
       <h1 className="md:text-4xl text-3xl font-bold text-center md:text-start lancelot mb-4 md:mb-6 text-white">
         Manage Orders
       </h1>
@@ -117,47 +117,11 @@ const ManageOrders = () => {
                 }}
                 i={i}
                 onUpdateStatus={handleUpdateStatus}
-                onView={() => setSelectedOrder(order)}  // Added prop here
               />
             ))
           )}
         </AnimatePresence>
       </div>
-
-      {/* Modal to show order details with white bg */}
-      <AnimatePresence>
-        {selectedOrder && (
-          <motion.div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSelectedOrder(null)}
-          >
-            <motion.div
-              className="bg-white rounded-lg p-6 max-w-lg w-full shadow-lg relative"
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.8 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                onClick={() => setSelectedOrder(null)}
-                className="absolute top-4 right-4 text-gray-600 hover:text-gray-900"
-                aria-label="Close"
-              >
-                <X size={28} />
-              </button>
-              <h2 className="text-2xl font-semibold mb-4">Order Details</h2>
-              <p><strong>Order ID:</strong> {selectedOrder.id}</p>
-              <p><strong>Status:</strong> {selectedOrder.orderStatus}</p>
-              <p><strong>Address:</strong> {formatAddress(selectedOrder.address)}</p>
-              <p><strong>Created At:</strong> {new Date(selectedOrder.createdAt).toLocaleString()}</p>
-              {/* Add any other order detail fields you want to show */}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };
