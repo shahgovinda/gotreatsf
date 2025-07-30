@@ -150,44 +150,57 @@ const AdminLayout = () => {
                 </div> */}
             </main>
 
-            <Drawer isOpen={isOpen} placement='left' onOpenChange={onClose} className='max-w-[200px]'  >
-                <DrawerContent>
-                    <DrawerHeader>
-                        <BrandLogo />
-                    </DrawerHeader>
-                    <DrawerBody>
-                        {items.map((item) => (
-                            <Link to={item.url} key={item.title} className="flex items-center gap-2 p-2 hover:bg-gray-200 rounded-md" onClick={onClose}>
-                                <item.icon size={20} strokeWidth={1.5} />
-                                <span className="text-lg">{item.title}</span>
-                            </Link>
-                        ))}
-                    </DrawerBody>
-                    <DrawerFooter className="flex flex-col items-start">
-                        <button
-                            className="p-2 rounded-md bg-blue-500 text-white mb-4"
-                            onClick={() => {
-                                if (Notification.permission === "granted") {
-                                    new Notification("Cool! You Got The Notification", {
-                                        body: "This is a test notification.",
-                                        icon: "/favicon.png"
-                                    });
-                                } else {
-                                    alert("Please allow notifications in your settings.");
-                                }
-                            }}
-                        >
-                            Test Notification
-                        </button>
-                        <div className="p-2">
-                            <h2 className="font-bold text-xl">{userDetails?.displayName}</h2>
-                            <p className="text-sm text-gray-500">{userDetails?.email}</p>
-                            <p className="text-sm text-gray-500">{userDetails?.phoneNumber}</p>
-                            <Button variant="danger" onClick={handleLogoutClick}>Logout</Button>
-                        </div>
-                    </DrawerFooter>
-                </DrawerContent>
-            </Drawer>
+          <Drawer
+  isOpen={isOpen}
+  placement="left"
+  onOpenChange={onClose}
+  className="max-w-[200px]"
+>
+  <DrawerContent className="bg-white">
+    <DrawerHeader>
+      <BrandLogo />
+    </DrawerHeader>
+    <DrawerBody>
+      {items.map((item) => (
+        <Link
+          to={item.url}
+          key={item.title}
+          className="flex items-center gap-2 p-2 hover:bg-gray-200 rounded-md"
+          onClick={onClose}
+        >
+          <item.icon size={20} strokeWidth={1.5} />
+          <span className="text-lg">{item.title}</span>
+        </Link>
+      ))}
+    </DrawerBody>
+    <DrawerFooter className="flex flex-col items-start">
+      <button
+        className="p-2 rounded-md bg-blue-500 text-white mb-4"
+        onClick={() => {
+          if (Notification.permission === "granted") {
+            new Notification("Cool! You Got The Notification", {
+              body: "This is a test notification.",
+              icon: "/favicon.png",
+            });
+          } else {
+            alert("Please allow notifications in your settings.");
+          }
+        }}
+      >
+        Test Notification
+      </button>
+      <div className="p-2">
+        <h2 className="font-bold text-xl">{userDetails?.displayName}</h2>
+        <p className="text-sm text-gray-500">{userDetails?.email}</p>
+        <p className="text-sm text-gray-500">{userDetails?.phoneNumber}</p>
+        <Button variant="danger" onClick={handleLogoutClick}>
+          Logout
+        </Button>
+      </div>
+    </DrawerFooter>
+  </DrawerContent>
+</Drawer>
+
 
         </div>
     );
