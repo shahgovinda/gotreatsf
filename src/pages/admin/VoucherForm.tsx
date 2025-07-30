@@ -137,13 +137,14 @@ const VoucherForm = ({
     };
     return (
        <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="center" scrollBehavior="inside" backdrop="blur">
-  <ModalContent className="bg-white max-w-md md:max-w-2xl">
+  <ModalContent className="bg-white max-w-md md:max-w-2xl rounded-xl shadow-lg">
     {(onClose) => (
       <>
         <ModalHeader className="flex items-center lancelot text-2xl gap-3">
           <TicketPercent size={25} strokeWidth={1.6} />
           Create Voucher
         </ModalHeader>
+
         <ModalBody className="overflow-y-auto max-h-[75vh] px-1">
           <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
             {/* Voucher Name */}
@@ -173,34 +174,39 @@ const VoucherForm = ({
             />
 
             {/* Discount Type */}
-            <p className="text-sm">Discount Type</p>
-            <div className="flex flex-col md:flex-row gap-4 justify-between">
-              <RadioGroup
-                color="primary"
-                isRequired
-                value={form.discountType}
-                onValueChange={handleDiscountTypeChange}
-              >
-                <Radio value="percentage">Percentage</Radio>
-                <Radio value="fixed">Fixed</Radio>
-              </RadioGroup>
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-medium">Discount Type</p>
+              <div className="flex flex-col md:flex-row gap-4 justify-between">
+                <RadioGroup
+                  color="primary"
+                  isRequired
+                  value={form.discountType}
+                  onValueChange={handleDiscountTypeChange}
+                  className="flex flex-row gap-4"
+                >
+                  <Radio value="percentage">Percentage</Radio>
+                  <Radio value="fixed">Fixed</Radio>
+                </RadioGroup>
 
-              <NumberInput
-                variant="faded"
-                label="Discount Value"
-                placeholder="Discount Value"
-                labelPlacement="outside"
-                startContent={
-                  form.discountType === "percentage" ? (
-                    <Percent size={20} color="gray" strokeWidth={1.6} />
-                  ) : (
-                    <IndianRupee size={20} color="gray" strokeWidth={1.6} />
-                  )
-                }
-                isRequired
-                value={form.discountValue}
-                onValueChange={(val) => setForm((f) => ({ ...f, discountValue: Number(val) }))}
-              />
+                <NumberInput
+                  variant="faded"
+                  label="Discount Value"
+                  placeholder="Discount Value"
+                  labelPlacement="outside"
+                  startContent={
+                    form.discountType === "percentage" ? (
+                      <Percent size={20} color="gray" strokeWidth={1.6} />
+                    ) : (
+                      <IndianRupee size={20} color="gray" strokeWidth={1.6} />
+                    )
+                  }
+                  isRequired
+                  value={form.discountValue}
+                  onValueChange={(val) =>
+                    setForm((f) => ({ ...f, discountValue: Number(val) }))
+                  }
+                />
+              </div>
             </div>
 
             {/* Min Order & Max Uses */}
@@ -213,7 +219,9 @@ const VoucherForm = ({
                 startContent={<IndianRupee size={20} color="gray" strokeWidth={1.6} />}
                 isRequired
                 value={form.minOrderValue}
-                onValueChange={(val) => setForm((f) => ({ ...f, minOrderValue: Number(val) }))}
+                onValueChange={(val) =>
+                  setForm((f) => ({ ...f, minOrderValue: Number(val) }))
+                }
               />
 
               <NumberInput
@@ -223,7 +231,9 @@ const VoucherForm = ({
                 labelPlacement="outside"
                 isRequired
                 value={form.maxUses}
-                onValueChange={(val) => setForm((f) => ({ ...f, maxUses: Number(val) }))}
+                onValueChange={(val) =>
+                  setForm((f) => ({ ...f, maxUses: Number(val) }))
+                }
               />
             </div>
 
@@ -239,7 +249,7 @@ const VoucherForm = ({
             />
 
             {/* Scope + Toggle */}
-            <div className="flex flex-col md:flex-row justify-center items-center gap-4">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <Select
                 variant="faded"
                 placeholder="Select Scope of Voucher"
@@ -250,11 +260,15 @@ const VoucherForm = ({
                 onSelectionChange={(keys) =>
                   handleScopeChange(Array.from(keys)[0] as VoucherScope)
                 }
+                className="w-full md:w-[60%]"
               >
                 <SelectItem key="all" startContent={<Earth size={20} strokeWidth={1.6} />}>
                   Everyone
                 </SelectItem>
-                <SelectItem key="specific" startContent={<UsersRound size={20} strokeWidth={1.6} />}>
+                <SelectItem
+                  key="specific"
+                  startContent={<UsersRound size={20} strokeWidth={1.6} />}
+                >
                   Specific
                 </SelectItem>
               </Select>
@@ -298,7 +312,7 @@ const VoucherForm = ({
                     <UserRoundPlus size={20} strokeWidth={1.6} />
                   </button>
                 </div>
-                <div className="flex justify-center gap-x-2 gap-y-2 flex-wrap">
+                <div className="flex justify-start gap-2 flex-wrap">
                   {form.allowedUsers.map((user) => (
                     <Chip
                       key={user}
@@ -315,6 +329,7 @@ const VoucherForm = ({
             )}
           </form>
         </ModalBody>
+
         <ModalFooter>
           <Button color="danger" variant="secondary" onClick={onClose}>
             Close
@@ -327,6 +342,7 @@ const VoucherForm = ({
     )}
   </ModalContent>
 </Modal>
+
 
         
     )
