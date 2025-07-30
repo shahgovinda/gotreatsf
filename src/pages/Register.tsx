@@ -225,51 +225,67 @@ const Register = () => {
             </div>
           )}
 
-          {/* Step 3: Name and Email Input for New Users */}
-          {step === 3 && (
-              <div className="md:w-96 w-full bg-white/90 rounded-2xl shadow-xl p-8 flex flex-col items-center gap-6 border border-orange-100 animate-fadeInUp">
-                <p className="text-3xl font-extrabold mb-2 lancelot tracking-tight text-gray-900">Enter Details</p>
-                <Input
-                  label="Enter Your Name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Enter your name"
-                  size="md"
-                  autoFocus
-                  variant="underlined"
-                  isRequired
-                  className="rounded-xl border-2 border-orange-200 focus-within:border-orange-400 transition-all"
-                />
-                <Input
-                  label="Current Number"
-                  value={phone}
-                  disabled
-                  size="md"
-                  variant="underlined"
-                  className="rounded-xl border-2 border-orange-200 focus-within:border-orange-400 transition-all"
-                  isRequired
-                />
-                <Input
-                  label="Enter Your Email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="Enter your email"
-                  size="md"
-                  variant="underlined"
-                  type="email"
-                  isRequired
-                  className="rounded-xl border-2 border-orange-200 focus-within:border-orange-400 transition-all"
-                />
-              <Button
-                variant="primary"
-                onClick={handleSaveNewUser}
-                  className="mt-2 w-full bg-gradient-to-r from-orange-500 to-orange-400 text-white font-bold rounded-full shadow-lg hover:from-orange-600 hover:to-orange-500 hover:scale-105 transition-all duration-200"
-                isLoading={loading}
-              >
-                Save and Create Account
-              </Button>
-            </div>
-          )}
+        {/* Step 3: Name and Email Input for New Users */}
+{step === 3 && (
+  <div className="md:w-96 w-full bg-white/90 rounded-2xl shadow-xl p-8 flex flex-col items-center gap-6 border border-orange-100 animate-fadeInUp">
+    <p className="text-3xl font-extrabold mb-2 lancelot tracking-tight text-gray-900">Enter Details</p>
+
+    <div className="w-full">
+      <label className="block text-sm font-semibold text-orange-500 mb-1 ml-1">
+        Enter Your Name<span className="text-red-500">*</span>
+      </label>
+      <Input
+        value={formData.name}
+        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+        placeholder="Enter your name"
+        size="md"
+        variant="underlined"
+        isRequired
+        className="w-full rounded-xl border-2 border-orange-200 focus-within:border-orange-400 transition-all"
+      />
+    </div>
+
+    <div className="w-full">
+      <label className="block text-sm font-semibold text-orange-500 mb-1 ml-1">
+        Current Number<span className="text-red-500">*</span>
+      </label>
+      <Input
+        value={phone}
+        disabled
+        size="md"
+        variant="underlined"
+        isRequired
+        className="w-full rounded-xl border-2 border-orange-200 focus-within:border-orange-400 transition-all"
+      />
+    </div>
+
+    <div className="w-full">
+      <label className="block text-sm font-semibold text-orange-500 mb-1 ml-1">
+        Enter Your Email<span className="text-red-500">*</span>
+      </label>
+      <Input
+        value={formData.email}
+        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+        placeholder="Enter your email"
+        size="md"
+        variant="underlined"
+        type="email"
+        isRequired
+        className="w-full rounded-xl border-2 border-orange-200 focus-within:border-orange-400 transition-all"
+      />
+    </div>
+
+    <Button
+      variant="primary"
+      onClick={handleSaveNewUser}
+      className="mt-2 w-full bg-gradient-to-r from-orange-500 to-orange-400 text-white font-bold rounded-full shadow-lg hover:from-orange-600 hover:to-orange-500 hover:scale-105 transition-all duration-200"
+      isLoading={loading}
+    >
+      Save and Create Account
+    </Button>
+  </div>
+)}
+
         </div>
         </div>
         <div className="bg-[url('/register.webp')] bg-cover bg-center bg-no-repeat h-full hidden lg:block rounded-l-3xl shadow-2xl animate-fadeInRight"></div>
