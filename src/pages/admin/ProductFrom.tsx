@@ -151,119 +151,119 @@ const ProductFrom = ({
     }
 
     return (
-        <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="lg" placement="center" scrollBehavior='inside' backdrop='opaque'>
-            <ModalContent>
-                {(onClose) => (
-                    <>
-                        <ModalHeader className="flex items-center lancelot text-2xl gap-3">
-                            {productToEdit ? `Update Product` : 'Add Product'}
-                        </ModalHeader>
-                        <ModalBody>
-                            <form className='flex flex-col gap-6' onSubmit={handleSubmit}>
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="lg" placement="center" scrollBehavior='inside' backdrop='opaque'>
+    <ModalContent className="bg-white rounded-xl shadow-lg">
+        {(onClose) => (
+            <>
+                <ModalHeader className="flex items-center lancelot text-2xl gap-3">
+                    {productToEdit ? `Update Product` : 'Add Product'}
+                </ModalHeader>
+                <ModalBody>
+                    <form className='flex flex-col gap-6' onSubmit={handleSubmit}>
+                        <Input
+                            type="text"
+                            label="Product Name"
+                            variant='faded'
+                            value={formData.productName}
+                            onValueChange={val => handleChange('productName', val)}
+                            isRequired
+                        />
+                        <Input
+                            type="text"
+                            label="Product Description"
+                            variant='faded'
+                            value={formData.productDescription}
+                            onValueChange={val => handleChange('productDescription', val)}
+                            isRequired
+                        />
+                        <Select
+                            label='Food Category'
+                            variant='faded'
+                            selectedKeys={[formData.category]}
+                            onSelectionChange={keys => handleChange('category', Array.from(keys)[0] || '')}
+                            isRequired
+                        >
+                            {FOOD_CATEGORIES.map((category) => (
+                                <SelectItem key={category}>{category}</SelectItem>
+                            ))}
+                        </Select>
+                        <div className='flex gap-4'>
+                            <Switch
+                                isSelected={formData.isNonVeg}
+                                onValueChange={val => handleChange('isNonVeg', val)}
+                            >
+                                Non-Vegetarian
+                            </Switch>
+                            <Switch
+                                isSelected={formData.isTiffin}
+                                onValueChange={val => handleChange('isTiffin', val)}
+                            >
+                                Tiffin Meal
+                            </Switch>
+                            <Switch
+                                isSelected={formData.isAvailable}
+                                onValueChange={val => handleChange('isAvailable', val)}
+                            >
+                                Available
+                            </Switch>
+                        </div>
+                        <div className='flex gap-4'>
+                            <div className='w-full'>
                                 <Input
-                                    type="text"
-                                    label="Product Name"
+                                    type="file"
+                                    label="Product Image"
                                     variant='faded'
-                                    value={formData.productName}
-                                    onValueChange={val => handleChange('productName', val)}
+                                    accept="image/*"
+                                    onChange={handleImageChange}
+                                />
+                            </div>
+                            <div className='w-full'>
+                                <NumberInput
+                                    label="Rating ⭐"
+                                    variant='faded'
+                                    value={formData.rating}
+                                    minValue={1}
+                                    maxValue={5}
+                                    step={0.1}
+                                    onValueChange={val => handleChange('rating', Number(val))}
                                     isRequired
                                 />
-                                <Input
-                                    type="text"
-                                    label="Product Description"
-                                    variant='faded'
-                                    value={formData.productDescription}
-                                    onValueChange={val => handleChange('productDescription', val)}
-                                    isRequired
-                                />
-                                <Select
-                                    label='Food Category'
-                                    variant='faded'
-                                    selectedKeys={[formData.category]}
-                                    onSelectionChange={keys => handleChange('category', Array.from(keys)[0] || '')}
-                                    isRequired
-                                >
-                                    {FOOD_CATEGORIES.map((category) => (
-                                        <SelectItem key={category}>{category}</SelectItem>
-                                    ))}
-                                </Select>
-                                <div className='flex gap-4'>
-                                    <Switch
-                                        isSelected={formData.isNonVeg}
-                                        onValueChange={val => handleChange('isNonVeg', val)}
-                                    >
-                                        Non-Vegetarian
-                                    </Switch>
-                                    <Switch
-                                        isSelected={formData.isTiffin}
-                                        onValueChange={val => handleChange('isTiffin', val)}
-                                    >
-                                        Tiffin Meal
-                                    </Switch>
-                                    <Switch
-                                        isSelected={formData.isAvailable}
-                                        onValueChange={val => handleChange('isAvailable', val)}
-                                    >
-                                        Available
-                                    </Switch>
-                                </div>
-                                <div className='flex gap-4'>
-                                    <div className='w-full'>
-                                        <Input
-                                            type="file"
-                                            label="Product Image"
-                                            variant='faded'
-                                            accept="image/*"
-                                            onChange={handleImageChange}
-                                        />
-                                    </div>
-                                    <div className='w-full'>
-                                        <NumberInput
-                                            label="Rating ⭐"
-                                            variant='faded'
-                                            value={formData.rating}
-                                            minValue={1}
-                                            maxValue={5}
-                                            step={0.1}
-                                            onValueChange={val => handleChange('rating', Number(val))}
-                                            isRequired
-                                        />
-                                    </div>
-                                </div>
-                                <div className='flex gap-4'>
-                                    <NumberInput
-                                        label="Original Price"
-                                        variant='faded'
-                                        value={formData.originalPrice}
-                                        onValueChange={val => handleChange('originalPrice', Number(val))}
-                                        isRequired
-                                    />
-                                    <NumberInput
-                                        label="Offer Price"
-                                        variant='faded'
-                                        value={formData.offerPrice}
-                                        onValueChange={val => handleChange('offerPrice', Number(val))}
-                                        isRequired
-                                    />
-                                </div>
+                            </div>
+                        </div>
+                        <div className='flex gap-4'>
+                            <NumberInput
+                                label="Original Price"
+                                variant='faded'
+                                value={formData.originalPrice}
+                                onValueChange={val => handleChange('originalPrice', Number(val))}
+                                isRequired
+                            />
+                            <NumberInput
+                                label="Offer Price"
+                                variant='faded'
+                                value={formData.offerPrice}
+                                onValueChange={val => handleChange('offerPrice', Number(val))}
+                                isRequired
+                            />
+                        </div>
+                    </form>
+                    <pre className="bg-white p-2 rounded-xl shadow-sm overflow-auto text-xs">
+                        {JSON.stringify(formData, null, 2)}
+                    </pre>
+                </ModalBody>
+                <ModalFooter>
+                    <Button color="danger" variant="secondary" onClick={onClose}>
+                        Close
+                    </Button>
+                    <Button variant="primary" type="submit" onClick={handleSubmit} isLoading={productMutation.isPending}>
+                        {productToEdit ? 'Update Product' : 'Add Product'}
+                    </Button>
+                </ModalFooter>
+            </>
+        )}
+    </ModalContent>
+</Modal>
 
-                            </form>
-                            <pre className="bg-white p-2 rounded-xl shadow-sm overflow-auto text-xs">
-                                {JSON.stringify(formData, null, 2)}
-                            </pre>
-                        </ModalBody>
-                        <ModalFooter>
-                            <Button color="danger" variant="secondary" onClick={onClose}>
-                                Close
-                            </Button>
-                            <Button variant="primary" type="submit" onClick={handleSubmit} isLoading={productMutation.isPending}>
-                                {productToEdit ? 'Update Product' : 'Add Product'}
-                            </Button>
-                        </ModalFooter>
-                    </>
-                )}
-            </ModalContent>
-        </Modal>
     )
 }
 
