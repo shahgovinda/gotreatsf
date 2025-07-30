@@ -178,58 +178,70 @@ const Register = () => {
           )}
 
           {/* Step 2: OTP Input */}
-          {step === 2 && (
-              <div className="md:w-96 w-full bg-white/90 rounded-2xl shadow-xl p-8 flex flex-col items-center gap-6 border border-orange-100 animate-fadeInUp">
-                <p className="text-3xl font-extrabold mb-2 lancelot tracking-tight text-gray-900">Enter OTP</p>
-                <p className="text-sm text-gray-600 mb-2 text-center">We have sent an OTP to your Phone Number <span className="font-semibold text-orange-600">+91{phone}</span></p>
-                {/* Custom OTP Input UI */}
-                <div className="flex gap-2 w-full justify-center">
-                  {[...Array(6)].map((_, idx) => (
-                    <input
-                      key={idx}
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={1}
-                      value={otp[idx] || ''}
-                      onChange={e => {
-                        const val = e.target.value.replace(/[^0-9]/g, '');
-                        if (!val) return;
-                        const otpArr = otp.split('');
-                        otpArr[idx] = val;
-                        setOtp(otpArr.join('').slice(0, 6));
-                        // Move to next input
-                        const next = document.getElementById(`otp-input-${idx + 1}`);
-                        if (next) next.focus();
-                      }}
-                      onKeyDown={e => {
-                        if (e.key === 'Backspace') {
-                          const otpArr = otp.split('');
-                          otpArr[idx] = '';
-                          setOtp(otpArr.join(''));
-                          if (idx > 0) {
-                            const prev = document.getElementById(`otp-input-${idx - 1}`);
-                            if (prev) prev.focus();
-                          }
-                        }
-                      }}
-                      id={`otp-input-${idx}`}
-                      className="w-12 h-12 md:w-14 md:h-14 text-2xl text-center rounded-xl border-2 border-blue-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 bg-white shadow-sm transition-all outline-none"
-                      style={{ WebkitAppearance: 'none', MozAppearance: 'textfield' }}
-                      autoFocus={idx === 0}
-                      aria-label={`OTP digit ${idx + 1}`}
-              />
-                  ))}
-                </div>
-              <Button
-                variant="primary"
-                onClick={handleVerifyOtp}
-                  className="mt-2 w-full bg-gradient-to-r from-orange-500 to-orange-400 text-white font-bold rounded-full shadow-lg hover:from-orange-600 hover:to-orange-500 hover:scale-105 transition-all duration-200"
-                isLoading={loading}
-              >
-                Verify OTP
-              </Button>
-            </div>
-          )}
+{step === 2 && (
+  <div className="md:w-96 w-full bg-white/90 rounded-2xl shadow-xl p-8 flex flex-col items-center gap-6 border border-orange-100 animate-fadeInUp">
+    <p className="text-3xl font-extrabold mb-2 lancelot tracking-tight text-gray-900">Enter OTP</p>
+    <p className="text-sm text-gray-600 mb-2 text-center">
+      We have sent an OTP to your Phone Number <span className="font-semibold text-orange-600">+91{phone}</span>
+    </p>
+
+    {/* OTP Input Fields */}
+    <div className="flex gap-2 w-full justify-center">
+      {[...Array(6)].map((_, idx) => (
+        <input
+          key={idx}
+          id={`otp-input-${idx}`}
+          type="text"
+          inputMode="numeric"
+          maxLength={1}
+          value={otp[idx] || ''}
+          onChange={e => {
+            const val = e.target.value.replace(/[^0-9]/g, '');
+            if (!val) return;
+            const otpArr = otp.split('');
+            otpArr[idx] = val;
+            setOtp(otpArr.join('').slice(0, 6));
+            const next = document.getElementById(`otp-input-${idx + 1}`);
+            if (next) next.focus();
+          }}
+          onKeyDown={e => {
+            if (e.key === 'Backspace') {
+              const otpArr = otp.split('');
+              otpArr[idx] = '';
+              setOtp(otpArr.join(''));
+              if (idx > 0) {
+                const prev = document.getElementById(`otp-input-${idx - 1}`);
+                if (prev) prev.focus();
+              }
+            }
+          }}
+          onPaste={e => {
+            const pasted = e.clipboardData.getData('Text').replace(/\D/g, '').slice(0, 6);
+            setOtp(pasted.padEnd(6, ''));
+            setTimeout(() => {
+              const next = document.getElementById(`otp-input-${pasted.length}`);
+              if (next) next.focus();
+            }, 50);
+          }}
+          className="w-12 h-12 md:w-14 md:h-14 text-2xl text-center rounded-xl border-2 border-blue-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 bg-white shadow-sm transition-all outline-none"
+          style={{ WebkitAppearance: 'none', MozAppearance: 'textfield' }}
+          autoFocus={idx === 0}
+          aria-label={`OTP digit ${idx + 1}`}
+        />
+      ))}
+    </div>
+
+    <Button
+      variant="primary"
+      onClick={handleVerifyOtp}
+      className="mt-2 w-full bg-gradient-to-r from-orange-500 to-orange-400 text-white font-bold rounded-full shadow-lg hover:from-orange-600 hover:to-orange-500 hover:scale-105 transition-all duration-200"
+      isLoading={loading}
+    >
+      Verify OTP
+    </Button>
+  </div>
+)}
+
 
         {/* Step 3: Name and Email Input for New Users */}
 {step === 3 && (
