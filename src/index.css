@@ -535,5 +535,9 @@ body {
   opacity: 1;
 }
 
-
+/* src/pages/admin/VoucherForm.css */
+.custom-calendar-bg .react-datepicker__portal,
+.custom-calendar-bg .react-datepicker {
+  background: #fff !important;
+}
 
