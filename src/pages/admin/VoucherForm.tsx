@@ -137,7 +137,7 @@ const VoucherForm = ({
     };
     return (
         <Modal isOpen={isOpen} onOpenChange={onOpenChange}  placement="center" scrollBehavior='inside' backdrop='blur'>
-            <ModalContent>
+            <ModalContent className="bg-white">
                 {(onClose) => (
                     <>
                         <ModalHeader className="flex items-center lancelot text-2xl gap-3"> <TicketPercent size={25} strokeWidth={1.6} />Create Voucher</ModalHeader>
