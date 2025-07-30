@@ -137,211 +137,210 @@ const VoucherForm = ({
     };
     return (
        <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="center" scrollBehavior="inside" backdrop="blur">
-  <ModalContent className="bg-white max-w-md md:max-w-2xl rounded-xl shadow-lg">
-    {(onClose) => (
-      <>
-        <ModalHeader className="flex items-center lancelot text-2xl gap-3">
-          <TicketPercent size={25} strokeWidth={1.6} />
-          Create Voucher
-        </ModalHeader>
+ <ModalContent className="bg-white w-full max-w-md md:max-w-2xl rounded-xl shadow-lg">
+  {(onClose) => (
+    <>
+      <ModalHeader className="flex items-center lancelot text-2xl gap-3">
+        <TicketPercent size={25} strokeWidth={1.6} />
+        Create Voucher
+      </ModalHeader>
 
-        <ModalBody className="overflow-y-auto max-h-[75vh] px-1">
-          <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
-            {/* Voucher Name */}
-            <Input
+      <ModalBody className="overflow-y-auto max-h-[75vh] px-1 md:px-2">
+        <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
+          {/* Voucher Name */}
+          <Input
+            variant="faded"
+            label="Voucher Name"
+            placeholder="Get 30% OFF"
+            labelPlacement="outside"
+            autoFocus
+            isRequired
+            isClearable
+            value={form.name}
+            onValueChange={(val) => setForm((f) => ({ ...f, name: val }))}
+          />
+
+          {/* Voucher Code */}
+          <Input
+            variant="faded"
+            label="Voucher Code"
+            placeholder="TASTY30"
+            labelPlacement="outside"
+            startContent={<TicketPercent size={20} color="gray" strokeWidth={1.6} />}
+            isRequired
+            isClearable
+            value={form.code}
+            onValueChange={(val) => setForm((f) => ({ ...f, code: val.toUpperCase() }))}
+          />
+
+          {/* Discount Type & Value */}
+          <div className="flex flex-col gap-2">
+            <p className="text-sm font-medium">Discount Type</p>
+            <div className="flex flex-col gap-4 md:flex-row md:items-end">
+              <RadioGroup
+                color="primary"
+                isRequired
+                value={form.discountType}
+                onValueChange={handleDiscountTypeChange}
+                className="flex flex-row gap-4"
+              >
+                <Radio value="percentage">Percentage</Radio>
+                <Radio value="fixed">Fixed</Radio>
+              </RadioGroup>
+
+              <NumberInput
+                variant="faded"
+                label="Discount Value"
+                placeholder="Discount Value"
+                labelPlacement="outside"
+                startContent={
+                  form.discountType === "percentage" ? (
+                    <Percent size={20} color="gray" strokeWidth={1.6} />
+                  ) : (
+                    <IndianRupee size={20} color="gray" strokeWidth={1.6} />
+                  )
+                }
+                isRequired
+                value={form.discountValue}
+                onValueChange={(val) =>
+                  setForm((f) => ({ ...f, discountValue: Number(val) }))
+                }
+              />
+            </div>
+          </div>
+
+          {/* Min Order & Max Uses */}
+          <div className="flex flex-col gap-4 md:flex-row">
+            <NumberInput
               variant="faded"
-              label="Voucher Name"
-              placeholder="Get 30% OFF"
+              label="Minimum Order Value"
+              placeholder="Minimum Order Value"
               labelPlacement="outside"
-              autoFocus
+              startContent={<IndianRupee size={20} color="gray" strokeWidth={1.6} />}
               isRequired
-              isClearable
-              value={form.name}
-              onValueChange={(val) => setForm((f) => ({ ...f, name: val }))}
+              value={form.minOrderValue}
+              onValueChange={(val) =>
+                setForm((f) => ({ ...f, minOrderValue: Number(val) }))
+              }
             />
 
-            {/* Voucher Code */}
-            <Input
+            <NumberInput
               variant="faded"
-              label="Voucher Code"
-              placeholder="TASTY30"
+              label="Maximum Uses"
+              placeholder="e.g. 1"
               labelPlacement="outside"
-              startContent={<TicketPercent size={20} color="gray" strokeWidth={1.6} />}
               isRequired
-              isClearable
-              value={form.code}
-              onValueChange={(val) => setForm((f) => ({ ...f, code: val.toUpperCase() }))}
+              value={form.maxUses}
+              onValueChange={(val) =>
+                setForm((f) => ({ ...f, maxUses: Number(val) }))
+              }
             />
+          </div>
 
-            {/* Discount Type */}
-            <div className="flex flex-col gap-2">
-              <p className="text-sm font-medium">Discount Type</p>
-              <div className="flex flex-col md:flex-row gap-4 justify-between">
-                <RadioGroup
-                  color="primary"
-                  isRequired
-                  value={form.discountType}
-                  onValueChange={handleDiscountTypeChange}
-                  className="flex flex-row gap-4"
-                >
-                  <Radio value="percentage">Percentage</Radio>
-                  <Radio value="fixed">Fixed</Radio>
-                </RadioGroup>
+          {/* Date Picker */}
+          <DateRangePicker
+            className="bg-white"
+            label="Start and Expiry Date"
+            variant="faded"
+            labelPlacement="outside"
+            minValue={today(getLocalTimeZone())}
+            value={dateRange}
+            onChange={setDateRange}
+          />
 
-                <NumberInput
+          {/* Scope & Switch */}
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <Select
+              variant="faded"
+              placeholder="Select Scope of Voucher"
+              radius="lg"
+              labelPlacement="outside"
+              label="Select Scope"
+              selectedKeys={[form.scope]}
+              onSelectionChange={(keys) =>
+                handleScopeChange(Array.from(keys)[0] as VoucherScope)
+              }
+              className="w-full md:w-[60%]"
+            >
+              <SelectItem key="all" startContent={<Earth size={20} strokeWidth={1.6} />}>
+                Everyone
+              </SelectItem>
+              <SelectItem
+                key="specific"
+                startContent={<UsersRound size={20} strokeWidth={1.6} />}
+              >
+                Specific
+              </SelectItem>
+            </Select>
+
+            <Switch
+              size="sm"
+              isSelected={form.singleUsePerCustomer}
+              onValueChange={(val) =>
+                setForm((f) => ({ ...f, singleUsePerCustomer: val }))
+              }
+            >
+              Single Use Per Customer
+            </Switch>
+          </div>
+
+          {/* Allowed Users */}
+          {form.scope === "specific" && (
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col md:flex-row gap-2 md:items-end">
+                <Input
                   variant="faded"
-                  label="Discount Value"
-                  placeholder="Discount Value"
+                  label="Allowed Users"
+                  placeholder="Enter Registered Phone Number"
                   labelPlacement="outside"
-                  startContent={
-                    form.discountType === "percentage" ? (
-                      <Percent size={20} color="gray" strokeWidth={1.6} />
-                    ) : (
-                      <IndianRupee size={20} color="gray" strokeWidth={1.6} />
-                    )
-                  }
                   isRequired
-                  value={form.discountValue}
-                  onValueChange={(val) =>
-                    setForm((f) => ({ ...f, discountValue: Number(val) }))
-                  }
+                  isClearable
+                  value={allowedUserInput}
+                  onValueChange={setAllowedUserInput}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddAllowedUser();
+                    }
+                  }}
                 />
-              </div>
-            </div>
-
-            {/* Min Order & Max Uses */}
-            <div className="flex flex-col md:flex-row gap-4">
-              <NumberInput
-                variant="faded"
-                label="Minimum Order Value"
-                placeholder="Minimum Order Value"
-                labelPlacement="outside"
-                startContent={<IndianRupee size={20} color="gray" strokeWidth={1.6} />}
-                isRequired
-                value={form.minOrderValue}
-                onValueChange={(val) =>
-                  setForm((f) => ({ ...f, minOrderValue: Number(val) }))
-                }
-              />
-
-              <NumberInput
-                variant="faded"
-                label="Maximum Uses"
-                placeholder="How many times it can be used"
-                labelPlacement="outside"
-                isRequired
-                value={form.maxUses}
-                onValueChange={(val) =>
-                  setForm((f) => ({ ...f, maxUses: Number(val) }))
-                }
-              />
-            </div>
-
-            {/* Date Picker */}
-            <DateRangePicker
-              className="bg-white"
-              label="Start and Expiry Date"
-              variant="faded"
-              labelPlacement="outside"
-              minValue={today(getLocalTimeZone())}
-              value={dateRange}
-              onChange={setDateRange}
-            />
-
-            {/* Scope + Toggle */}
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <Select
-                variant="faded"
-                placeholder="Select Scope of Voucher"
-                radius="lg"
-                labelPlacement="outside"
-                label="Select Scope"
-                selectedKeys={[form.scope]}
-                onSelectionChange={(keys) =>
-                  handleScopeChange(Array.from(keys)[0] as VoucherScope)
-                }
-                className="w-full md:w-[60%]"
-              >
-                <SelectItem key="all" startContent={<Earth size={20} strokeWidth={1.6} />}>
-                  Everyone
-                </SelectItem>
-                <SelectItem
-                  key="specific"
-                  startContent={<UsersRound size={20} strokeWidth={1.6} />}
+                <button
+                  type="button"
+                  className="px-4 py-2 rounded-xl border-2 hover:border-orange-400 bg-primary text-white"
+                  onClick={handleAddAllowedUser}
                 >
-                  Specific
-                </SelectItem>
-              </Select>
-
-              <Switch
-                size="sm"
-                isSelected={form.singleUsePerCustomer}
-                onValueChange={(val) =>
-                  setForm((f) => ({ ...f, singleUsePerCustomer: val }))
-                }
-              >
-                Single Use Per Customer
-              </Switch>
-            </div>
-
-            {/* Allowed Users (if scope is 'specific') */}
-            {form.scope === "specific" && (
-              <div className="flex flex-col gap-2">
-                <div className="flex items-end gap-4">
-                  <Input
-                    variant="faded"
-                    label="Allowed Users"
-                    placeholder="Enter Registered Phone Number"
-                    labelPlacement="outside"
-                    isRequired
-                    isClearable
-                    value={allowedUserInput}
-                    onValueChange={setAllowedUserInput}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        handleAddAllowedUser();
-                      }
-                    }}
-                  />
-                  <button
-                    type="button"
-                    className="px-4 py-2 rounded-xl border-2 hover:border-orange-400 bg-primary text-white"
-                    onClick={handleAddAllowedUser}
-                  >
-                    <UserRoundPlus size={20} strokeWidth={1.6} />
-                  </button>
-                </div>
-                <div className="flex justify-start gap-2 flex-wrap">
-                  {form.allowedUsers.map((user) => (
-                    <Chip
-                      key={user}
-                      variant="faded"
-                      color="success"
-                      size="md"
-                      onClose={() => handleRemoveAllowedUser(user)}
-                    >
-                      {user}
-                    </Chip>
-                  ))}
-                </div>
+                  <UserRoundPlus size={20} strokeWidth={1.6} />
+                </button>
               </div>
-            )}
-          </form>
-        </ModalBody>
+              <div className="flex flex-wrap gap-2">
+                {form.allowedUsers.map((user) => (
+                  <Chip
+                    key={user}
+                    variant="faded"
+                    color="success"
+                    size="md"
+                    onClose={() => handleRemoveAllowedUser(user)}
+                  >
+                    {user}
+                  </Chip>
+                ))}
+              </div>
+            </div>
+          )}
+        </form>
+      </ModalBody>
 
-        <ModalFooter>
-          <Button color="danger" variant="secondary" onClick={onClose}>
-            Close
-          </Button>
-          <Button variant="primary" type="submit" onClick={handleSubmit} isLoading={isPending}>
-            Save
-          </Button>
-        </ModalFooter>
-      </>
-    )}
-  </ModalContent>
-</Modal>
+      <ModalFooter className="flex justify-end gap-4">
+        <Button color="danger" variant="secondary" onClick={onClose}>
+          Close
+        </Button>
+        <Button variant="primary" type="submit" onClick={handleSubmit} isLoading={isPending}>
+          Save
+        </Button>
+      </ModalFooter>
+    </>
+  )}
+</ModalContent>
 
 
         
