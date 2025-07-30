@@ -176,17 +176,22 @@ const ProductFrom = ({
                             onValueChange={val => handleChange('productDescription', val)}
                             isRequired
                         />
-                        <Select
-                            label='Food Category'
-                            variant='faded'
-                            selectedKeys={[formData.category]}
-                            onSelectionChange={keys => handleChange('category', Array.from(keys)[0] || '')}
-                            isRequired
-                        >
-                            {FOOD_CATEGORIES.map((category) => (
-                                <SelectItem key={category}>{category}</SelectItem>
-                            ))}
-                        </Select>
+                      <Select
+    label='Food Category'
+    variant='faded'
+    selectedKeys={[formData.category]}
+    onSelectionChange={keys => handleChange('category', Array.from(keys)[0] || '')}
+    isRequired
+    classNames={{
+        popoverContent: "bg-white",
+        listbox: "bg-white"
+    }}
+>
+    {FOOD_CATEGORIES.map((category) => (
+        <SelectItem key={category}>{category}</SelectItem>
+    ))}
+</Select>
+
                         <div className='flex gap-4'>
                             <Switch
                                 isSelected={formData.isNonVeg}
