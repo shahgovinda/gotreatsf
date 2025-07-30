@@ -121,6 +121,35 @@ const Register = () => {
       <div className="md:grid grid-cols-2 h-full px-7 md:px-0">
         <div className="w-full h-full flex flex-col items-center justify-center relative">
           <div className="w-full flex flex-col items-center justify-center animate-fadeInUp">
+  {/* Step 1: Phone number input */}
+  {step === 1 && (
+    <div className="md:w-96 w-full bg-white/90 rounded-2xl shadow-xl p-8 flex flex-col items-center gap-6 border border-orange-100 animate-fadeInUp">
+      <p className="text-3xl font-extrabold mb-2 lancelot tracking-tight text-gray-900">Get Started</p>
+      <p className="text-sm text-gray-600 mb-2 text-center">Enter your mobile number to continue</p>
+
+      <Input
+        value={phone}
+        onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+        placeholder="Enter your 10-digit phone number"
+        size="md"
+        maxLength={10}
+        variant="underlined"
+        isRequired
+        inputMode="numeric"
+        pattern="[0-9]*"
+        className="w-full rounded-xl border-2 border-orange-200 focus-within:border-orange-400 transition-all"
+      />
+
+      <Button
+        variant="primary"
+        onClick={handleSendOtp}
+        className="w-full bg-gradient-to-r from-orange-500 to-orange-400 text-white font-bold rounded-full shadow-lg hover:from-orange-600 hover:to-orange-500 hover:scale-105 transition-all duration-200"
+        isLoading={loading}
+      >
+        Send OTP
+      </Button>
+    </div>
+  )}
 
             {step === 2 && (
               <div className="md:w-96 w-full bg-white/90 rounded-2xl shadow-xl p-8 flex flex-col items-center gap-6 border border-orange-100 animate-fadeInUp">
