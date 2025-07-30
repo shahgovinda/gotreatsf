@@ -5,15 +5,14 @@ import OrderCard from '../../components/OrderCard';
 import { AnimatePresence, motion } from 'framer-motion';
 import Button from '@/components/Button';
 import { addToast, cn } from '@heroui/react';
-import { Box, X } from 'lucide-react';
+import { X } from 'lucide-react';
 
 const ManageOrders = () => {
   const [activeTab, setActiveTab] = useState<'Active' | 'Delivered' | 'Failed' | 'Cancelled' | 'All'>('Active');
   const [previousOrderCount, setPreviousOrderCount] = useState(0);
-  const [selectedOrder, setSelectedOrder] = useState(null); // Add selectedOrder state
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const queryClient = useQueryClient();
 
-  // Fetch all orders using React Query
   const { data: orders = [], isLoading, isError } = useQuery({
     queryKey: ['orders'],
     queryFn: fetchAllOrders,
@@ -110,13 +109,13 @@ const ManageOrders = () => {
             </div>
           ) : (
             filteredOrders.map((order, i) => (
-              <div key={i} className="bg-gray-800 p-4 rounded flex justify-between items-center text-white">
+              <div key={i} className="bg-gray-800 text-white p-4 rounded flex justify-between items-center">
                 <div>
-                  <p><strong>Order ID:</strong> {order.id || order._id || 'N/A'}</p>
-                  <p><strong>Status:</strong> {order.orderStatus}</p>
+                  <p className="font-semibold">Status: {order.orderStatus}</p>
+                  <p>Created: {new Date(order.createdAt).toLocaleString()}</p>
                 </div>
                 <button
-                  className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded"
+                  className="bg-white text-black px-3 py-1 rounded"
                   onClick={() => setSelectedOrder(order)}
                 >
                   View
@@ -127,36 +126,28 @@ const ManageOrders = () => {
         </AnimatePresence>
       </div>
 
-      {/* Modal for order details with white background */}
+      {/* View Order Modal with white background */}
       {selectedOrder && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
-          onClick={() => setSelectedOrder(null)} // click outside closes modal
+        <div
+          className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50"
+          onClick={() => setSelectedOrder(null)}
         >
-          <motion.div
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1 }}
-            exit={{ scale: 0.8 }}
-            className="bg-white rounded-lg p-6 max-w-md w-full relative"
-            onClick={e => e.stopPropagation()} // prevent closing on clicking inside modal
+          <div
+            className="bg-white rounded-lg p-6 max-w-md w-full relative shadow-xl"
+            onClick={(e) => e.stopPropagation()}
           >
             <button
-              className="absolute top-3 right-3 text-gray-600 hover:text-gray-900"
+              className="absolute top-3 right-3 text-gray-600 hover:text-black"
               onClick={() => setSelectedOrder(null)}
-              aria-label="Close"
             >
               <X size={24} />
             </button>
-            <h2 className="text-2xl font-semibold mb-4 text-black">Order Details</h2>
-            <p><strong>Order ID:</strong> {selectedOrder.id || selectedOrder._id || 'N/A'}</p>
+            <h2 className="text-2xl font-semibold mb-4">Order Details</h2>
             <p><strong>Status:</strong> {selectedOrder.orderStatus}</p>
-            <p><strong>Address:</strong> {formatAddress(selectedOrder.address)}</p>
             <p><strong>Created At:</strong> {new Date(selectedOrder.createdAt).toLocaleString()}</p>
-          </motion.div>
-        </motion.div>
+            <p><strong>Address:</strong> {formatAddress(selectedOrder.address)}</p>
+          </div>
+        </div>
       )}
     </div>
   );
