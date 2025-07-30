@@ -145,16 +145,22 @@ const Register = () => {
                   <div className="flex items-center border-2 border-orange-200 focus-within:border-orange-400 rounded-xl bg-white/80 px-3 py-2 transition-all">
                     <Phone size={18} className="text-gray-500 mr-2" />
                     <span className="text-gray-500 mr-2">+91</span>
-                    <input
-                      type="tel"
-                value={phone}
-                      onChange={e => setPhone(e.target.value)}
-                      maxLength={10}
-                placeholder="Enter Phone Number"
-                      className="flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-400 text-lg"
-                      autoFocus
-                      required
-                    />
+                   <input
+  type="tel"
+  value={phone}
+  onChange={e => setPhone(e.target.value)}
+  onKeyDown={e => {
+    if (e.key === 'Enter') {
+      handleSendOtp();
+    }
+  }}
+  maxLength={10}
+  placeholder="Enter Phone Number"
+  className="flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-400 text-lg"
+  autoFocus
+  required
+/>
+
                   </div>
                   {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
                 </div>
