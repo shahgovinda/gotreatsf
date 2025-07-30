@@ -129,68 +129,18 @@ const Register = () => {
         <div className="w-full h-full flex flex-col items-center justify-center relative">
           <div className="w-full flex flex-col items-center justify-center animate-fadeInUp">
           {/* Step 1: Phone Number Input */}
-          {step === 1 && (
-              <div className="md:w-96 w-full bg-white/90 rounded-2xl shadow-xl p-8 flex flex-col items-center gap-6 border border-orange-100 animate-fadeInUp">
-                <p className="text-3xl font-extrabold mb-2 flex items-center gap-2 lancelot tracking-tight text-gray-900">
-                  Welcome to
-                  <span onClick={() => navigate('/')} className="cursor-pointer ml-2">
-                    <span className='comfortaa font-bold tracking-tighter text-3xl text-orange-600'><span className='text-green-500'>go</span>treats</span>
-                  </span>
-                </p>
-                {/* Custom Phone Number Input */}
-                <div className="w-full">
-                  <label className="block text-sm font-semibold text-orange-500 mb-1 ml-1">
-                    Phone Number<span className="text-red-500">*</span>
-                  </label>
-                  <div className="flex items-center border-2 border-orange-200 focus-within:border-orange-400 rounded-xl bg-white/80 px-3 py-2 transition-all">
-                    <Phone size={18} className="text-gray-500 mr-2" />
-                    <span className="text-gray-500 mr-2">+91</span>
-                   <input
-  type="tel"
-  value={phone}
-  onChange={e => setPhone(e.target.value)}
-  onKeyDown={e => {
-    if (e.key === 'Enter') {
-      handleSendOtp();
-    }
-  }}
-  maxLength={10}
-  placeholder="Enter Phone Number"
-  className="flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-400 text-lg"
-  autoFocus
-  required
-/>
-
-                  </div>
-                  {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
-                </div>
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={handleSendOtp}
-                  className="mt-2 w-full bg-gradient-to-r from-orange-500 to-orange-400 text-white font-bold rounded-full shadow-lg hover:from-orange-600 hover:to-orange-500 hover:scale-105 transition-all duration-200"
-                isLoading={loading}
-              >
-                Send OTP
-              </Button>
-                <p className="text-xs text-gray-600 mt-2 text-center">By Clicking "Send OTP", you agree to our <Link to="/terms-and-conditions" className="text-orange-600 hover:underline font-semibold">Terms and Conditions</Link> and <Link to="/privacy-policy" className="text-orange-600 hover:underline font-semibold">Privacy Policy</Link></p>
-            </div>
-          )}
-
-          {/* Step 2: OTP Input */}
-{step === 2 && (
+          {step === 2 && (
   <div className="md:w-96 w-full bg-white/90 rounded-2xl shadow-xl p-8 flex flex-col items-center gap-6 border border-orange-100 animate-fadeInUp">
     <p className="text-3xl font-extrabold mb-2 lancelot tracking-tight text-gray-900">Enter OTP</p>
     <p className="text-sm text-gray-600 mb-2 text-center">
       We have sent an OTP to your Phone Number <span className="font-semibold text-orange-600">+91{phone}</span>
     </p>
 
-    {/* OTP Input Fields */}
+    {/* Custom OTP Input UI */}
     <div className="flex gap-2 w-full justify-center">
       {[...Array(6)].map((_, idx) => (
         <input
           key={idx}
-          id={`otp-input-${idx}`}
           type="text"
           inputMode="numeric"
           maxLength={1}
@@ -198,11 +148,28 @@ const Register = () => {
           onChange={e => {
             const val = e.target.value.replace(/[^0-9]/g, '');
             if (!val) return;
+
             const otpArr = otp.split('');
             otpArr[idx] = val;
-            setOtp(otpArr.join('').slice(0, 6));
-            const next = document.getElementById(`otp-input-${idx + 1}`);
-            if (next) next.focus();
+            const newOtp = otpArr.join('').slice(0, 6);
+            setOtp(newOtp);
+
+            if (val.length === 6 || newOtp.length === 6) {
+              // Full OTP pasted
+              setTimeout(handleVerifyOtp, 100); // Small delay to let UI update
+            } else {
+              const next = document.getElementById(`otp-input-${idx + 1}`);
+              if (next) next.focus();
+            }
+          }}
+          onPaste={e => {
+            e.preventDefault();
+            const pasted = e.clipboardData.getData('Text').replace(/[^0-9]/g, '').slice(0, 6);
+            setOtp(pasted);
+            // Set timeout to let React update the state before calling verify
+            if (pasted.length === 6) {
+              setTimeout(handleVerifyOtp, 100);
+            }
           }}
           onKeyDown={e => {
             if (e.key === 'Backspace') {
@@ -215,14 +182,7 @@ const Register = () => {
               }
             }
           }}
-          onPaste={e => {
-            const pasted = e.clipboardData.getData('Text').replace(/\D/g, '').slice(0, 6);
-            setOtp(pasted.padEnd(6, ''));
-            setTimeout(() => {
-              const next = document.getElementById(`otp-input-${pasted.length}`);
-              if (next) next.focus();
-            }, 50);
-          }}
+          id={`otp-input-${idx}`}
           className="w-12 h-12 md:w-14 md:h-14 text-2xl text-center rounded-xl border-2 border-blue-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 bg-white shadow-sm transition-all outline-none"
           style={{ WebkitAppearance: 'none', MozAppearance: 'textfield' }}
           autoFocus={idx === 0}
@@ -241,6 +201,7 @@ const Register = () => {
     </Button>
   </div>
 )}
+
 
 
         {/* Step 3: Name and Email Input for New Users */}
