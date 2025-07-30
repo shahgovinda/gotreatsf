@@ -192,26 +192,29 @@ const ProductFrom = ({
     ))}
 </Select>
 
-                        <div className='flex gap-4'>
-                            <Switch
-                                isSelected={formData.isNonVeg}
-                                onValueChange={val => handleChange('isNonVeg', val)}
-                            >
-                                Non-Vegetarian
-                            </Switch>
-                            <Switch
-                                isSelected={formData.isTiffin}
-                                onValueChange={val => handleChange('isTiffin', val)}
-                            >
-                                Tiffin Meal
-                            </Switch>
-                            <Switch
-                                isSelected={formData.isAvailable}
-                                onValueChange={val => handleChange('isAvailable', val)}
-                            >
-                                Available
-                            </Switch>
-                        </div>
+                        <div className='flex gap-4 flex-wrap items-center'>
+  <Switch
+    isSelected={formData.isNonVeg}
+    onValueChange={val => handleChange('isNonVeg', val)}
+  >
+    Non-Vegetarian {formData.isNonVeg ? "✅" : "❌"}
+  </Switch>
+
+  <Switch
+    isSelected={formData.isTiffin}
+    onValueChange={val => handleChange('isTiffin', val)}
+  >
+    Tiffin Meal {formData.isTiffin ? "✅" : "❌"}
+  </Switch>
+
+  <Switch
+    isSelected={formData.isAvailable}
+    onValueChange={val => handleChange('isAvailable', val)}
+  >
+    Available {formData.isAvailable ? "✅" : "❌"}
+  </Switch>
+</div>
+
                         <div className='flex gap-4'>
                             <div className='w-full'>
                                 <Input
