@@ -232,7 +232,8 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                 animate={{ height: 'auto' }}
                                 transition={{ duration: 0.3 }}
                                 exit={{ height: 0 }}
-                                className='hidden md:block mt-4 border-t border-gray-300 p-4 overflow-hidden'>
+                                className='hidden md:block mt-4 border-t border-gray-300 p-4 overflow-hidden bg-white'>
+
 
                                 <div className="grid  grid-cols-1 md:grid-cols-3 gap-4">
                                     {/* Customer Details */}
