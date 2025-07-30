@@ -2,17 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchAllOrders, updateOrderStatus } from '../../services/orderService';
 import OrderCard from '../../components/OrderCard';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import Button from '@/components/Button';
 import { addToast, cn } from '@heroui/react';
-import { X } from 'lucide-react';
+import { Box, X } from 'lucide-react';
 
 const ManageOrders = () => {
   const [activeTab, setActiveTab] = useState<'Active' | 'Delivered' | 'Failed' | 'Cancelled' | 'All'>('Active');
   const [previousOrderCount, setPreviousOrderCount] = useState(0);
-  const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const queryClient = useQueryClient();
 
+  // Fetch all orders using React Query
   const { data: orders = [], isLoading, isError } = useQuery({
     queryKey: ['orders'],
     queryFn: fetchAllOrders,
@@ -92,7 +92,7 @@ const ManageOrders = () => {
         {['Active', 'Delivered', 'Failed', 'Cancelled'].map(tab => (
           <button
             key={tab}
-            className={`px-4 py-2 ${tab === 'Active' ? 'rounded-l-full' : ''} 
+            className={`px-4 py-2 ${tab === 'Active' ? 'rounded-l-full' : ''}
               ${tab === 'Cancelled' ? 'rounded-r-full' : ''}
               ${activeTab === tab ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
             onClick={() => setActiveTab(tab as any)}
@@ -109,46 +109,19 @@ const ManageOrders = () => {
             </div>
           ) : (
             filteredOrders.map((order, i) => (
-              <div key={i} className="bg-gray-800 text-white p-4 rounded flex justify-between items-center">
-                <div>
-                  <p className="font-semibold">Status: {order.orderStatus}</p>
-                  <p>Created: {new Date(order.createdAt).toLocaleString()}</p>
-                </div>
-                <button
-                  className="bg-white text-black px-3 py-1 rounded"
-                  onClick={() => setSelectedOrder(order)}
-                >
-                  View
-                </button>
-              </div>
+              <OrderCard
+                key={i}
+                order={{
+                  ...order,
+                  address: formatAddress(order.address),
+                }}
+                i={i}
+                onUpdateStatus={handleUpdateStatus}
+              />
             ))
           )}
         </AnimatePresence>
       </div>
-
-      {/* View Order Modal with white background */}
-      {selectedOrder && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50"
-          onClick={() => setSelectedOrder(null)}
-        >
-          <div
-            className="bg-white rounded-lg p-6 max-w-md w-full relative shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="absolute top-3 right-3 text-gray-600 hover:text-black"
-              onClick={() => setSelectedOrder(null)}
-            >
-              <X size={24} />
-            </button>
-            <h2 className="text-2xl font-semibold mb-4">Order Details</h2>
-            <p><strong>Status:</strong> {selectedOrder.orderStatus}</p>
-            <p><strong>Created At:</strong> {new Date(selectedOrder.createdAt).toLocaleString()}</p>
-            <p><strong>Address:</strong> {formatAddress(selectedOrder.address)}</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
