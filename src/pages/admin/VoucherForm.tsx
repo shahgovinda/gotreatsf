@@ -255,15 +255,15 @@ const VoucherForm = ({
 
                                         </Select>
                                     </div>
-                                    <div className="w-full">
-                                        <Switch
-                                            size='sm'
-                                            isSelected={form.singleUsePerCustomer}
-                                            onValueChange={val => setForm(f => ({ ...f, singleUsePerCustomer: val }))}
-                                        >
-                                            Single Use Per Customer
-                                        </Switch>
-                                    </div>
+                                 <div className="flex items-center gap-3 w-full mt-2">
+  <label className="text-sm font-medium text-gray-700">Single Use Per Customer</label>
+  <Switch
+    size="sm"
+    isSelected={form.singleUsePerCustomer}
+    onValueChange={val => setForm(f => ({ ...f, singleUsePerCustomer: val }))}
+  />
+</div>
+
                                 </div>
                                 {/* Allowed Users: only for single/multiple */}
                                 {(form.scope === 'specific') && (
