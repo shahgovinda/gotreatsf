@@ -27,6 +27,7 @@ import OrderPlacedModal from './OrderPlacedModal';
 import { useOrderPlacedModalStore } from '@/store/orderPlacedModalStore';
 import OrderSummary from '@/components/OrderSummary';
 
+
 const DELIVERY_PRICE = 20;
 const TAX_RATE = 0;
 
@@ -430,32 +431,46 @@ const Checkout = () => {
                         </div>
                         )}
                         <AddressSection uid={userDetails!.uid} />
-                     {/* Preferred Delivery Time */}
-<div className="bg-white rounded-2xl shadow-lg p-6">
-  <h2 className="text-2xl font-semibold text-gray-800 mb-4">Preferred Delivery Time</h2>
-  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 gap-4">
-    {[
-      "10:00 AM - 12:00 PM",
-      "12:00 PM - 2:00 PM",
-      "6:00 PM - 8:00 PM",
-      "8:00 PM - 10:00 PM",
-    ].map((slot, idx) => (
-      <button
-        key={idx}
-        type="button"
-        onClick={() => setDeliveryTime(slot)}
-        aria-pressed={preferredDeliveryTime === slot}
-        className={`p-4 rounded-xl border-2 text-sm font-medium transition-all ${
-          preferredDeliveryTime === slot
-            ? "border-orange-500 bg-orange-50 text-orange-700 shadow-md"
-            : "border-gray-200 bg-white hover:border-orange-400 hover:bg-orange-50"
-        }`}
-      >
-        {slot}
-      </button>
-    ))}
-  </div>
-</div>
+                  const Checkout = () => {
+  const [preferredDeliveryTime, setDeliveryTime] = useState("");
+
+  return (
+    <div className="checkout-page">
+     {/* Preferred Delivery Time */}
+      <div className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-2xl">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+          Preferred Delivery Time
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 gap-4">
+          {[
+            "10:00 AM - 12:00 PM",
+            "12:00 PM - 2:00 PM",
+            "6:00 PM - 8:00 PM",
+            "8:00 PM - 10:00 PM",
+          ].map((slot, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => setDeliveryTime(slot)}
+              aria-pressed={preferredDeliveryTime === slot}
+              className={`p-4 rounded-xl border-2 text-sm font-medium transition-all ${
+                preferredDeliveryTime === slot
+                  ? "border-orange-500 bg-orange-50 text-orange-700 shadow-md"
+                  : "border-gray-200 bg-white hover:border-orange-400 hover:bg-orange-50"
+              }`}
+            >
+              {slot}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Checkout;
+
+
 
 
 
