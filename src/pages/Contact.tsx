@@ -10,13 +10,66 @@ const Contact = () => {
     const [phone, setPhone] = useState("");
     const [email, setEmail] = useState("");
     const [message, setMessage] = useState("");
+    const [phoneError, setPhoneError] = useState("");
+    const [emailError, setEmailError] = useState("");
+    const [submitting, setSubmitting] = useState(false); // Manually manage submitting state
 
-    const [submit, submitting] = useFormspark({
+    const [submit] = useFormspark({
         formId: import.meta.env.VITE_FORMSPARK_ID,
     });
 
+    // Email validation regex (a commonly used, robust pattern)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Phone number validation regex for 10 digits
+    const phoneRegex = /^\d{10}$/;
+
+    const handlePhoneChange = (e) => {
+        const value = e.target.value;
+        setPhone(value);
+        if (value && !phoneRegex.test(value)) {
+            setPhoneError("Please enter a valid 10-digit phone number.");
+        } else {
+            setPhoneError("");
+        }
+    };
+
+    const handleEmailChange = (e) => {
+        const value = e.target.value;
+        setEmail(value);
+        if (value && !emailRegex.test(value)) {
+            setEmailError("Please enter a valid email address.");
+        } else {
+            setEmailError("");
+        }
+    };
+
     const onSubmit = async (e) => {
         e.preventDefault();
+
+        // Perform final validation before submission
+        if (!name || !phone || !email || !message) {
+            toast.error("Please fill in all the required fields.");
+            return;
+        }
+
+        if (phoneError || emailError) {
+            toast.error("Please correct the errors in the form.");
+            return;
+        }
+        
+        // Final check on submit in case the user bypassed on-change validation
+        if (!emailRegex.test(email)) {
+            setEmailError("Please enter a valid email address.");
+            toast.error("Please enter a valid email address.");
+            return;
+        }
+        if (!phoneRegex.test(phone)) {
+            setPhoneError("Please enter a valid 10-digit phone number.");
+            toast.error("Please enter a valid 10-digit phone number.");
+            return;
+        }
+
+        setSubmitting(true);
         try {
             await submit({
                 name,
@@ -41,13 +94,18 @@ Message: ${message}
             setName("");
             setPhone("");
             setMessage("");
+            setPhoneError("");
+            setEmailError("");
         } catch (error) {
             console.error('Form submission error:', error);
             toast.error("Failed to send message. Please try again.");
+        } finally {
+            setSubmitting(false);
         }
-    }
+    };
 
     useEffect(() => window.scrollTo(0, 0), [])
+
     return (
         <div className='min-h-screen bg-[#f8f5f2] pb-10'>
             <div className='text-center mt-6 py-6 md:py-8 px-5'>
@@ -132,16 +190,20 @@ Message: ${message}
                         <p className='mb-2 text-[#ff7a1a] font-medium'>Phone number</p>
                         <div className="relative">
                             <input
-                                type="number"
+                                type="tel"
                                 value={phone}
                                 required
-                                onChange={(e) => setPhone(e.target.value)}
-                                className='pl-12 border border-[#ff7a1a]/30 bg-white text-[#2d1a0a] rounded-xl p-3 w-full 
+                                onChange={handlePhoneChange}
+                                className={`pl-12 border rounded-xl p-3 w-full 
                                 focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/30 transition-all duration-300
-                                placeholder:text-gray-400'
+                                placeholder:text-gray-400 ${phoneError ? 'border-red-500' : 'border-[#ff7a1a]/30 bg-white text-[#2d1a0a]'}`}
                                 placeholder='Enter your number'
+                                maxLength="10"
+                                pattern="\d{10}"
+                                title="A 10-digit number is required."
                             />
                             <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ff7a1a] w-5 h-5" />
+                            {phoneError && <p className="text-red-500 text-sm mt-1">{phoneError}</p>}
                         </div>
                     </div>
                     <div className="relative">
@@ -151,13 +213,14 @@ Message: ${message}
                                 type="email"
                                 value={email}
                                 required
-                                onChange={(e) => setEmail(e.target.value)}
-                                className='pl-12 border border-[#ff7a1a]/30 bg-white text-[#2d1a0a] rounded-xl p-3 w-full 
+                                onChange={handleEmailChange}
+                                className={`pl-12 border rounded-xl p-3 w-full 
                                 focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/30 transition-all duration-300
-                                placeholder:text-gray-400'
+                                placeholder:text-gray-400 ${emailError ? 'border-red-500' : 'border-[#ff7a1a]/30 bg-white text-[#2d1a0a]'}`}
                                 placeholder='Enter your email'
                             />
                             <MailIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ff7a1a] w-5 h-5" />
+                            {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
                         </div>
                     </div>
                     <div className="relative">
@@ -179,10 +242,10 @@ Message: ${message}
                     <div className="w-full mt-8">
                         <button
                             type="submit"
-                            disabled={submitting}
+                            disabled={submitting || phoneError || emailError}
                             className={`w-full flex justify-center items-center gap-2 py-4 px-6 rounded-xl font-semibold text-lg relative overflow-hidden
                             bg-[#ff7a1a] text-white hover:bg-white hover:text-[#ff7a1a] border-2 border-[#ff7a1a] hover:scale-105 hover:shadow-xl transition-all duration-300
-                            ${submitting ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                            ${submitting || phoneError || emailError ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                         >
                             {submitting ? 'Sending...' : 'Send Message'}
                             <svg
@@ -232,7 +295,6 @@ Message: ${message}
                     <div className="absolute inset-0 rounded-full animate-ping bg-[#25D366] opacity-25"></div>
                 </div>
             </a>
-
         </div>
     )
 }
