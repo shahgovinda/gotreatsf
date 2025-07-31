@@ -3,7 +3,7 @@ import { updateUserAddress, getUserFromDb } from "../services/authService";
 import { useAuthStore } from "../store/authStore";
 import Button from "./Button";
 import toast from "react-hot-toast";
-import { Home, Pencil } from "lucide-react";
+import { Home } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface AddressFields {
@@ -35,13 +35,13 @@ const AddressSection: React.FC<AddressSectionProps> = ({ uid }) => {
                     setUserDetails({ ...userDetails, address: dbUserDetails.address });
                 }
             } else {
-                setIsEditing(true); // If no address, open editor
+                setIsEditing(true);
             }
         } catch (error) {
             console.error("Failed to fetch address:", error);
         }
     };
-    
+
     const formatAddress = (addr: any): string => {
         if (!addr) return "";
         if (typeof addr === 'string') return addr;
@@ -57,7 +57,7 @@ const AddressSection: React.FC<AddressSectionProps> = ({ uid }) => {
         }
         return "";
     };
-    
+
     useEffect(() => {
         if (uid) {
             fetchAddress();
@@ -92,10 +92,20 @@ const AddressSection: React.FC<AddressSectionProps> = ({ uid }) => {
             setLoading(false);
         }
     };
-    
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setAddress(prev => ({ ...prev, [name]: value }));
+
+        if (name === "pincode") {
+            // Allow only digits, max 6
+            if (/^\d{0,6}$/.test(value)) {
+                setAddress(prev => ({ ...prev, pincode: value }));
+            } else {
+                toast.error("Only numbers allowed. Max 6 digits.");
+            }
+        } else {
+            setAddress(prev => ({ ...prev, [name]: value }));
+        }
     };
 
     const handleCancelEdit = () => {
@@ -104,7 +114,7 @@ const AddressSection: React.FC<AddressSectionProps> = ({ uid }) => {
             setAddress(userDetails.address);
         }
     };
-    
+
     const displayAddress = formatAddress(userDetails?.address);
 
     return (
@@ -157,7 +167,15 @@ const AddressSection: React.FC<AddressSectionProps> = ({ uid }) => {
                         </div>
                         <div>
                             <label className="text-sm font-medium text-gray-700">Pincode*</label>
-                            <input name="pincode" value={address.pincode || ''} onChange={handleInputChange} required className="w-full p-3 mt-1 rounded-lg border" placeholder="e.g., 400092" />
+                            <input
+                                name="pincode"
+                                value={address.pincode || ''}
+                                onChange={handleInputChange}
+                                maxLength={6}
+                                required
+                                className="w-full p-3 mt-1 rounded-lg border"
+                                placeholder="e.g., 400092"
+                            />
                         </div>
                         <div className="flex justify-end gap-3 mt-4">
                             <Button onClick={handleCancelEdit} variant='secondary'>Cancel</Button>
@@ -177,9 +195,7 @@ const AddressSection: React.FC<AddressSectionProps> = ({ uid }) => {
                                 whileHover={{ scale: 1.025, boxShadow: '0 8px 32px 0 rgba(34,197,94,0.10)' }}
                                 transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                             >
-                                {/* Animated gradient border */}
-                                <span className="absolute inset-0 rounded-xl pointer-events-none border-2 border-transparent group-hover:border-primary-400 group-hover:animate-gradient-move transition-all duration-300" style={{zIndex:1}} />
-                                {/* Animated Home icon */}
+                                <span className="absolute inset-0 rounded-xl pointer-events-none border-2 border-transparent group-hover:border-primary-400 group-hover:animate-gradient-move transition-all duration-300" style={{ zIndex: 1 }} />
                                 <motion.div
                                     className="z-10"
                                     whileHover={{ scale: 1.15, color: '#22c55e' }}
@@ -190,7 +206,6 @@ const AddressSection: React.FC<AddressSectionProps> = ({ uid }) => {
                                 <p className="text-gray-700 whitespace-pre-wrap z-10 text-base sm:text-lg md:text-base lg:text-lg xl:text-xl leading-relaxed break-words">
                                     {displayAddress}
                                 </p>
-                                {/* Responsive, animated background gradient (subtle) */}
                                 <span className="absolute inset-0 rounded-xl bg-gradient-to-tr from-primary-50/60 via-white/80 to-primary-100/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0" />
                             </motion.div>
                         ) : (
