@@ -113,11 +113,15 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
     const [showAllReviews, setShowAllReviews] = useState(false);
     const [reviewFilter, setReviewFilter] = useState<number | null>(null);
 
+   const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean }) => {
+    // ... your existing state and functions (veg, nonVeg, cart, etc.)
+
     // Like (favorite) logic
     const [liked, setLiked] = useState(() => {
         const likedItems = JSON.parse(localStorage.getItem('likedItems') || '[]');
         return likedItems.includes(item.id);
     });
+
     useEffect(() => {
         const handler = () => {
             const likedItems = JSON.parse(localStorage.getItem('likedItems') || '[]');
@@ -126,6 +130,7 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
         window.addEventListener('likedItemsChanged', handler);
         return () => window.removeEventListener('likedItemsChanged', handler);
     }, [item.id]);
+
     const toggleLike = () => {
         let likedItems = JSON.parse(localStorage.getItem('likedItems') || '[]');
         if (liked) {
@@ -136,6 +141,7 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
         localStorage.setItem('likedItems', JSON.stringify(likedItems));
         setLiked(!liked);
     };
+
     // Share logic
     const handleShare = () => {
         const url = `${window.location.origin}/shop?itemId=${item.id}`;
@@ -146,6 +152,62 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
             toast.success('Link copied!');
         }
     };
+
+    // ... rest of your existing functions (handleIncrement, handleDecrement, etc.)
+
+    return (
+        <>
+            {/* Desktop View */}
+            <div
+                id={`shop-item-${item.id}`}
+                className={`md:flex flex-col justify-between hidden group w-64 lg:w-76 bg-white p-6 rounded-3xl shadow-xs cursor-pointer hover:bg-green-50 transition-color duration-500 border-orange-50 relative ${highlighted ? 'ring-4 ring-yellow-400 animate-pulse' : ''}`}
+            >
+                <div className="absolute top-3 right-3 flex gap-2 z-20">
+                    {/* Like Button */}
+                    <div
+                        role="button"
+                        onClick={toggleLike}
+                        className={`icon-action-button like ${liked ? 'liked' : ''}`}
+                        title={liked ? 'Unlike' : 'Like'}
+                    >
+                        <Heart size={20} />
+                    </div>
+                    {/* Share Button */}
+                    <div
+                        role="button"
+                        onClick={handleShare}
+                        className="icon-action-button share"
+                        title="Share"
+                    >
+                        <Share2 size={20} className="text-blue-500" />
+                    </div>
+                </div>
+                {/* ... rest of your desktop code ... */}
+            </div>
+
+            {/* Mobile View */}
+            <div className='flex md:hidden justify-between mx-2 p-4 gap-1 rounded-xl shadow-xs cursor-pointer bg-white transition-color duration-500 w-full relative' >
+                {/* ... other mobile code ... */}
+                <div className="absolute top-3 right-3 flex gap-2 z-20">
+                    {/* Like Button */}
+                    <div
+                        role="button"
+                        onClick={toggleLike}
+                        className={`icon-action-button like ${liked ? 'liked' : ''}`}
+                        title={liked ? 'Unlike' : 'Like'}
+                    >
+                        <Heart size={20} />
+                    </div>
+                    {/* Share Button */}
+                    <div
+                        role="button"
+                        onClick={handleShare}
+                        className="icon-action-button share"
+                        title="Share"
+                    >
+                        <Share2 size={20} className="text-blue-500" />
+                    </div>
+                </div>
 
     const veg = (
         <div className='border-2 rounded-md border-green-700 flex items-center justify-center size-5 mb-1'>
