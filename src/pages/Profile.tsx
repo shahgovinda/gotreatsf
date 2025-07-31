@@ -37,7 +37,8 @@ const Profile = () => {
 
     useEffect(() => {
         window.scrollTo(0, 0);
-    })
+    }, []); // Added empty dependency array to run once on mount
+
     const handleLogoutClick = async () => {
         try {
             await handleLogout();
@@ -69,7 +70,7 @@ const Profile = () => {
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     const handlePhoneSubmit = async () => {
         try {
@@ -84,48 +85,62 @@ const Profile = () => {
             toast.error('Failed to update phone number');
         }
         setLoading(false);
-    }
+    };
 
-    <div className="relative w-32 h-32 mx-auto">
-  <img
-    src={userDetails?.profileImage || '/default-profile.png'}
-    alt="Profile"
-    className="w-full h-full rounded-full object-cover border-2 border-gray-300"
-  />
-  <button
-    onClick={handleImageClick}
-    className="absolute bottom-1 right-1 bg-white p-1.5 rounded-full shadow hover:bg-gray-100 transition"
-    aria-label="Change profile picture"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      className="w-5 h-5 text-gray-700"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M15.75 10.5a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
-      />
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M4.5 19.5v-1.125A2.625 2.625 0 017.125 15.75h9.75A2.625 2.625 0 0119.5 18.375V19.5m-15 0h15"
-      />
-    </svg>
-  </button>
-  <input
-    type="file"
-    accept="image/*"
-    ref={fileInputRef}
-    onChange={handleImageChange}
-    className="hidden"
-  />
-</div>
+    const handleImageClick = () => {
+        fileInputRef.current?.click();
+    };
 
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !userDetails) return;
+
+        try {
+            setIsUploading(true);
+            const imageUrl = await uploadProfileImage(userDetails.uid, file);
+            updateStore({ profileImage: imageUrl });
+            toast.success('Profile image updated successfully!');
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            toast.error('Failed to update profile image');
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const handleUpdateProfile = async () => {
+        if (!userDetails) return;
+
+        try {
+            // Assuming updateUserProfile in authService takes uid and an object with updated details
+            // You might need to adjust this based on your actual updateUserProfile implementation
+            await updateUserProfile(userDetails.uid, userDetails);
+            setIsEditing(false);
+            toast.success('Profile updated successfully!');
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            toast.error('Failed to update profile');
+        }
+    };
+
+    const handleDeleteProfileImage = async () => {
+        if (!userDetails) return;
+        setIsUploading(true);
+        try {
+            const success = await deleteProfileImage(userDetails.uid);
+            if (success) {
+                updateStore({ profileImage: '' });
+                toast.success('Profile image deleted!');
+            } else {
+                toast.error('Failed to delete profile image');
+            }
+        } catch (error) {
+            toast.error('Failed to delete profile image');
+        } finally {
+            setIsUploading(false);
+            setShowDeleteModal(false);
+        }
+    };
 
     const fetchUserReviews = async () => {
         if (!userDetails?.uid) return;
@@ -188,26 +203,40 @@ const Profile = () => {
                                 <div className="absolute inset-0 flex items-center justify-center bg-black/50">
                                     <Loader2 className="w-8 h-8 text-white animate-spin" />
                                 </div>
-                            ) : (
+                            ) : userDetails?.profileImage ? (
                                 <>
                                     <img 
-                                        src={userDetails.profileImage || 'https://via.placeholder.com/128'} 
+                                        src={userDetails.profileImage} 
                                         alt="Profile" 
                                         className="w-full h-full object-cover"
                                     />
                                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                         <Camera className="w-8 h-8 text-white" />
                                     </div>
-                                    {userDetails.profileImage && userDetails.profileImage !== 'https://via.placeholder.com/128' && (
-                                        <button
-                                            type="button"
-                                            className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-lg hover:bg-red-100 transition-colors z-20 border border-gray-200"
-                                            onClick={e => { e.stopPropagation(); setShowDeleteModal(true); }}
-                                            title="Delete profile photo"
-                                        >
-                                            <Trash2 className="w-6 h-6 text-red-500" />
-                                        </button>
-                                    )}
+                                    <button
+                                        type="button"
+                                        className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-lg hover:bg-red-100 transition-colors z-20 border border-gray-200"
+                                        onClick={e => { e.stopPropagation(); setShowDeleteModal(true); }}
+                                        title="Delete profile photo"
+                                    >
+                                        <Trash2 className="w-6 h-6 text-red-500" />
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <span
+                                        style={{
+                                            fontSize: 48,
+                                            color: '#777',
+                                            textTransform: 'uppercase',
+                                            fontWeight: 600,
+                                        }}
+                                    >
+                                        {userDetails?.displayName?.[0] || 'U'}
+                                    </span>
+                                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Camera className="w-8 h-8 text-white" />
+                                    </div>
                                 </>
                             )}
                         </div>
@@ -250,7 +279,7 @@ const Profile = () => {
                     >
                         Manage Reviews
                     </Button>
-{/*                     <Button
+{/* <Button
                         variant='danger'
                         className='w-full md:w-auto px-8 py-3 text-lg rounded-xl shadow-md bg-gradient-to-r from-red-500 to-pink-500 hover:from-pink-500 hover:to-red-500 text-white transition-all duration-200 transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2'
                         onClick={() => setShowLogoutModal(true)}
