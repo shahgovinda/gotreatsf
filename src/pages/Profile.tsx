@@ -262,13 +262,13 @@ const Profile = () => {
                     >
                         Manage Reviews
                     </Button>
-                    <Button
+{/*                     <Button
                         variant='danger'
                         className='w-full md:w-auto px-8 py-3 text-lg rounded-xl shadow-md bg-gradient-to-r from-red-500 to-pink-500 hover:from-pink-500 hover:to-red-500 text-white transition-all duration-200 transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2'
                         onClick={() => setShowLogoutModal(true)}
                     >
                         Log Out
-                    </Button>
+                    </Button> */}
                 </section>
             </div>
             {/* Logout Confirmation Modal */}
