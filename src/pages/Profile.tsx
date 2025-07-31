@@ -86,58 +86,46 @@ const Profile = () => {
         setLoading(false);
     }
 
-    const handleImageClick = () => {
-        fileInputRef.current?.click();
-    };
+    <div className="relative w-32 h-32 mx-auto">
+  <img
+    src={userDetails?.profileImage || '/default-profile.png'}
+    alt="Profile"
+    className="w-full h-full rounded-full object-cover border-2 border-gray-300"
+  />
+  <button
+    onClick={handleImageClick}
+    className="absolute bottom-1 right-1 bg-white p-1.5 rounded-full shadow hover:bg-gray-100 transition"
+    aria-label="Change profile picture"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className="w-5 h-5 text-gray-700"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M15.75 10.5a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M4.5 19.5v-1.125A2.625 2.625 0 017.125 15.75h9.75A2.625 2.625 0 0119.5 18.375V19.5m-15 0h15"
+      />
+    </svg>
+  </button>
+  <input
+    type="file"
+    accept="image/*"
+    ref={fileInputRef}
+    onChange={handleImageChange}
+    className="hidden"
+  />
+</div>
 
-    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file || !userDetails) return;
-
-        try {
-            setIsUploading(true);
-            const imageUrl = await uploadProfileImage(userDetails.uid, file);
-            updateStore({ profileImage: imageUrl });
-            toast.success('Profile image updated successfully!');
-        } catch (error) {
-            console.error('Error uploading image:', error);
-            toast.error('Failed to update profile image');
-        } finally {
-            setIsUploading(false);
-        }
-    };
-
-    const handleUpdateProfile = async () => {
-        if (!userDetails) return;
-
-        try {
-            await updateUserProfile(userDetails.uid, userDetails);
-            setIsEditing(false);
-            toast.success('Profile updated successfully!');
-        } catch (error) {
-            console.error('Error updating profile:', error);
-            toast.error('Failed to update profile');
-        }
-    };
-
-    const handleDeleteProfileImage = async () => {
-        if (!userDetails) return;
-        setIsUploading(true);
-        try {
-            const success = await deleteProfileImage(userDetails.uid);
-            if (success) {
-                updateStore({ profileImage: '' });
-                toast.success('Profile image deleted!');
-            } else {
-                toast.error('Failed to delete profile image');
-            }
-        } catch (error) {
-            toast.error('Failed to delete profile image');
-        } finally {
-            setIsUploading(false);
-            setShowDeleteModal(false);
-        }
-    };
 
     const fetchUserReviews = async () => {
         if (!userDetails?.uid) return;
