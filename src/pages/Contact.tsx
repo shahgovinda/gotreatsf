@@ -1,5 +1,5 @@
-import { MailIcon, Phone, Store, User, MessageSquare } from 'lucide-react'
-import Button from '../components/Button'
+import { MailIcon, Phone, Store, User, MessageSquare } from 'lucide-react';
+import Button from '../components/Button';
 import { useEffect, useState } from 'react';
 import { useFormspark } from "@formspark/use-formspark";
 import toast from 'react-hot-toast';
@@ -23,6 +23,7 @@ const Contact = () => {
     // Phone number validation regex for 10 digits
     const phoneRegex = /^\d{10}$/;
 
+    // Handle changes for the phone input and validate
     const handlePhoneChange = (e) => {
         const value = e.target.value;
         setPhone(value);
@@ -33,6 +34,7 @@ const Contact = () => {
         }
     };
 
+    // Handle changes for the email input and validate
     const handleEmailChange = (e) => {
         const value = e.target.value;
         setEmail(value);
@@ -43,6 +45,7 @@ const Contact = () => {
         }
     };
 
+    // Handle form submission
     const onSubmit = async (e) => {
         e.preventDefault();
 
