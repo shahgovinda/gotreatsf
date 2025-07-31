@@ -151,6 +151,11 @@ const Checkout = () => {
         if (isPlacingOrder) return;
         setIsPlacingOrder(true);
         try {
+            if (!/^\d{6}$/.test(userDetails.address?.pincode || '')) {
+  toast.error("Please enter a valid 6-digit pincode");
+  setIsPlacingOrder(false);
+  return;
+}
             if (!userDetails) {
                 toast.error('Please log in to continue');
                 setIsPlacingOrder(false);
