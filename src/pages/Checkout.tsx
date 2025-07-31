@@ -431,7 +431,7 @@ const Checkout = () => {
                         )}
                         <AddressSection uid={userDetails!.uid} />
                    {/* Preferred Delivery Time */}
-                        const [preferredDeliveryTime, setDeliveryTime] = useState('');
+                      
 
 <div className="bg-white rounded-2xl shadow-lg p-6">
   <h2 className="text-2xl font-semibold text-gray-800 mb-4">Preferred Delivery Time</h2>
