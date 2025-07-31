@@ -46,9 +46,6 @@ const Contact = () => {
         }
 
         setFormData({ ...formData, [name]: newValue });
-
-        // Real-time validation
-        validateField(name, newValue);
     };
 
     const validateField = (name: string, value: any) => {
@@ -80,22 +77,25 @@ const Contact = () => {
             default:
                 break;
         }
-        setErrors(prevErrors => ({ ...prevErrors, [name]: error }));
+        return error;
     };
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         // Final validation before submission
-        validateField('name', formData.name);
-        validateField('email', formData.email);
-        validateField('phoneNumber', formData.phoneNumber);
-        validateField('message', formData.message);
-        validateField('agreedToTerms', formData.agreedToTerms);
+        const newErrors = {
+            name: validateField('name', formData.name),
+            email: validateField('email', formData.email),
+            phoneNumber: validateField('phoneNumber', formData.phoneNumber),
+            message: validateField('message', formData.message),
+            agreedToTerms: validateField('agreedToTerms', formData.agreedToTerms),
+        };
+
+        setErrors(newErrors);
 
         // Check if there are any errors
-        const hasErrors = Object.values(errors).some(error => error !== '') ||
-                         Object.values(formData).some(value => value === '' && value !== false);
+        const hasErrors = Object.values(newErrors).some(error => error !== '');
 
         if (!hasErrors) {
             setSubmitting(true);
@@ -130,7 +130,7 @@ const Contact = () => {
                     type={type}
                     name={name}
                     value={value}
-                    onChange={onChange}
+                    onChange={handleInputChange}
                     className={`pl-12 border rounded-xl p-3 w-full
                     focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/30 transition-all duration-300
                     placeholder:text-gray-400 ${error ? 'border-red-500' : 'border-[#ff7a1a]/30 bg-white text-[#2d1a0a]'}`}
@@ -272,10 +272,10 @@ const Contact = () => {
                         <div className="w-full mt-8">
                             <button
                                 type="submit"
-                                disabled={submitting || Object.values(errors).some(e => e !== '')}
+                                disabled={submitting}
                                 className={`w-full flex justify-center items-center gap-2 py-4 px-6 rounded-xl font-semibold text-lg relative overflow-hidden
                                 bg-[#ff7a1a] text-white hover:bg-white hover:text-[#ff7a1a] border-2 border-[#ff7a1a] hover:scale-105 hover:shadow-xl transition-all duration-300
-                                ${submitting || Object.values(errors).some(e => e !== '') ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                                ${submitting ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                             >
                                 {submitting ? 'Sending...' : 'Send Message'}
                                 <svg
