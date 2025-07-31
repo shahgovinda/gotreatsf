@@ -13,11 +13,12 @@ const validateEmail = (email) => {
 };
 
 const Contact = () => {
-    // State to manage form inputs
-    const [name, setName] = useState("");
-    const [phone, setPhone] = useState("");
-    const [email, setEmail] = useState("");
-    const [message, setMessage] = useState("");
+    // Initialize state with data from localStorage, or an empty string if not found.
+    // This ensures data persists across page refreshes.
+    const [name, setName] = useState(() => localStorage.getItem("contact_name") || "");
+    const [phone, setPhone] = useState(() => localStorage.getItem("contact_phone") || "");
+    const [email, setEmail] = useState(() => localStorage.getItem("contact_email") || "");
+    const [message, setMessage] = useState(() => localStorage.getItem("contact_message") || "");
 
     // State to manage validation errors
     const [phoneError, setPhoneError] = useState("");
@@ -66,6 +67,15 @@ const Contact = () => {
         checkFormValidity();
     }, [name, phone, email, message]);
 
+    // This useEffect hook saves the form state to localStorage whenever any of the
+    // form fields change.
+    useEffect(() => {
+        localStorage.setItem("contact_name", name);
+        localStorage.setItem("contact_phone", phone);
+        localStorage.setItem("contact_email", email);
+        localStorage.setItem("contact_message", message);
+    }, [name, phone, email, message]);
+
     const onSubmit = async (e) => {
         e.preventDefault();
 
@@ -95,12 +105,19 @@ Message: ${message}
                 }
             });
             toast.success("Message Sent Successfully");
+            
+            // Clear form state and localStorage on successful submission
             setEmail("");
             setName("");
             setPhone("");
             setMessage("");
             setPhoneError("");
             setEmailError("");
+            localStorage.removeItem("contact_name");
+            localStorage.removeItem("contact_phone");
+            localStorage.removeItem("contact_email");
+            localStorage.removeItem("contact_message");
+
         } catch (error) {
             console.error('Form submission error:', error);
             toast.error("Failed to send message. Please try again.");
