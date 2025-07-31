@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { updateUserAddress, getUserFromDb } from "../services/authService";
 import { useAuthStore } from "../store/authStore";
 import Button from "./Button";
@@ -23,6 +23,9 @@ const AddressSection: React.FC<AddressSectionProps> = ({ uid }) => {
     const [address, setAddress] = useState<AddressFields>({});
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [pincodeError, setPincodeError] = useState('');
+    const pincodeRef = useRef<HTMLInputElement>(null);
+
     const { userDetails, setUserDetails } = useAuthStore();
 
     const fetchAddress = async () => {
@@ -59,9 +62,7 @@ const AddressSection: React.FC<AddressSectionProps> = ({ uid }) => {
     };
 
     useEffect(() => {
-        if (uid) {
-            fetchAddress();
-        }
+        if (uid) fetchAddress();
     }, [uid]);
 
     useEffect(() => {
@@ -76,6 +77,12 @@ const AddressSection: React.FC<AddressSectionProps> = ({ uid }) => {
 
         if (missingField) {
             toast.error(`Please fill in all required fields. Missing: ${missingField}`);
+            return;
+        }
+
+        if (!/^\d{6}$/.test(address.pincode || '')) {
+            setPincodeError("Pincode must be exactly 6 digits");
+            pincodeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
         }
 
@@ -97,11 +104,10 @@ const AddressSection: React.FC<AddressSectionProps> = ({ uid }) => {
         const { name, value } = e.target;
 
         if (name === "pincode") {
-            // Allow only digits, max 6
-            if (/^\d{0,6}$/.test(value)) {
-                setAddress(prev => ({ ...prev, pincode: value }));
-            } else {
-                toast.error("Only numbers allowed. Max 6 digits.");
+            const numeric = value.replace(/\D/g, '');
+            if (numeric.length <= 6) {
+                setAddress(prev => ({ ...prev, pincode: numeric }));
+                setPincodeError('');
             }
         } else {
             setAddress(prev => ({ ...prev, [name]: value }));
@@ -171,11 +177,15 @@ const AddressSection: React.FC<AddressSectionProps> = ({ uid }) => {
                                 name="pincode"
                                 value={address.pincode || ''}
                                 onChange={handleInputChange}
+                                ref={pincodeRef}
                                 maxLength={6}
-                                required
-                                className="w-full p-3 mt-1 rounded-lg border"
+                                inputMode="numeric"
+                                autoComplete="off"
+                                onPaste={e => e.preventDefault()}
+                                className={`w-full p-3 mt-1 rounded-lg border ${pincodeError ? 'border-red-500' : ''}`}
                                 placeholder="e.g., 400092"
                             />
+                            {pincodeError && <p className="text-red-500 text-sm mt-1">{pincodeError}</p>}
                         </div>
                         <div className="flex justify-end gap-3 mt-4">
                             <Button onClick={handleCancelEdit} variant='secondary'>Cancel</Button>
