@@ -184,7 +184,7 @@ const Checkout = () => {
                 deliveryCharge: DELIVERY_PRICE,
                 totalQuantity: items.reduce((total, item) => total + item.quantity, 0),
                 note: note,
-                deliveryTime: preferredDeliveryTime + ' ' + preferredDeliveryPeriod,
+                deliveryTime: preferredDeliveryTime,
                 customer: {
                     uid: userDetails.uid,
                     name: userDetails.displayName || '',
