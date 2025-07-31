@@ -430,10 +430,9 @@ const Checkout = () => {
                         </div>
                         )}
                         <AddressSection uid={userDetails!.uid} />
-                      {/* Preferred Delivery Time */}
+                     {/* Preferred Delivery Time */}
 <div className="bg-white rounded-2xl shadow-lg p-6">
   <h2 className="text-2xl font-semibold text-gray-800 mb-4">Preferred Delivery Time</h2>
-
   <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 gap-4">
     {[
       "10:00 AM - 12:00 PM",
@@ -443,7 +442,9 @@ const Checkout = () => {
     ].map((slot, idx) => (
       <button
         key={idx}
+        type="button"
         onClick={() => setDeliveryTime(slot)}
+        aria-pressed={preferredDeliveryTime === slot}
         className={`p-4 rounded-xl border-2 text-sm font-medium transition-all ${
           preferredDeliveryTime === slot
             ? "border-orange-500 bg-orange-50 text-orange-700 shadow-md"
@@ -455,6 +456,7 @@ const Checkout = () => {
     ))}
   </div>
 </div>
+
 
 
                     {/* Right Column */}
