@@ -201,7 +201,7 @@ Message: ${message}
 
             {/* Official WhatsApp Button */}
             <a
-                href="https://wa.me/917045617506"
+                href="https://wa.me/917045617506?text=Hello%20GoTreats%2C%20this%20is%20a%20message%20from%20your%20website!"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="fixed bottom-6 right-6 z-50 group"
