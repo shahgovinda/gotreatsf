@@ -22,7 +22,7 @@ const Footer = () => {
               {/* Instagram */}
               <div className="group relative cursor-pointer">
                 <a
-                  href="https://www.instagram.com/ig_govindashah/?hl=en"
+                  href="https://www.instagram.com/gotreats.in?igsh=MWFraXA0engyMGM4bA=="
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -81,7 +81,7 @@ const Footer = () => {
               {/* YouTube */}
               <div className="group relative cursor-pointer">
                 <a
-                  href="https://www.youtube.com/@govindashah4954"
+                  href="https://youtube.com/@gotreats003?si=p2VyLjjBm8F-P_Ty"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
