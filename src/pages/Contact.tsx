@@ -44,8 +44,17 @@ const Contact = () => {
         } else {
             newValue = value;
         }
-
-        setFormData({ ...formData, [name]: newValue });
+        
+        // Special handling for the phone number field
+        if (name === 'phoneNumber') {
+            // Allow only digits and limit to 10 characters
+            const sanitizedValue = value.replace(/\D/g, '');
+            if (sanitizedValue.length <= 10) {
+                setFormData({ ...formData, [name]: sanitizedValue });
+            }
+        } else {
+            setFormData({ ...formData, [name]: newValue });
+        }
     };
 
     const validateField = (name: string, value: any) => {
@@ -122,6 +131,7 @@ const Contact = () => {
         }
     };
 
+    // The InputWithIcon component now correctly uses its passed onChange prop
     const InputWithIcon = ({ icon, type, name, placeholder, value, onChange, error, ...rest }) => (
         <div className="relative">
             <p className='mb-2 text-[#ff7a1a] font-medium capitalize'>{name.replace(/([A-Z])/g, ' $1').trim()}</p>
@@ -130,7 +140,7 @@ const Contact = () => {
                     type={type}
                     name={name}
                     value={value}
-                    onChange={handleInputChange}
+                    onChange={onChange} // Use the passed onChange prop
                     className={`pl-12 border rounded-xl p-3 w-full
                     focus:outline-none focus:border-[#ff7a1a] focus:ring-2 focus:ring-[#ff7a1a]/30 transition-all duration-300
                     placeholder:text-gray-400 ${error ? 'border-red-500' : 'border-[#ff7a1a]/30 bg-white text-[#2d1a0a]'}`}
