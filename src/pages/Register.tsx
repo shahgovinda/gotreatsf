@@ -1,3 +1,5 @@
+// src/pages/Register.tsx
+
 import React, { useState, useRef } from "react";
 import { Input } from "@heroui/react";
 import { Link, useNavigate } from "react-router-dom";
@@ -22,6 +24,7 @@ const Register = () => {
   const setUser = useAuthStore((state) => state.setUser);
   const setUserDetails = useAuthStore((state) => state.setUserDetails);
 
+  // Corrected: The ref is now an array of HTMLInputElement, initialized as nulls.
   const otpInputsRef = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleSendOtp = async () => {
@@ -125,7 +128,6 @@ const Register = () => {
     } else if (e.key === 'ArrowLeft' && idx > 0) {
       otpInputsRef.current[idx - 1]?.focus();
     } else if (e.key === 'Backspace') {
-      // Handle backspace
       const otpArr = otp.split('');
       if (otpArr[idx]) {
         otpArr[idx] = '';
@@ -139,7 +141,6 @@ const Register = () => {
         }
       }
     } else if (e.key === 'Enter') {
-      // Press Enter to verify OTP
       handleVerifyOtp();
     }
   };
@@ -153,7 +154,6 @@ const Register = () => {
     const newOtp = otpArr.join('').slice(0, 6);
     setOtp(newOtp);
 
-    // Move to the next input field automatically
     const next = otpInputsRef.current[idx + 1];
     if (next) {
       next.focus();
@@ -245,14 +245,18 @@ const Register = () => {
                         const pasted = e.clipboardData.getData('Text').replace(/\D/g, '').slice(0, 6);
                         setOtp(pasted);
                         const nextInput = otpInputsRef.current[pasted.length];
-                        if (nextInput) nextInput.focus();
-                        else otpInputsRef.current[5]?.focus();
+                        if (nextInput) {
+                          nextInput.focus();
+                        } else {
+                          otpInputsRef.current[5]?.focus();
+                        }
                       }}
                       className="w-12 h-12 md:w-14 md:h-14 text-2xl text-center rounded-xl border-2 border-blue-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 bg-white shadow-sm transition-all outline-none"
                       style={{ WebkitAppearance: 'none', MozAppearance: 'textfield' }}
                       autoFocus={idx === 0}
                       aria-label={`OTP digit ${idx + 1}`}
-                      ref={el => otpInputsRef.current[idx] = el}
+                      // Corrected: The ref callback now correctly assigns the element without returning it.
+                      ref={el => (otpInputsRef.current[idx] = el)}
                     />
                   ))}
                 </div>
