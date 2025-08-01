@@ -279,15 +279,23 @@ const Register = () => {
       <label className="block text-sm font-semibold text-orange-500 mb-1 ml-1">
         Enter Your Email<span className="text-red-500">*</span>
       </label>
-      <Input
+     <Input
+
         value={formData.email}
+
         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+
         placeholder="Enter your email"
+
         size="md"
+
         variant="underlined"
+
         type="email"
+
+        isRequired
+
         className="w-full rounded-xl border-2 border-orange-200 focus-within:border-orange-400 transition-all"
-      />
     </div>
 
     <Button
