@@ -87,20 +87,24 @@ const Concept = () => {
         </p>
 
         {/* Responsive, interactive video section */}
-        <div className="w-full flex justify-center my-8">
-          <div className="relative w-full max-w-2xl aspect-video rounded-2xl overflow-hidden shadow-lg group">
-            <video
-              className="w-full h-full object-cover rounded-2xl"
-              controls
-            >
-              <source src="/Screen-record-1944c9b0017.mp4" type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-          </div>
-        </div>
+<div className="w-full flex justify-center my-8">
+  <div className="relative w-full max-w-2xl aspect-video rounded-2xl overflow-hidden shadow-lg group">
+    <video
+      className="w-full h-full object-cover rounded-2xl"
+      controls
+    >
+      <source
+        src="https://cdn.pixabay.com/vimeo/347187191/kitchen-17125.mp4?width=1280&hash=fc3427e5b9399904a67e404a6bde2b651e9b0eb7"
+        type="video/mp4"
+      />
+      Your browser does not support the video tag.
+    </video>
+  </div>
+</div>
 
-        <h2 className="text-3xl font-bold mt-12 text-green-700">How It Works</h2>
-        <p className="text-gray-700 mb-4">Just 5 steps to your meal!</p>
+<h2 className="text-3xl font-bold mt-12 text-green-700">How It Works</h2>
+<p className="text-gray-700 mb-4">Just 5 steps to your meal!</p>
+
 
         {/* Steps with Responsive Arrows */}
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-center sm:flex-wrap">
