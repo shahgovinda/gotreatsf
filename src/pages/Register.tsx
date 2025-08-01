@@ -280,15 +280,14 @@ const Register = () => {
         Enter Your Email<span className="text-red-500">*</span>
       </label>
       <Input
-        value={formData.email}
-        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-        placeholder="Enter your email"
-        size="md"
-        variant="underlined"
-        type="email"
-        isRequired
-        className="w-full rounded-xl border-2 border-orange-200 focus-within:border-orange-400 transition-all"
-      />
+        value={formData.email}
+        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+        placeholder="Enter your email"
+        size="md"
+        variant="underlined"
+        type="email"
+        className="w-full rounded-xl border-2 border-orange-200 focus-within:border-orange-400 transition-all"
+      />
     </div>
 
     <Button
