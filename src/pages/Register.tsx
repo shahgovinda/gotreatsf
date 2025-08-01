@@ -11,7 +11,9 @@ import Button from "@/components/Button";
 import { getUserFromDb, saveNewUserToFirestore } from "@/services/authService";
 import { Phone } from "lucide-react";
 
+// This is the main Register component that handles the user registration flow.
 const Register = () => {
+  // State variables to manage the multi-step registration form.
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
@@ -20,14 +22,20 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // React Router hook for navigation.
   const navigate = useNavigate();
+
+  // Zustand state management hooks for user and user details.
   const setUser = useAuthStore((state) => state.setUser);
   const setUserDetails = useAuthStore((state) => state.setUserDetails);
 
-  // Corrected: The ref is now an array of HTMLInputElement, initialized as nulls.
+  // A useRef hook to store an array of HTMLInputElement refs for the OTP input fields.
+  // This allows for easy navigation and manipulation of the inputs.
   const otpInputsRef = useRef<(HTMLInputElement | null)[]>([]);
 
+  // Function to handle sending the OTP to the user's phone number.
   const handleSendOtp = async () => {
+    // Basic phone number validation.
     if (!/^[6-9]\d{9}$/.test(phone)) {
       toast.error("Invalid phone number");
       setError("Invalid phone number");
@@ -36,12 +44,14 @@ const Register = () => {
     setError("");
     setLoading(true);
     try {
+      // Initialize the reCAPTCHA verifier for phone number sign-in.
       const verifier = new RecaptchaVerifier(auth, "recaptcha-container", {
         size: "invisible",
       });
+      // Send the OTP using Firebase's phone number sign-in method.
       const result = await signInWithPhoneNumber(auth, `+91${phone}`, verifier);
       setConfirmationResult(result);
-      setStep(2);
+      setStep(2); // Move to the next step (OTP verification).
       toast.success("OTP sent");
     } catch (error) {
       console.error("[sendOtp]", error);
@@ -51,6 +61,7 @@ const Register = () => {
     }
   };
 
+  // Function to handle OTP verification.
   const handleVerifyOtp = async () => {
     if (!confirmationResult) {
       toast.error("Please request OTP first");
@@ -63,17 +74,21 @@ const Register = () => {
     setError("");
     setLoading(true);
     try {
+      // Confirm the OTP.
       const result = await confirmationResult.confirm(otp);
       const user = result.user;
 
+      // Check if the user already exists in the database.
       const userDetails = await getUserFromDb(user.uid);
 
       if (userDetails) {
+        // Existing user: sign them in and navigate to the home page.
         setUser(user);
         setUserDetails(userDetails);
         toast.success(`Welcome back, ${userDetails.displayName || 'there'}!`);
         navigate("/");
       } else {
+        // New user: move to the final step to collect name and email.
         console.log("[verifyOtp] New user detected. Moving to name/email input.");
         setStep(3);
       }
@@ -86,6 +101,7 @@ const Register = () => {
     }
   };
 
+  // Function to save new user details to Firestore.
   const handleSaveNewUser = async () => {
     const { name, email } = formData;
     if (!name || !email) {
@@ -108,6 +124,7 @@ const Register = () => {
         profileImage: '',
       };
 
+      // Save the new user data to Firestore and update the global state.
       await saveNewUserToFirestore(newUser);
       setUser(user);
       setUserDetails(newUser);
@@ -121,8 +138,8 @@ const Register = () => {
     }
   };
 
+  // Handles keyboard events for the OTP input fields (e.g., arrow keys, backspace).
   const handleOtpKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, idx: number) => {
-    // Navigate with arrow keys
     if (e.key === 'ArrowRight' && idx < 5) {
       otpInputsRef.current[idx + 1]?.focus();
     } else if (e.key === 'ArrowLeft' && idx > 0) {
@@ -145,6 +162,7 @@ const Register = () => {
     }
   };
 
+  // Handles input changes for the OTP fields.
   const handleOtpChange = (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
     const val = e.target.value.replace(/[^0-9]/g, '');
     if (val.length === 0) return;
@@ -154,6 +172,7 @@ const Register = () => {
     const newOtp = otpArr.join('').slice(0, 6);
     setOtp(newOtp);
 
+    // Automatically move focus to the next input field.
     const next = otpInputsRef.current[idx + 1];
     if (next) {
       next.focus();
@@ -255,8 +274,9 @@ const Register = () => {
                       style={{ WebkitAppearance: 'none', MozAppearance: 'textfield' }}
                       autoFocus={idx === 0}
                       aria-label={`OTP digit ${idx + 1}`}
-                      // Corrected: The ref callback now correctly assigns the element without returning it.
-                      ref={el => (otpInputsRef.current[idx] = el)}
+                      // This ref callback is correctly implemented. It assigns the element to the array
+                      // without returning anything, satisfying the `Ref<HTMLInputElement>` type.
+                      ref={el => { otpInputsRef.current[idx] = el; }}
                     />
                   ))}
                 </div>
