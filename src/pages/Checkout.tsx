@@ -152,10 +152,10 @@ const Checkout = () => {
         setIsPlacingOrder(true);
         try {
             if (!/^\d{6}$/.test(userDetails.address?.pincode || '')) {
-  toast.error("Please enter a valid 6-digit pincode");
-  setIsPlacingOrder(false);
-  return;
-}
+                toast.error("Please enter a valid 6-digit pincode");
+                setIsPlacingOrder(false);
+                return;
+            }
             if (!userDetails) {
                 toast.error('Please log in to continue');
                 setIsPlacingOrder(false);
@@ -432,38 +432,49 @@ const Checkout = () => {
                                     <div className="font-semibold text-gray-800 mb-1">Note for the restaurant</div>
                                     <div className="text-gray-700 break-words">{note}</div>
                                 </div>
-                        </div>
+                            </div>
                         )}
                         <AddressSection uid={userDetails!.uid} />
-                   {/* Preferred Delivery Time */}
+                        {/* Preferred Delivery Time */}
                       
-
-<div className="bg-white rounded-2xl shadow-lg p-6">
-  <h2 className="text-2xl font-semibold text-gray-800 mb-4">Preferred Delivery Time</h2>
-  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-    {[
-      "10:00 AM - 12:00 PM",
-      "12:00 PM - 2:00 PM",
-      "4:00 PM - 6:00 PM",
-      "6:00 PM - 8:00 PM",
-      "8:00 PM - 10:00 PM",
-      "10:00 PM - 11:00 PM",
-    ].map((slot, idx) => (
-      <button
-        key={idx}
-        type="button"
-        onClick={() => setDeliveryTime(slot)}
-        className={`p-4 rounded-xl border-2 text-sm font-medium transition-all text-center ${
-          preferredDeliveryTime === slot
-            ? "border-orange-500 bg-orange-50 text-orange-700 shadow"
-            : "border-gray-200 bg-white hover:border-orange-400 hover:bg-orange-50"
-        }`}
-      >
-        {slot}
-      </button>
-    ))}
-  </div>
-</div>
+                        <div className="bg-white rounded-2xl shadow-lg p-6">
+                            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Preferred Delivery Time</h2>
+                            <div className="flex flex-row flex-wrap gap-4">
+                                {[
+                                    "10:00 AM - 12:00 PM",
+                                    "12:00 PM - 2:00 PM",
+                                    "4:00 PM - 6:00 PM",
+                                    "6:00 PM - 8:00 PM",
+                                    "8:00 PM - 10:00 PM",
+                                    "10:00 PM - 11:00 PM",
+                                ].map((slot, idx) => (
+                                    <div key={idx} className="relative">
+                                        <input
+                                            type="radio"
+                                            id={`delivery-time-${idx}`}
+                                            name="deliveryTime"
+                                            value={slot}
+                                            checked={preferredDeliveryTime === slot.split(' ')[0] && preferredDeliveryPeriod === slot.split(' ')[2]}
+                                            onChange={() => {
+                                                setDeliveryTime(slot.split(' ')[0]);
+                                                setDeliveryPeriod(slot.split(' ')[2]);
+                                            }}
+                                            className="sr-only peer"
+                                        />
+                                        <label
+                                            htmlFor={`delivery-time-${idx}`}
+                                            className={`p-4 rounded-xl border-2 text-sm font-medium transition-all text-center flex-grow cursor-pointer
+                                                ${(preferredDeliveryTime === slot.split(' ')[0] && preferredDeliveryPeriod === slot.split(' ')[2])
+                                                ? "border-orange-500 bg-orange-50 text-orange-700 shadow"
+                                                : "border-gray-200 bg-white hover:border-orange-400 hover:bg-orange-50"
+                                            }`}
+                                        >
+                                            {slot}
+                                        </label>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
 
                     </div>
 
@@ -484,7 +495,7 @@ const Checkout = () => {
                             paymentMode={paymentMode as 'online' | 'cod'}
                             onPaymentModeChange={(mode) => setPaymentMode(mode)}
                             onHandlePayment={handlePaymentClick}
-                            isLoading={false} // You might want to connect this to a loading state
+                            isLoading={isPlacingOrder}
                         />
                     </div>
                 </div>
