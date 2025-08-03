@@ -15,8 +15,7 @@ export const BrandLogo = () => {
     const navigate = useNavigate();
     return (
         <div onClick={() => navigate('/')} className="cursor-pointer">
-            <p className='comfortaa font-extrabold tracking-tighter text-2xl lg:text-3xl text-white'>
-                {/* Change 3: Brand logo text color changed to white */}
+            <p className='comfortaa font-extrabold tracking-tighter text-2xl lg:text-3xl text-orange-600'>
                 <span className='text-green-500'>go</span>treats
             </p>
         </div>
@@ -84,22 +83,19 @@ const Navbar = () => {
 
     return (
         <>
-            {/* Change 1: Navbar background color changed to yellow-400 */}
-            <header className="fixed w-full py-1 z-50 shadow-md border-b bg-yellow-400">
+            <header className=" py-1 z-50 shadow-xl border-b ">
                 <div className="container mx-auto">
-                    {/* Change 2: Inner container background color also changed to yellow-400 */}
-                    <div className="bg-yellow-400">
-                        <div className="grid grid-cols-2 lg:grid-cols-3 px-4 md:pr-2 py-2 items-center">
+                    <div className=" bg-white ">
+                        <div className=" grid grid-cols-2 lg:grid-cols-3 px-4 md:pr-2 py-2 items-center">
                             <div className='flex items-center gap-2'>
-                                <span onClick={() => setIsOpen(!isOpen)} className='cursor-pointer'>
-                                    {/* Change 4: Menu icon color changed to white */}
+                                <span onClick={() => setIsOpen(!isOpen)}>
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="24"
                                         height="24"
                                         viewBox="0 0 24 24"
                                         fill="none"
-                                        stroke="white"
+                                        stroke="currentColor"
                                         strokeWidth="2"
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
@@ -112,18 +108,17 @@ const Navbar = () => {
                                 </span>
                                 <BrandLogo />
                             </div>
-                            <div className="hidden lg:block">
-                                <nav className="flex gap-10 items-center justify-center text-white font-medium">
-                                    {/* Change 5: Main navigation links text color changed to white and hover effect updated */}
-                                    <Link to="/shop" className="nav-underline hover:text-green-500 transition">Menu</Link>
-                                    <Link to="/concept" className="nav-underline hover:text-green-500 transition">Concept</Link>
-                                    <Link to="/about" className="nav-underline hover:text-green-500 transition">About</Link>
-                                    <Link to="/customers" className="nav-underline hover:text-green-500 transition">Customers</Link>
-                                    <Link to="/contact" className="nav-underline hover:text-green-500 transition">Contact</Link>
+                           <div className="hidden lg:block">
+                                <nav className="flex gap-10 items-center justify-center">
+                                    <Link to="/shop" className="nav-underline">Menu</Link>
+                                    <Link to="/concept" className="nav-underline">Concept</Link>
+                                    <Link to="/about" className="nav-underline">About</Link>
+                                    <Link to="/customers" className="nav-underline">Customers</Link>
+                                    <Link to="/contact" className="nav-underline">Contact</Link>
                                 </nav>
                             </div>
 
-                            <div className="flex justify-end gap-4 items-center">
+                            <div className="flex justify-end gap-4">
                                 {!user && (
                                     <button
                                         className="custom-signup-btn px-4 py-2 h-auto md:h-12 md:px-8 md:text-lg rounded-2xl font-medium text-base bg-gradient-to-r from-orange-400 to-yellow-300 text-white shadow-md border border-orange-200 hover:from-orange-500 hover:to-yellow-400 hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center"
@@ -137,9 +132,8 @@ const Navbar = () => {
                                 {user &&
                                     <div onClick={() => navigate('/checkout')} className="cursor-pointer">
                                         <IconButton>
-                                            {/* Change 6: Shopping cart icon color changed to white */}
-                                            <ShoppingCart strokeWidth={1.5} size={22} className="text-white" />
-                                            <p className='text-green-600 font-bold text-lg'>
+                                            <ShoppingCart strokeWidth={1.5} size={20} />
+                                            <p className='text-green-600 text-lg'>
                                                 {items.reduce((total, item) => total + item.quantity, 0)}
                                             </p>
                                         </IconButton>
@@ -158,15 +152,15 @@ const Navbar = () => {
                                         <DropdownTrigger>
                                             <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-green-500 cursor-pointer flex items-center justify-center">
                                                 {userDetails?.profileImage ? (
-                                                    <img
-                                                        src={userDetails.profileImage}
-                                                        alt="Profile"
+                                                    <img 
+                                                        src={userDetails.profileImage} 
+                                                        alt="Profile" 
                                                         className="w-full h-full object-cover"
                                                     />
                                                 ) : (
-                                                    <span
-                                                        className="text-lg font-semibold uppercase text-white"
-                                                        style={{ fontSize: '1.2rem' }}
+                                                    <span 
+                                                        className="text-lg font-semibold uppercase text-gray-700" 
+                                                        style={{ color: '#777', fontSize: '1.2rem' }} // Adjusted for better visibility in a small circle
                                                     >
                                                         {userDetails?.displayName?.[0] || 'U'}
                                                     </span>
@@ -221,11 +215,9 @@ const Navbar = () => {
                                     initial={{ height: 0 }}
                                     animate={{ height: "100dvh" }}
                                     exit={{ height: 0 }}
-                                    // Change 7: Mobile menu background color changed to yellow-400
-                                    className="overflow-hidden fixed inset-0 bg-yellow-400 z-40 lg:hidden">
+                                    className="overflow-hidden">
                                     <div className="flex flex-col gap-10 items-center justify-center px-10 py-10 ">
-                                        {/* Change 8: Mobile menu links text color changed to white */}
-                                        <nav className="flex flex-col gap-14 items-center justify-center text-white font-medium">
+                                        <nav className="flex flex-col gap-14 items-center justify-center">
                                             <Link to="/" onClick={() => setIsOpen(false)} className={`text-lg `}>Home</Link>
                                             <Link to="/shop" onClick={() => setIsOpen(false)} className={`text-lg `}>Shop</Link>
                                             <Link to={user ? "/profile" : "/register"} onClick={() => setIsOpen(false)} className={`text-lg `}>Profile</Link>
@@ -235,8 +227,8 @@ const Navbar = () => {
                                             <Link to="/concept" onClick={() => setIsOpen(false)} className={`text-lg `}>Concept</Link>
                                             <Link to="/terms-and-conditions" onClick={() => setIsOpen(false)} className={`text-lg `}>Terms and Conditions</Link>
                                             <Link to="#" onClick={() => { setIsOpen(false); setShowLikedModal(true); }} className="text-lg flex items-center gap-2">
-                                                <Heart size={20} className="text-pink-500" /> Liked Food
-                                            </Link>
+                                <Heart size={20} className="text-pink-500" /> Liked Food
+                            </Link>
                                         </nav>
                                         <div className="space-y-4 w-full">
 
@@ -329,3 +321,4 @@ const Navbar = () => {
 }
 
 export default Navbar
+
