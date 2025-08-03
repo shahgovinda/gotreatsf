@@ -15,7 +15,8 @@ export const BrandLogo = () => {
     const navigate = useNavigate();
     return (
         <div onClick={() => navigate('/')} className="cursor-pointer">
-            <p className='comfortaa font-extrabold tracking-tighter text-2xl lg:text-3xl text-orange-600'>
+            <p className='comfortaa font-extrabold tracking-tighter text-2xl lg:text-3xl text-white'>
+                {/* Change 3: Brand logo text color changed to white */}
                 <span className='text-green-500'>go</span>treats
             </p>
         </div>
@@ -83,19 +84,22 @@ const Navbar = () => {
 
     return (
         <>
-            <header className="fixed w-full py-1 z-50 shadow-md border-b bg-white">
+            {/* Change 1: Navbar background color changed to yellow-400 */}
+            <header className="fixed w-full py-1 z-50 shadow-md border-b bg-yellow-400">
                 <div className="container mx-auto">
-                    <div className="bg-white">
+                    {/* Change 2: Inner container background color also changed to yellow-400 */}
+                    <div className="bg-yellow-400">
                         <div className="grid grid-cols-2 lg:grid-cols-3 px-4 md:pr-2 py-2 items-center">
                             <div className='flex items-center gap-2'>
                                 <span onClick={() => setIsOpen(!isOpen)} className='cursor-pointer'>
+                                    {/* Change 4: Menu icon color changed to white */}
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="24"
                                         height="24"
                                         viewBox="0 0 24 24"
                                         fill="none"
-                                        stroke="currentColor"
+                                        stroke="white"
                                         strokeWidth="2"
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
@@ -109,7 +113,8 @@ const Navbar = () => {
                                 <BrandLogo />
                             </div>
                             <div className="hidden lg:block">
-                                <nav className="flex gap-10 items-center justify-center text-gray-700 font-medium">
+                                <nav className="flex gap-10 items-center justify-center text-white font-medium">
+                                    {/* Change 5: Main navigation links text color changed to white and hover effect updated */}
                                     <Link to="/shop" className="nav-underline hover:text-green-500 transition">Menu</Link>
                                     <Link to="/concept" className="nav-underline hover:text-green-500 transition">Concept</Link>
                                     <Link to="/about" className="nav-underline hover:text-green-500 transition">About</Link>
@@ -132,7 +137,8 @@ const Navbar = () => {
                                 {user &&
                                     <div onClick={() => navigate('/checkout')} className="cursor-pointer">
                                         <IconButton>
-                                            <ShoppingCart strokeWidth={1.5} size={22} className="text-gray-700" />
+                                            {/* Change 6: Shopping cart icon color changed to white */}
+                                            <ShoppingCart strokeWidth={1.5} size={22} className="text-white" />
                                             <p className='text-green-600 font-bold text-lg'>
                                                 {items.reduce((total, item) => total + item.quantity, 0)}
                                             </p>
@@ -159,8 +165,8 @@ const Navbar = () => {
                                                     />
                                                 ) : (
                                                     <span
-                                                        className="text-lg font-semibold uppercase text-gray-700"
-                                                        style={{ color: '#777', fontSize: '1.2rem' }}
+                                                        className="text-lg font-semibold uppercase text-white"
+                                                        style={{ fontSize: '1.2rem' }}
                                                     >
                                                         {userDetails?.displayName?.[0] || 'U'}
                                                     </span>
@@ -215,9 +221,11 @@ const Navbar = () => {
                                     initial={{ height: 0 }}
                                     animate={{ height: "100dvh" }}
                                     exit={{ height: 0 }}
-                                    className="overflow-hidden fixed inset-0 bg-white z-40 lg:hidden">
+                                    // Change 7: Mobile menu background color changed to yellow-400
+                                    className="overflow-hidden fixed inset-0 bg-yellow-400 z-40 lg:hidden">
                                     <div className="flex flex-col gap-10 items-center justify-center px-10 py-10 ">
-                                        <nav className="flex flex-col gap-14 items-center justify-center text-gray-700 font-medium">
+                                        {/* Change 8: Mobile menu links text color changed to white */}
+                                        <nav className="flex flex-col gap-14 items-center justify-center text-white font-medium">
                                             <Link to="/" onClick={() => setIsOpen(false)} className={`text-lg `}>Home</Link>
                                             <Link to="/shop" onClick={() => setIsOpen(false)} className={`text-lg `}>Shop</Link>
                                             <Link to={user ? "/profile" : "/register"} onClick={() => setIsOpen(false)} className={`text-lg `}>Profile</Link>
