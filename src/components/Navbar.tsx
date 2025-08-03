@@ -215,22 +215,24 @@ const Navbar = () => {
                                     initial={{ height: 0 }}
                                     animate={{ height: "100dvh" }}
                                     exit={{ height: 0 }}
-                                    className="overflow-hidden">
-                                    <div className="flex flex-col gap-10 items-center justify-center px-10 py-10 ">
+                                    // Added dark background and text color
+                                    className="md:hidden fixed top-0 left-0 w-full bg-gray-900 text-white z-40 overflow-y-auto"
+                                >
+                                    <div className="flex flex-col gap-10 items-center justify-center px-10 py-10">
                                         <nav className="flex flex-col gap-14 items-center justify-center">
-                                            <Link to="/" onClick={() => setIsOpen(false)} className={`text-lg `}>Home</Link>
-                                            <Link to="/shop" onClick={() => setIsOpen(false)} className={`text-lg `}>Shop</Link>
-                                            <Link to={user ? "/profile" : "/register"} onClick={() => setIsOpen(false)} className={`text-lg `}>Profile</Link>
-                                            <Link to="/about" onClick={() => setIsOpen(false)} className={`text-lg `}>About</Link>
-                                            <Link to="/customers" onClick={() => setIsOpen(false)} className={`text-lg `}>Customers</Link>
-                                            <Link to="/contact" onClick={() => setIsOpen(false)} className={`text-lg `}>Contact Us</Link>
-                                            <Link to="/concept" onClick={() => setIsOpen(false)} className={`text-lg `}>Concept</Link>
-                                            <Link to="/terms-and-conditions" onClick={() => setIsOpen(false)} className={`text-lg `}>Terms and Conditions</Link>
-                                            <Link to="#" onClick={() => { setIsOpen(false); setShowLikedModal(true); }} className="text-lg flex items-center gap-2">
-                                <Heart size={20} className="text-pink-500" /> Liked Food
-                            </Link>
+                                            <Link to="/" onClick={() => setIsOpen(false)} className={`text-xl font-bold `}>Home</Link>
+                                            <Link to="/shop" onClick={() => setIsOpen(false)} className={`text-xl font-bold `}>Shop</Link>
+                                            <Link to={user ? "/profile" : "/register"} onClick={() => setIsOpen(false)} className={`text-xl font-bold `}>Profile</Link>
+                                            <Link to="/about" onClick={() => setIsOpen(false)} className={`text-xl font-bold `}>About</Link>
+                                            <Link to="/customers" onClick={() => setIsOpen(false)} className={`text-xl font-bold `}>Customers</Link>
+                                            <Link to="/contact" onClick={() => setIsOpen(false)} className={`text-xl font-bold `}>Contact Us</Link>
+                                            <Link to="/concept" onClick={() => setIsOpen(false)} className={`text-xl font-bold `}>Concept</Link>
+                                            <Link to="/terms-and-conditions" onClick={() => setIsOpen(false)} className={`text-xl font-bold `}>Terms and Conditions</Link>
+                                            <Link to="#" onClick={() => { setIsOpen(false); setShowLikedModal(true); }} className="text-xl font-bold flex items-center gap-2">
+                                                <Heart size={20} className="text-pink-500" /> Liked Food
+                                            </Link>
                                         </nav>
-                                        <div className="space-y-4 w-full">
+                                        <div className="space-y-4 w-full px-4">
 
                                             {user ?
                                                 <Button variant='danger' className='w-full' onClick={() => setShowLogoutModal(true)}>Log Out</Button> :
