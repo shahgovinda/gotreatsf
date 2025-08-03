@@ -88,28 +88,23 @@ const Navbar = () => {
                     <div className=" bg-white ">
                         <div className=" grid grid-cols-2 lg:grid-cols-3 px-4 md:pr-2 py-2 items-center">
                             <div className='flex items-center gap-2'>
-                                {/* Close button added back and styling updated */}
-                                <span onClick={() => setIsOpen(!isOpen)} className="md:hidden">
-                                    {isOpen ? (
-                                        <X size={24} className="text-gray-800" />
-                                    ) : (
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="24"
-                                            height="24"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="2"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            className="feather feather-menu"
-                                        >
-                                            <line x1="3" y1="6" x2="21" y2="6" className={`origin-left transition`}></line>
-                                            <line x1="3" y1="12" x2="21" y2="12" className={isOpen ? "opacity-0 transition" : "transition"}></line>
-                                            <line x1="3" y1="18" x2="21" y2="18" className={`origin-left transition`}></line>
-                                        </svg>
-                                    )}
+                                <span onClick={() => setIsOpen(!isOpen)}>
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="24"
+                                        height="24"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        className="feather feather-menu md:hidden"
+                                    >
+                                        <line x1="3" y1="6" x2="21" y2="6" className={`origin-left transition ${isOpen ? "rotate-45 -translate-y-1" : ""}`}></line>
+                                        <line x1="3" y1="12" x2="21" y2="12" className={isOpen ? "opacity-0 transition" : "transition"}></line>
+                                        <line x1="3" y1="18" x2="21" y2="18" className={`origin-left transition ${isOpen ? "-rotate-45 translate-y-1" : ""}`}></line>
+                                    </svg>
                                 </span>
                                 <BrandLogo />
                             </div>
@@ -220,28 +215,22 @@ const Navbar = () => {
                                     initial={{ height: 0 }}
                                     animate={{ height: "100dvh" }}
                                     exit={{ height: 0 }}
-                                    // Mobile menu background changed to a lighter, yellow-green gradient.
-                                    className="md:hidden fixed top-0 left-0 w-full bg-gradient-to-b from-green-50 to-yellow-50 text-gray-800 z-40 overflow-y-auto"
-                                >
-                                    <div className="flex flex-col gap-10 items-center justify-center px-10 py-10">
+                                    className="overflow-hidden">
+                                    <div className="flex flex-col gap-10 items-center justify-center px-10 py-10 ">
                                         <nav className="flex flex-col gap-14 items-center justify-center">
-                                            {/* Close button inside the menu */}
-                                            <div className="absolute top-4 right-4 cursor-pointer" onClick={() => setIsOpen(false)}>
-                                                <X size={28} className="text-gray-800" />
-                                            </div>
-                                            <Link to="/" onClick={() => setIsOpen(false)} className={`text-xl font-bold `}>Home</Link>
-                                            <Link to="/shop" onClick={() => setIsOpen(false)} className={`text-xl font-bold `}>Shop</Link>
-                                            <Link to={user ? "/profile" : "/register"} onClick={() => setIsOpen(false)} className={`text-xl font-bold `}>Profile</Link>
-                                            <Link to="/about" onClick={() => setIsOpen(false)} className={`text-xl font-bold `}>About</Link>
-                                            <Link to="/customers" onClick={() => setIsOpen(false)} className={`text-xl font-bold `}>Customers</Link>
-                                            <Link to="/contact" onClick={() => setIsOpen(false)} className={`text-xl font-bold `}>Contact Us</Link>
-                                            <Link to="/concept" onClick={() => setIsOpen(false)} className={`text-xl font-bold `}>Concept</Link>
-                                            <Link to="/terms-and-conditions" onClick={() => setIsOpen(false)} className={`text-xl font-bold `}>Terms and Conditions</Link>
-                                            <Link to="#" onClick={() => { setIsOpen(false); setShowLikedModal(true); }} className="text-xl font-bold flex items-center gap-2">
-                                                <Heart size={20} className="text-pink-500" /> Liked Food
-                                            </Link>
+                                            <Link to="/" onClick={() => setIsOpen(false)} className={`text-lg `}>Home</Link>
+                                            <Link to="/shop" onClick={() => setIsOpen(false)} className={`text-lg `}>Shop</Link>
+                                            <Link to={user ? "/profile" : "/register"} onClick={() => setIsOpen(false)} className={`text-lg `}>Profile</Link>
+                                            <Link to="/about" onClick={() => setIsOpen(false)} className={`text-lg `}>About</Link>
+                                            <Link to="/customers" onClick={() => setIsOpen(false)} className={`text-lg `}>Customers</Link>
+                                            <Link to="/contact" onClick={() => setIsOpen(false)} className={`text-lg `}>Contact Us</Link>
+                                            <Link to="/concept" onClick={() => setIsOpen(false)} className={`text-lg `}>Concept</Link>
+                                            <Link to="/terms-and-conditions" onClick={() => setIsOpen(false)} className={`text-lg `}>Terms and Conditions</Link>
+                                            <Link to="#" onClick={() => { setIsOpen(false); setShowLikedModal(true); }} className="text-lg flex items-center gap-2">
+                                <Heart size={20} className="text-pink-500" /> Liked Food
+                            </Link>
                                         </nav>
-                                        <div className="space-y-4 w-full px-4">
+                                        <div className="space-y-4 w-full">
 
                                             {user ?
                                                 <Button variant='danger' className='w-full' onClick={() => setShowLogoutModal(true)}>Log Out</Button> :
