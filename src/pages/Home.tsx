@@ -194,12 +194,13 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ------varieties------ */}
-      <section className="py-14 md:py-20 bg-gradient-to-b from-orange-50 via-white to-green-50 mt-10 md:mt-16 mb-10 md:mb-16">
+    {/* ------varieties------ */}
+      <section className="py-14 md:py-20 bg-gradient-to-b from-green-50 via-white to-green-100 mt-10 md:mt-16 mb-10 md:mb-16">
         <div className="container mx-auto">
           <h1 className="text-center mb-10 lancelot text-3xl sm:text-4xl md:text-5xl flex items-center justify-center tracking-wide">
             Explore&nbsp;
-            <span className="text-orange-600 font-bold transition duration-700 ease-in-out">Food</span>
+            {/* Updated text color from orange-600 to green-600 */}
+            <span className="text-green-600 font-bold transition duration-700 ease-in-out">Food</span>
             &nbsp;Varieties
           </h1>
 
@@ -208,12 +209,12 @@ const Home = () => {
               <div
                 key={variety.id}
                 onClick={() => navigate(variety.link)}
-                className="group p-3 md:p-4 flex flex-col items-center gap-3 cursor-pointer bg-white rounded-2xl shadow hover:shadow-lg border border-orange-100 transition-all duration-300 ease-in hover:-translate-y-1"
+                className="group p-3 md:p-4 flex flex-col items-center gap-3 cursor-pointer bg-white rounded-2xl shadow hover:shadow-lg border border-green-100 transition-all duration-300 ease-in hover:-translate-y-1"
               >
-                <div className="hover:scale-105 transition-all duration-300 ease-in rounded-full overflow-hidden border-4 border-orange-100 group-hover:border-orange-300 bg-white">
+                <div className="hover:scale-105 transition-all duration-300 ease-in rounded-full overflow-hidden border-4 border-green-100 group-hover:border-green-300 bg-white">
                   <img className="rounded-full object-cover w-32 h-32 md:w-36 md:h-36" src={variety.img} alt={variety.name} />
                 </div>
-                <p className="text-lg md:text-xl font-semibold lancelot text-center mt-2 text-gray-800 group-hover:text-orange-600 transition-colors duration-200">{variety.name}</p>
+                <p className="text-lg md:text-xl font-semibold lancelot text-center mt-2 text-gray-800 group-hover:text-green-600 transition-colors duration-200">{variety.name}</p>
               </div>
             ))}
           </div>
