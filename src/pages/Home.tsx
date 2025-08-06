@@ -17,6 +17,10 @@ import ScrollingBanner from '../components/ScrollingBanner';
 import { Image } from '@heroui/react';
 import { deleteOrdersByCustomerUid } from '@/services/orderService';
 import { motion, Variants } from 'framer-motion';
+// IMPORTS
+
+// --- IMPORTS FOR SPECIAL DAY BANNER ---
+import SpecialDayBanner from '../components/SpecialDayBanner';
 
 // Define the Review interface
 interface Review {
@@ -103,42 +107,50 @@ const Home = () => {
     }
   ]
   // useEffect(() => {
-  //   const deleteOrders = async () => {
-  //     await deleteOrdersByCustomerUid('3IIckUCL9tXmr96y4QxHegYtoas2');
-  //   };
-  //   deleteOrders();
+  //  const deleteOrders = async () => {
+  //    await deleteOrdersByCustomerUid('3IIckUCL9tXmr96y4QxHegYtoas2');
+  //  };
+  //  deleteOrders();
   // }, []);
+
+  // Define the special day message here
+  const specialDayMessage = "Happy Raksha Bandhan! Enjoy a special discount on all meals today.";
+
   return (
     <main className="min-h-[calc(100vh-64px)] w-full overflow-x-hidden">
+      {/* -------------------- SPECIAL DAY BANNER ADDED HERE -------------------- */}
+      <SpecialDayBanner specialDayMessage={specialDayMessage} />
+      {/* ----------------------------------------------------------------------- */}
+
       <ScrollingBanner />
 
-     <Link
-  to="https://zomato.onelink.me/xqzv/ut3cavr1"
-  target="_blank"
-  className="relative flex items-center justify-center h-14 bg-[#f44336] overflow-hidden group shadow-sm"
->
-  {/* Subtle glowing dot left */}
-  <div className="absolute left-5 w-2 h-2 bg-white rounded-full animate-ping opacity-60"></div>
+      <Link
+        to="https://zomato.onelink.me/xqzv/ut3cavr1"
+        target="_blank"
+        className="relative flex items-center justify-center h-14 bg-[#f44336] overflow-hidden group shadow-sm"
+      >
+        {/* Subtle glowing dot left */}
+        <div className="absolute left-5 w-2 h-2 bg-white rounded-full animate-ping opacity-60"></div>
 
-  {/* Shimmer animation */}
-  <div className="absolute inset-0 bg-white/10 blur-sm animate-slideBg pointer-events-none"></div>
+        {/* Shimmer animation */}
+        <div className="absolute inset-0 bg-white/10 blur-sm animate-slideBg pointer-events-none"></div>
 
-  {/* Text & Logo */}
-  <div className="relative z-10 flex items-center gap-3 text-white font-medium tracking-wide text-sm sm:text-base">
-    <span className="opacity-90 group-hover:opacity-100 transition-all duration-300">
-      Now Available On
-    </span>
-    <img
-      src="https://cdn.brandfetch.io/idEql8nEWn/theme/light/logo.svg?c=1dxbfHSJFAPEGdCLU4o5B"
-      alt="Zomato"
-      className="h-6 sm:h-8 transition-transform duration-300 ease-in-out group-hover:scale-105"
-    />
-  </div>
+        {/* Text & Logo */}
+        <div className="relative z-10 flex items-center gap-3 text-white font-medium tracking-wide text-sm sm:text-base">
+          <span className="opacity-90 group-hover:opacity-100 transition-all duration-300">
+            Now Available On
+          </span>
+          <img
+            src="https://cdn.brandfetch.io/idEql8nEWn/theme/light/logo.svg?c=1dxbfHSJFAPEGdCLU4o5B"
+            alt="Zomato"
+            className="h-6 sm:h-8 transition-transform duration-300 ease-in-out group-hover:scale-105"
+          />
+        </div>
 
-  {/* Subtle glowing dot right */}
-  <div className="absolute right-5 w-2 h-2 bg-white rounded-full animate-ping opacity-60"></div>
+        {/* Subtle glowing dot right */}
+        <div className="absolute right-5 w-2 h-2 bg-white rounded-full animate-ping opacity-60"></div>
 
-</Link>
+      </Link>
 
 
 
@@ -148,24 +160,24 @@ const Home = () => {
           {/* Left Column */}
           <div className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left justify-center md:justify-start mt-2 md:mt-0">
             <h1 className="text-4xl sm:text-5xl lg:text-7xl lancelot mb-3 text-gray-900 animate-[fadeIn_0.6s_ease-out] flex items-center gap-2">
-  <span className="text-green-600">Enjoy</span>
-  <div className="loader text-orange-500">
-    <div className="words">
-      <span className="word">Meals</span>
-      <span className="word">Pasta</span>
-      <span className="word">Maggi</span>
-      <span className="word">Deserts</span>
-      <span className="word">Snacks</span>
-    </div>
-  </div>
-</h1>
+              <span className="text-green-600">Enjoy</span>
+              <div className="loader text-orange-500">
+                <div className="words">
+                  <span className="word">Meals</span>
+                  <span className="word">Pasta</span>
+                  <span className="word">Maggi</span>
+                  <span className="word">Deserts</span>
+                  <span className="word">Snacks</span>
+                </div>
+              </div>
+            </h1>
 
             <p className="text-gray-700 text-base sm:text-lg lg:text-xl mb-4 sm:mb-6 max-w-xl leading-relaxed font-medium animate-[fadeIn_0.8s_ease-in] tracking-wide">
-  <TypewriterText
-    text="Freshly prepared with love — nutritious, homestyle meals delivered just the way you like it."
-    speed={50}
-  />
-</p>
+              <TypewriterText
+                text="Freshly prepared with love — nutritious, homestyle meals delivered just the way you like it."
+                speed={50}
+              />
+            </p>
 
             <div className='mb-2'>
               {userDetails?.role === 'admin' ?
@@ -194,7 +206,7 @@ const Home = () => {
         </div>
       </section>
 
-    {/* ------varieties------ */}
+      {/* ------varieties------ */}
       <section className="py-14 md:py-20 bg-gradient-to-b from-green-50 via-white to-green-100 mt-10 md:mt-16 mb-10 md:mb-16">
         <div className="container mx-auto">
           <h1 className="text-center mb-10 lancelot text-3xl sm:text-4xl md:text-5xl flex items-center justify-center tracking-wide">
@@ -273,13 +285,13 @@ const Home = () => {
             <p className="text-gray-500 text-base md:text-lg font-medium">Real feedback from our valued customers</p>
           </div>
           <div className="relative max-w-[90%] mx-auto">
-            <button 
+            <button
               onClick={() => handleReviewScroll('left')}
               className="absolute left-[-40px] top-1/2 -translate-y-1/2 z-10 bg-white p-3 rounded-full shadow-lg hover:bg-gray-50 hover:shadow-xl transition-all border border-gray-100"
             >
               <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
             </button>
-            <button 
+            <button
               onClick={() => handleReviewScroll('right')}
               className="absolute right-[-40px] top-1/2 -translate-y-1/2 z-10 bg-white p-3 rounded-full shadow-lg hover:bg-gray-50 hover:shadow-xl transition-all border border-gray-100"
             >
