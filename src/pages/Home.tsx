@@ -120,7 +120,9 @@ const Home = () => {
     { month: 4, date: 12, message: "Happy Buddha Purnima! Enjoy our peaceful and delicious vegetarian specials." },
     { month: 5, date: 7, message: "Happy Eid al-Adha (Bakrid)! Celebrate with our special festive feasts." },
     { month: 6, date: 6, message: "Happy Muharram! A day of remembrance, marked with our comforting meals." },
+    { month: 7, date: 6, message: "Hiroshima Day! Hiroshima still echoes pain." },
     { month: 7, date: 9, message: "Happy Raksha Bandhan! Enjoy a special discount on all meals today." },
+  
     { month: 7, date: 15, message: "Happy Independence Day! Celebrate the spirit of freedom with our special offers." },
     { month: 7, date: 16, message: "Happy Janmashtami! Enjoy our special festive treats and meals." },
     { month: 7, date: 20, message: "A very Happy Birthday to the founder of GoTreats! Celebrating a special day with a special offer for you!" },
