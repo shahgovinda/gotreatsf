@@ -5,10 +5,10 @@ import OrderSummary from '../components/OrderSummary';
 import { fetchUserOrders } from '../services/orderService';
 import { useAuthStore } from '../store/authStore';
 import { StatusBadge } from '../components/StatusBadge';
-import { ArrowLeft, ArrowRight, CheckCircle, CircleHelp, HandCoins, Home, RefreshCcw, Store, XIcon, Info, DeliveryTruck } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, CircleHelp, HandCoins, Home, RefreshCcw, Store, XIcon, Info, Car } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerBody, DrawerFooter } from "@heroui/drawer";
 import { useDisclosure } from '@/hooks/useDisclosure';
-import { useCartStore } from '../store/cartStore'; // Import the cart store
+import { useCartStore } from '../store/cartStore';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -37,7 +37,7 @@ const Orders = () => {
         item: any | null,
         orderId: string | null
     }>({ open: false, item: null, orderId: null });
-    const [ratedItems, setRatedItems] = useState<{ [key: string]: boolean }>({}); // key: orderId_itemId
+    const [ratedItems, setRatedItems] = useState<{ [key: string]: boolean }>({});
     const [checkingRatings, setCheckingRatings] = useState(false);
 
     useEffect(() => window.scrollTo(0, 0), []);
@@ -50,17 +50,14 @@ const Orders = () => {
     });
 
     useEffect(() => {
-        // If a selected order is open in the drawer, check for its updates from the refetched orders list
         if (selectedOrder && orders.length > 0) {
             const updatedOrderInList = orders.find(order => order.id === selectedOrder.id);
-            // If the order is found and its data is different from what's in the state, update it
             if (updatedOrderInList && JSON.stringify(updatedOrderInList) !== JSON.stringify(selectedOrder)) {
                 setSelectedOrder(updatedOrderInList);
             }
         }
-    }, [orders, selectedOrder]); // Rerun when orders data or selectedOrder changes
+    }, [orders, selectedOrder]);
 
-    // Check for unrated delivered items after orders load
     useEffect(() => {
         if (!orders || orders.length === 0 || checkingRatings) return;
         setCheckingRatings(true);
@@ -69,8 +66,7 @@ const Orders = () => {
                 if (order.orderStatus === 'delivered' && order.items) {
                     for (const item of order.items) {
                         const key = `${order.id}_${item.id}`;
-                        if (ratedItems[key]) continue; // already rated/skipped in this session
-                        // Check Firestore if this user has rated this item for this order
+                        if (ratedItems[key]) continue;
                         const q = query(
                             collection(db, 'ratings'),
                             where('itemId', '==', item.id),
@@ -79,7 +75,6 @@ const Orders = () => {
                         );
                         const snap = await getDocs(q);
                         if (snap.empty) {
-                            // Show modal for this item
                             setRatingModal({ open: true, item, orderId: order.id });
                             setCheckingRatings(false);
                             return;
@@ -89,10 +84,8 @@ const Orders = () => {
             }
             setCheckingRatings(false);
         })();
-        // eslint-disable-next-line
     }, [orders, userDetails, ratedItems]);
 
-    // Handler for submitting rating
     const handleSubmitRating = async (rating: number, review: string) => {
         if (!ratingModal.item || !ratingModal.orderId) return;
         await addItemRating({
@@ -101,17 +94,14 @@ const Orders = () => {
             orderId: ratingModal.orderId,
             rating,
             review,
-            userName: userDetails?.displayName || 'User', // <-- Added userName
+            userName: userDetails?.displayName || 'User',
         });
-        // Mark as rated in this session
         setRatedItems(prev => ({ ...prev, [`${ratingModal.orderId}_${ratingModal.item.id}`]: true }));
         setRatingModal({ open: false, item: null, orderId: null });
     };
 
-    // Handler for skipping rating (remind later)
     const handleSkipRating = () => {
         if (!ratingModal.item || !ratingModal.orderId) return;
-        // Mark as skipped in this session (not in DB, so will remind next time)
         setRatedItems(prev => ({ ...prev, [`${ratingModal.orderId}_${ratingModal.item.id}`]: true }));
         setRatingModal({ open: false, item: null, orderId: null });
     };
@@ -124,12 +114,6 @@ const Orders = () => {
         return <div className='text-center py-10 text-red-500'>Failed to load orders. Please try again later.</div>;
     }
 
-    // Sort orders: prioritize non-delivered orders, then by creation date (most recent first)
-    // const sortedOrders = [...orders].sort((a, b) => {
-    //      if (a.orderStatus !== 'delivered' && b.orderStatus === 'delivered') return -1;
-    //      if (a.orderStatus === 'delivered' && b.orderStatus !== 'delivered') return 1;
-    //      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    // });
     const sortedOrders = [...orders].sort(
         (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
@@ -151,7 +135,7 @@ const Orders = () => {
     };
 
     const handleReorder = async (orderItems: CartItem[]) => {
-        onClose(); // Close the details drawer immediately
+        onClose();
         const updatedItems: CartItem[] = [];
         const changes: any = [];
         let isAvailable = true;
@@ -194,7 +178,6 @@ const Orders = () => {
         setPriceModalOpen(false);
     };
 
-    // Get dynamic border color based on order status
     const getBorderColor = (status: string) => {
         switch (status) {
             case 'received':
@@ -216,17 +199,16 @@ const Orders = () => {
         }
     };
 
-    // Get dynamic background color based on order status
     const getBackgroundColor = (status: string) => {
         switch (status) {
             case 'delivered':
                 return 'bg-green-100';
             case 'cancelled':
-                return 'bg-red-50'; // Distinct background for cancelled and failed orders
+                return 'bg-red-50';
             case 'failed':
-                return 'bg-red-100'; // Distinct background for cancelled and failed orders
+                return 'bg-red-100';
             default:
-                return 'bg-white'; // Gradient for other non-delivered orders
+                return 'bg-white';
         }
     };
 
@@ -235,7 +217,6 @@ const Orders = () => {
             <div className='w-full sm:max-w-3xl sm:px-5 sm:mx-auto px-2'>
                 <div className='flex flex-col sm:flex-row sm:justify-between sm:items-center items-start'>
                     <h1 className='text-2xl sm:text-4xl font-semibold lancelot py-5 sm:py-10 text-gray-700'>Past Orders</h1>
-                    {/* Desktop: Prominent Need Help Button */}
                     <button
                         className='hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-600 text-white font-semibold shadow-md hover:bg-purple-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2'
                         onClick={() => navigate('/contact')}
@@ -243,7 +224,6 @@ const Orders = () => {
                         <Info size={22} className='text-white' /> Need help?
                     </button>
                 </div>
-                {/* Mobile: Full-width Need Help Button */}
                 <button
                     className='flex sm:hidden w-full items-center justify-center gap-2 px-4 py-3 rounded-lg bg-purple-600 text-white font-semibold shadow-md hover:bg-purple-700 transition-all duration-200 mb-4 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2'
                     onClick={() => navigate('/contact')}
@@ -261,7 +241,7 @@ const Orders = () => {
                             {sortedOrders.map((order, i) => (
                                 <motion.div
                                     key={order.id}
-                                    initial={{ opacity: 0, x: -50 }} // Mount animation: from top
+                                    initial={{ opacity: 0, x: -50 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ duration: 0.2, delay: i * 0.1 }}
                                     className={`sm:p-8 p-3 w-full border rounded-xl border-l-5 ${getBorderColor(order.orderStatus)} ${getBackgroundColor(order.orderStatus)}`}
@@ -308,13 +288,12 @@ const Orders = () => {
                     </AnimatePresence>
                 )}
             </div>
-            {/* ----- order details for mobile ----- */}
             <Drawer isOpen={isOpen} onOpenChange={onClose} className='shadow-xl' backdrop='blur'>
                 <DrawerContent className='bg-white z-100 '>
                     {(onClose) => (
                         <div className='flex flex-col h-full justify-between '>
                             <div>
-                                <DrawerHeader className="flex items-center gap-1 bg-white  border-b fixed top-0 w-full  shadow-sm">
+                                <DrawerHeader className="flex items-center gap-1 bg-white border-b fixed top-0 w-full shadow-sm">
                                     <IconButton><ArrowLeft size={20} onClick={onClose} /></IconButton>
                                     <p> Order #{selectedOrder?.id}</p>
 
@@ -338,11 +317,10 @@ const Orders = () => {
                                             <p>{formatAddress(selectedOrder?.address)}</p>
                                         </div>
                                         
-                                        {/* New section for Delivery Time */}
                                         {selectedOrder?.deliveryTime && (
                                             <div className="flex flex-col text-sm text-gray-600">
                                                 <span className="font-semibold text-gray-800 text-lg flex items-center gap-2">
-                                                    <DeliveryTruck size={19} /> Delivery Time
+                                                    <Car size={19} /> Delivery Time
                                                 </span>
                                                 <p>{selectedOrder.deliveryTime}</p>
                                             </div>
@@ -375,7 +353,6 @@ const Orders = () => {
                                         </div>
                                     </div>
 
-                                    {/* Bill Details Section */}
                                     <div className="pb-2 border-b text-gray-700 text-sm">
                                         <div className="flex justify-between py-1">
                                             <span>Item Total</span>
@@ -394,17 +371,8 @@ const Orders = () => {
                                             <span>₹{selectedOrder?.deliveryCharge || '0.00'}</span>
                                         </div>
 
-                                        {/* <div className="flex justify-between py-1">
-                                            <span>Taxes (18%)</span>
-                                            <span>
-                                                ₹
-                                                {selectedOrder?.gst}
-                                            </span>
-                                        </div> */}
-
                                     </div>
 
-                                    {/* Total Paid Section */}
                                     <div className="flex justify-between text-gray-800 font-semibold text-lg mt-4">
                                         <span>{selectedOrder.paymentStatus === 'pending' && selectedOrder?.orderStatus !== 'delivered' ? "Amount To Pay : " : "Total Paid : "}</span>
                                         <span>₹{selectedOrder?.totalAmount || '0.00'}</span>
@@ -451,14 +419,6 @@ const Orders = () => {
                                                     </div>
                                                 )
                                         }
-                                        {/* <div className="mt-4 flex items-center gap-2 text-green-600 text-sm">
-                                            <CheckCircle size={16} />
-                                            <p>
-                                                {selectedOrder.paymentStatus === 'success'
-                                                    ? `Paid on ${new Date(selectedOrder.createdAt).toLocaleString()}`
-                                                    : 'No payment information available'}
-                                            </p>
-                                        </div> */}
                                         <div className='flex items-center gap-2 justify-between text-sm text-gray-700 mt-2'>
                                             <p>{selectedOrder?.razorpay_payment_id && 'Transaction ID: '}</p>
                                             <p>{selectedOrder?.razorpay_payment_id}</p>
@@ -489,14 +449,6 @@ const Orders = () => {
                 onClose={handleSkipRating}
                 onSubmit={handleSubmitRating}
             />
-            {/* {detailOpen && selectedOrder && (
-                <div className='w-full h-screen fixed backdrop-blur-sm inset-0 z-10' onClick={() => setDetailOpen(false)}>
-                    <OrderSummary 
-                    setDetailOpen={setDetailOpen} 
-                    detailOpen={detailOpen} 
-                    order={selectedOrder} />
-                </div>
-            )} */}
         </div >
     );
 };
