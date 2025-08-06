@@ -5,7 +5,7 @@ import OrderSummary from '../components/OrderSummary';
 import { fetchUserOrders } from '../services/orderService';
 import { useAuthStore } from '../store/authStore';
 import { StatusBadge } from '../components/StatusBadge';
-import { ArrowLeft, ArrowRight, CheckCircle, CircleHelp, HandCoins, Home, RefreshCcw, Store, XIcon, Info } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, CircleHelp, HandCoins, Home, RefreshCcw, Store, XIcon, Info, DeliveryTruck } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerBody, DrawerFooter } from "@heroui/drawer";
 import { useDisclosure } from '@/hooks/useDisclosure';
 import { useCartStore } from '../store/cartStore'; // Import the cart store
@@ -126,9 +126,9 @@ const Orders = () => {
 
     // Sort orders: prioritize non-delivered orders, then by creation date (most recent first)
     // const sortedOrders = [...orders].sort((a, b) => {
-    //     if (a.orderStatus !== 'delivered' && b.orderStatus === 'delivered') return -1;
-    //     if (a.orderStatus === 'delivered' && b.orderStatus !== 'delivered') return 1;
-    //     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    //      if (a.orderStatus !== 'delivered' && b.orderStatus === 'delivered') return -1;
+    //      if (a.orderStatus === 'delivered' && b.orderStatus !== 'delivered') return 1;
+    //      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     // });
     const sortedOrders = [...orders].sort(
         (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -314,7 +314,7 @@ const Orders = () => {
                     {(onClose) => (
                         <div className='flex flex-col h-full justify-between '>
                             <div>
-                                <DrawerHeader className="flex items-center gap-1 bg-white   border-b fixed top-0 w-full  shadow-sm">
+                                <DrawerHeader className="flex items-center gap-1 bg-white  border-b fixed top-0 w-full  shadow-sm">
                                     <IconButton><ArrowLeft size={20} onClick={onClose} /></IconButton>
                                     <p> Order #{selectedOrder?.id}</p>
 
@@ -337,6 +337,16 @@ const Orders = () => {
                                             </span>
                                             <p>{formatAddress(selectedOrder?.address)}</p>
                                         </div>
+                                        
+                                        {/* New section for Delivery Time */}
+                                        {selectedOrder?.deliveryTime && (
+                                            <div className="flex flex-col text-sm text-gray-600">
+                                                <span className="font-semibold text-gray-800 text-lg flex items-center gap-2">
+                                                    <DeliveryTruck size={19} /> Delivery Time
+                                                </span>
+                                                <p>{selectedOrder.deliveryTime}</p>
+                                            </div>
+                                        )}
 
                                         <StatusBadge status={selectedOrder?.orderStatus} />
                                         {
@@ -421,7 +431,7 @@ const Orders = () => {
                                                 <div className="mt-4 flex items-center gap-2 text-green-600 text-sm">
                                                     <CheckCircle size={16} />
                                                     <p>
-                                                      {`Paid on ${new Date(selectedOrder.createdAt).toLocaleString()}`}
+                                                        {`Paid on ${new Date(selectedOrder.createdAt).toLocaleString()}`}
                                                     </p>
                                                 </div>
                                             ) : selectedOrder.paymentStatus === 'pending' ? (
