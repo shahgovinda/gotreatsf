@@ -33,7 +33,7 @@ const SpecialDayBanner = ({ specialDayMessage, storageKey = 'specialDayBanner' }
         <div className="p-2 bg-pink-100 rounded-full">
           <Gift className="w-6 h-6 text-pink-600 animate-pulse" />
         </div>
-        <h3 className="text-lg font-semibold text-gray-800">Special Wish!</h3>
+        <h3 className="text-lg font-semibold text-gray-800">Important Message!</h3>
       </div>
       <p className="text-sm text-gray-600">
         {specialDayMessage}
