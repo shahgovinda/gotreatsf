@@ -17,7 +17,6 @@ import ScrollingBanner from '../components/ScrollingBanner';
 import { Image } from '@heroui/react';
 import { deleteOrdersByCustomerUid } from '@/services/orderService';
 import { motion, Variants } from 'framer-motion';
-// IMPORTS
 
 // --- IMPORTS FOR SPECIAL DAY BANNER ---
 import SpecialDayBanner from '../components/SpecialDayBanner';
@@ -46,7 +45,6 @@ const Home = () => {
   const navigate = useNavigate()
   const products = useProductStore((state) => state.products)
   const [swiperRef, setSwiperRef] = useState(null);
-
 
   const { data: reviews = [], isLoading, error } = useQuery({
     queryKey: ['reviews'],
@@ -105,15 +103,55 @@ const Home = () => {
       img: "meal.jpg",
       link: "/shop/?tag=meals"
     }
-  ]
+  ];
 
-  // Define the special day message here
-  const specialDayMessage = "Happy Raksha Bandhan! Enjoy a special discount on all meals today.";
+  // --- NEW LOGIC FOR MULTIPLE SPECIAL DAYS ---
+  const specialDays = [
+    { month: 0, date: 14, message: "Happy Makar Sankranti and Pongal! Enjoy festive flavors and discounts today." },
+    { month: 0, date: 26, message: "Happy Republic Day! Celebrate with our special patriotic meal combos." },
+    { month: 1, date: 19, message: "Happy Shivaji Jayanti! Enjoy delicious Maharashtrian dishes." },
+    { month: 1, date: 26, message: "Happy Maha Shivaratri! Order special fasting meals and treats." },
+    { month: 2, date: 14, message: "Happy Holi! Celebrate the festival of colors with our sweet and savory specials." },
+    { month: 2, date: 30, message: "Happy Gudi Padwa! Celebrate the new year with our festive meals." },
+    { month: 3, date: 6, message: "Happy Ram Navami! Enjoy our special fasting menu." },
+    { month: 3, date: 10, message: "Happy Mahavir Jayanti! Explore our special Jain-friendly meal options." },
+    { month: 3, date: 18, message: "Happy Good Friday! Find comfort in our special dishes today." },
+    { month: 4, date: 1, message: "Happy Maharashtra Day and Labour Day! A day to celebrate hard work with great food." },
+    { month: 4, date: 12, message: "Happy Buddha Purnima! Enjoy our peaceful and delicious vegetarian specials." },
+    { month: 5, date: 7, message: "Happy Eid al-Adha (Bakrid)! Celebrate with our special festive feasts." },
+    { month: 6, date: 6, message: "Happy Muharram! A day of remembrance, marked with our comforting meals." },
+    { month: 7, date: 9, message: "Happy Raksha Bandhan! Enjoy a special discount on all meals today." },
+    { month: 7, date: 15, message: "Happy Independence Day! Celebrate the spirit of freedom with our special offers." },
+    { month: 7, date: 16, message: "Happy Janmashtami! Enjoy our special festive treats and meals." },
+    { month: 7, date: 20, message: "A very Happy Birthday to the founder of GoTreats! Celebrating a special day with a special offer for you!" },
+    { month: 7, date: 24, message: "Happy Ganesh Chaturthi! Celebrate with our special Ukadiche Modak and festive dishes." },
+    { month: 8, date: 5, message: "Happy Milad-un-Nabi (Eid-e-Milad)! Enjoy our special festive offers." },
+    { month: 8, date: 29, message: "Happy Navratri! Get our special fasting menu for nine days of celebration." },
+    { month: 9, date: 2, message: "Happy Gandhi Jayanti and Dussahra! Celebrate with our delicious festive combos." },
+    { month: 9, date: 20, message: "Happy Diwali! Enjoy the festival of lights with our amazing sweets and meal boxes." },
+    { month: 9, date: 21, message: "Happy Govardhan Puja! Celebrate with our festive meals." },
+    { month: 9, date: 22, message: "Happy Bhai Dooj! Celebrate the bond with our special sibling combos." },
+    { month: 10, date: 5, message: "Happy Guru Nanak Jayanti! A day to celebrate with our heartwarming meals." },
+    { month: 10, date: 7, message: "Happy Chhath Puja! Enjoy our special festive offerings." },
+    { month: 11, date: 25, message: "Merry Christmas! Enjoy a festive feast with our special Christmas menu." },
+  ];
+
+  const getSpecialDayMessage = () => {
+    const today = new Date();
+    const todayMonth = today.getMonth(); // getMonth() is 0-indexed
+    const todayDate = today.getDate();
+
+    const specialDay = specialDays.find(day => day.month === todayMonth && day.date === todayDate);
+
+    return specialDay ? specialDay.message : null;
+  };
+  
+  const specialDayMessage = getSpecialDayMessage();
 
   return (
     <main className="min-h-[calc(100vh-64px)] w-full overflow-x-hidden">
       {/* -------------------- SPECIAL DAY BANNER ADDED HERE -------------------- */}
-      <SpecialDayBanner specialDayMessage={specialDayMessage} />
+      {specialDayMessage && <SpecialDayBanner specialDayMessage={specialDayMessage} />}
       {/* ----------------------------------------------------------------------- */}
 
       <ScrollingBanner />
@@ -123,13 +161,8 @@ const Home = () => {
         target="_blank"
         className="relative flex items-center justify-center h-14 bg-[#f44336] overflow-hidden group shadow-sm"
       >
-        {/* Subtle glowing dot left */}
         <div className="absolute left-5 w-2 h-2 bg-white rounded-full animate-ping opacity-60"></div>
-
-        {/* Shimmer animation */}
         <div className="absolute inset-0 bg-white/10 blur-sm animate-slideBg pointer-events-none"></div>
-
-        {/* Text & Logo */}
         <div className="relative z-10 flex items-center gap-3 text-white font-medium tracking-wide text-sm sm:text-base">
           <span className="opacity-90 group-hover:opacity-100 transition-all duration-300">
             Now Available On
@@ -140,18 +173,11 @@ const Home = () => {
             className="h-6 sm:h-8 transition-transform duration-300 ease-in-out group-hover:scale-105"
           />
         </div>
-
-        {/* Subtle glowing dot right */}
         <div className="absolute right-5 w-2 h-2 bg-white rounded-full animate-ping opacity-60"></div>
-
       </Link>
-
-
 
       <section className='bg-[#fff9f2]'>
         <div className="container mx-auto px-4 py-10 md:py-30 flex flex-col md:flex-row items-center gap-4 md:gap-0 sm:px-30 md:justify-between">
-
-          {/* Left Column */}
           <div className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left justify-center md:justify-start mt-2 md:mt-0">
             <h1 className="text-4xl sm:text-5xl lg:text-7xl lancelot mb-3 text-gray-900 animate-[fadeIn_0.6s_ease-out] flex items-center gap-2">
               <span className="text-green-600">Enjoy</span>
@@ -165,14 +191,12 @@ const Home = () => {
                 </div>
               </div>
             </h1>
-
             <p className="text-gray-700 text-base sm:text-lg lg:text-xl mb-4 sm:mb-6 max-w-xl leading-relaxed font-medium animate-[fadeIn_0.8s_ease-in] tracking-wide">
               <TypewriterText
                 text="Freshly prepared with love — nutritious, homestyle meals delivered just the way you like it."
                 speed={50}
               />
             </p>
-
             <div className='mb-2'>
               {userDetails?.role === 'admin' ?
                 <button className="cssbuttons-io animate-pulse" onClick={() => navigate('/admin/view-all-orders')}>
@@ -185,10 +209,7 @@ const Home = () => {
                 <button className="animated-order-btn" onClick={() => navigate("/shop")}> <span>Order Now</span> </button>
               }
             </div>
-
           </div>
-
-          {/* Right Column */}
           <div className="w-full md:w-2/5 md:mt-0 mt-4">
             <img
               src="/indian-plate.png"
@@ -196,7 +217,6 @@ const Home = () => {
               className="object-cover w-full rounded-2xl transition-all duration-300 h-auto hover:scale-105"
             />
           </div>
-
         </div>
       </section>
 
@@ -205,11 +225,9 @@ const Home = () => {
         <div className="container mx-auto">
           <h1 className="text-center mb-10 lancelot text-3xl sm:text-4xl md:text-5xl flex items-center justify-center tracking-wide">
             Explore&nbsp;
-            {/* Updated text color from orange-600 to green-600 */}
             <span className="text-green-600 font-bold transition duration-700 ease-in-out">Food</span>
             &nbsp;Varieties
           </h1>
-
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10 px-2 md:px-8">
             {varieties.map(variety => (
               <div
@@ -240,17 +258,14 @@ const Home = () => {
             }}
             loop={true}
             breakpoints={{
-              // when window width is >= 768px (md)
               768: {
                 slidesPerView: 3
               },
-              // when window width is < 768px
               0: {
                 slidesPerView: 1
               }
             }}
             onSwiper={setSwiperRef}>
-
             {products?.slice(0, 9).map((item, index) => (
               <SwiperSlide key={index}>
                 <ItemCards item={item} key={index} />
@@ -265,7 +280,6 @@ const Home = () => {
               Check All
             </button>
           </div>
-
         </div>
       </section>
 
