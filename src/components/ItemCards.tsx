@@ -112,6 +112,7 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
     const [loadingReviews, setLoadingReviews] = useState(false);
     const [showAllReviews, setShowAllReviews] = useState(false);
     const [reviewFilter, setReviewFilter] = useState<number | null>(null);
+    const [isImageZoomed, setIsImageZoomed] = useState(false); // New state for image zoom
 
     // Like (favorite) logic
     const [liked, setLiked] = useState(() => {
@@ -284,7 +285,7 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
                         onLoad={() => setImgLoaded(true)}
                         className={`size-64 object-cover rounded-3xl group-hover:scale-102 transition-all duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
                     /> */}
-                    <Image src={item.imageUrl} alt=""  loading='lazy' disableSkeleton onLoad={() => setImgLoaded(true)} className={`size-64 object-cover rounded-3xl group-hover:scale-102 group-hover:shadow-lg transition-all duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`} />
+                    <Image src={item.imageUrl} alt="" loading='lazy' disableSkeleton onLoad={() => setImgLoaded(true)} className={`size-64 object-cover rounded-3xl group-hover:scale-102 group-hover:shadow-lg transition-all duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`} />
                 </div>
                 {item.isNonVeg ? nonVeg : veg}
                 <h4 className='lancelot text-2xl lg:text-3xl font-medium'>{item.productName}</h4>
@@ -423,9 +424,14 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
                                     </div>
                                 </div>
                                 <DrawerBody className='pt-2'>
-                                    {/* IMAGE SECTION */}
+                                    {/* IMAGE SECTION - UPDATED FOR ZOOM */}
                                     <div className='flex justify-center items-center w-full h-56 md:h-72 bg-gray-50 rounded-2xl shadow-md overflow-hidden mb-4'>
-                                        <img className='max-h-full max-w-full object-contain rounded-2xl shadow-lg bg-white' src={item.imageUrl} alt={item.productName} />
+                                        <img
+                                            className={`max-h-full max-w-full rounded-2xl shadow-lg bg-white transition-transform duration-500 ease-in-out cursor-pointer ${isImageZoomed ? 'scale-150' : 'scale-100'}`}
+                                            src={item.imageUrl}
+                                            alt={item.productName}
+                                            onClick={() => setIsImageZoomed(!isImageZoomed)}
+                                        />
                                     </div>
                                     {/* DESCRIPTION & PRICE SECTION */}
                                     <div className='px-2 md:px-6'>
