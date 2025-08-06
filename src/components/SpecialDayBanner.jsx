@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Gift } from 'lucide-react';
 
 const SpecialDayBanner = ({ specialDayMessage, storageKey = 'specialDayBanner' }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Check if the user has already closed the banner for this session/day
     const hasClosed = localStorage.getItem(storageKey);
     if (hasClosed !== 'true') {
       setIsVisible(true);
@@ -14,7 +13,6 @@ const SpecialDayBanner = ({ specialDayMessage, storageKey = 'specialDayBanner' }
 
   const handleClose = () => {
     setIsVisible(false);
-    // Persist the user's choice to close the banner
     localStorage.setItem(storageKey, 'true');
   };
 
@@ -23,25 +21,23 @@ const SpecialDayBanner = ({ specialDayMessage, storageKey = 'specialDayBanner' }
   }
 
   return (
-    <div className="relative flex items-center justify-center h-14 bg-gradient-to-r from-pink-500 to-purple-600 overflow-hidden group shadow-md text-white px-4">
-      {/* Background animation for a festive feel */}
-      <div className="absolute inset-0 bg-white/10 blur-sm animate-pulse-slow pointer-events-none"></div>
-
-      {/* Main content with message */}
-      <div className="relative z-10 flex items-center gap-3 font-medium tracking-wide text-sm sm:text-base">
-        <span className="text-white text-center animate-fadeIn">
-          {specialDayMessage}
-        </span>
-      </div>
-
-      {/* Close button */}
+    <div className="fixed bottom-4 right-4 z-50 w-64 bg-white rounded-lg shadow-xl p-4 border border-gray-200 animate-slide-in-right">
       <button
         onClick={handleClose}
-        className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white/20 hover:bg-white/40 transition-all duration-300"
+        className="absolute top-2 right-2 p-1 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors duration-200"
         aria-label="Close banner"
       >
-        <X className="w-5 h-5 text-white" />
+        <X className="w-4 h-4 text-gray-600" />
       </button>
+      <div className="flex items-center gap-3 mb-2">
+        <div className="p-2 bg-pink-100 rounded-full">
+          <Gift className="w-6 h-6 text-pink-600 animate-pulse" />
+        </div>
+        <h3 className="text-lg font-semibold text-gray-800">Special Wish!</h3>
+      </div>
+      <p className="text-sm text-gray-600">
+        {specialDayMessage}
+      </p>
     </div>
   );
 };
