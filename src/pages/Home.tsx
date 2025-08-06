@@ -106,12 +106,6 @@ const Home = () => {
       link: "/shop/?tag=meals"
     }
   ]
-  // useEffect(() => {
-  //  const deleteOrders = async () => {
-  //    await deleteOrdersByCustomerUid('3IIckUCL9tXmr96y4QxHegYtoas2');
-  //  };
-  //  deleteOrders();
-  // }, []);
 
   // Define the special day message here
   const specialDayMessage = "Happy Raksha Bandhan! Enjoy a special discount on all meals today.";
