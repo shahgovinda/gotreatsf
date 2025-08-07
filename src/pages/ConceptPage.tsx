@@ -27,6 +27,14 @@ const Concept = () => {
     },
   };
 
+  const wordVariants: Variants = {
+    initial: { backgroundPosition: "0% 50%" },
+    animate: {
+      backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+      transition: { duration: 3, repeat: Infinity, ease: "linear" },
+    },
+  };
+
   const steps = [
     { icon: <UserPlus size={28} />, title: "Register", desc: "Create an account" },
     { icon: <LogIn size={28} />, title: "Login", desc: "Log into your account" },
@@ -37,10 +45,24 @@ const Concept = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    // Prevent right click globally (can be scoped if needed)
-    const handleContextMenu = (e: MouseEvent) => e.preventDefault();
+
+    // Disable right-click globally on video & image
+    const handleContextMenu = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === "VIDEO" ||
+        target.tagName === "IMG" ||
+        target.closest("video") ||
+        target.closest("img")
+      ) {
+        e.preventDefault();
+      }
+    };
     document.addEventListener("contextmenu", handleContextMenu);
-    return () => document.removeEventListener("contextmenu", handleContextMenu);
+
+    return () => {
+      document.removeEventListener("contextmenu", handleContextMenu);
+    };
   }, []);
 
   const toggleMute = () => {
@@ -77,40 +99,41 @@ const Concept = () => {
           At GoTreats, we deliver homemade meals that are fresh, healthy, and affordable – crafted with love and served with care.
         </p>
 
-        {/* ✅ Responsive, secure video with fallback & mute toggle */}
-        <div className="w-full flex justify-center my-8 px-4 select-none">
-          <div className="relative w-full max-w-3xl aspect-video rounded-2xl overflow-hidden shadow-lg group">
+        {/* ✅ Video Section with protections */}
+        <div className="w-full flex justify-center my-8 px-4">
+          <div className="relative w-full max-w-3xl aspect-video rounded-2xl overflow-hidden shadow-lg group select-none">
             {/* Fallback image */}
             <img
               src="/gotreats.png"
-              alt="GoTreats Preview"
-              className="absolute w-full h-full object-cover z-0 pointer-events-none select-none"
+              alt="GoTreats Fallback"
+              className="absolute w-full h-full object-cover z-0 pointer-events-none"
               loading="lazy"
-              draggable="false"
-              onContextMenu={(e) => e.preventDefault()}
-              onTouchStart={(e) => e.preventDefault()}
+              draggable={false}
             />
 
             {/* Video */}
             <video
               ref={videoRef}
-              className="absolute w-full h-full object-cover z-10 pointer-events-auto"
+              className="absolute w-full h-full object-cover z-10"
               autoPlay
               loop
               muted
               playsInline
               controls
-              controlsList="nodownload nofullscreen noremoteplayback"
-              preload="auto"
+              controlsList="nodownload noremoteplayback"
+              disablePictureInPicture
               onContextMenu={(e) => e.preventDefault()}
-              onTouchStart={(e) => e.preventDefault()}
-              style={{ WebkitTouchCallout: "none" }}
+              onDragStart={(e) => e.preventDefault()}
+              onError={(e) => {
+                const video = e.currentTarget;
+                video.style.display = "none";
+              }}
             >
               <source src="/gotreats.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
 
-            {/* Mute/Unmute Button */}
+            {/* Mute/Unmute */}
             <button
               onClick={toggleMute}
               className="absolute bottom-3 right-3 bg-black/60 text-white p-2 rounded-full z-20 hover:bg-black transition"
@@ -121,6 +144,7 @@ const Concept = () => {
           </div>
         </div>
 
+        {/* Steps */}
         <h2 className="text-3xl font-bold mt-12 text-green-700">How It Works</h2>
         <p className="text-gray-700 mb-4">Just 5 steps to your meal!</p>
 
