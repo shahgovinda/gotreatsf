@@ -27,14 +27,6 @@ const Concept = () => {
     },
   };
 
-  const wordVariants: Variants = {
-    initial: { backgroundPosition: "0% 50%" },
-    animate: {
-      backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-      transition: { duration: 3, repeat: Infinity, ease: "linear" },
-    },
-  };
-
   const steps = [
     { icon: <UserPlus size={28} />, title: "Register", desc: "Create an account" },
     { icon: <LogIn size={28} />, title: "Login", desc: "Log into your account" },
@@ -43,7 +35,13 @@ const Concept = () => {
     { icon: <Truck size={28} />, title: "Delivery", desc: "Get it at your doorstep" },
   ];
 
-  useEffect(() => window.scrollTo(0, 0), []);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    // Prevent right click globally (can be scoped if needed)
+    const handleContextMenu = (e: MouseEvent) => e.preventDefault();
+    document.addEventListener("contextmenu", handleContextMenu);
+    return () => document.removeEventListener("contextmenu", handleContextMenu);
+  }, []);
 
   const toggleMute = () => {
     if (videoRef.current) {
@@ -79,29 +77,34 @@ const Concept = () => {
           At GoTreats, we deliver homemade meals that are fresh, healthy, and affordable – crafted with love and served with care.
         </p>
 
-        {/* ✅ Updated Video Section (Zomato-like) */}
-        <div className="w-full flex justify-center my-8 px-4">
+        {/* ✅ Responsive, secure video with fallback & mute toggle */}
+        <div className="w-full flex justify-center my-8 px-4 select-none">
           <div className="relative w-full max-w-3xl aspect-video rounded-2xl overflow-hidden shadow-lg group">
             {/* Fallback image */}
             <img
               src="/gotreats.png"
-              alt="GoTreats Video Fallback"
-              className="absolute w-full h-full object-cover z-0"
+              alt="GoTreats Preview"
+              className="absolute w-full h-full object-cover z-0 pointer-events-none select-none"
               loading="lazy"
+              draggable="false"
+              onContextMenu={(e) => e.preventDefault()}
+              onTouchStart={(e) => e.preventDefault()}
             />
 
             {/* Video */}
             <video
               ref={videoRef}
-              className="absolute w-full h-full object-cover z-10"
+              className="absolute w-full h-full object-cover z-10 pointer-events-auto"
               autoPlay
               loop
               muted
               playsInline
-              onError={(e) => {
-                const video = e.currentTarget;
-                video.style.display = "none";
-              }}
+              controls
+              controlsList="nodownload nofullscreen noremoteplayback"
+              preload="auto"
+              onContextMenu={(e) => e.preventDefault()}
+              onTouchStart={(e) => e.preventDefault()}
+              style={{ WebkitTouchCallout: "none" }}
             >
               <source src="/gotreats.mp4" type="video/mp4" />
               Your browser does not support the video tag.
