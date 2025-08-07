@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Button from "../components/Button";
 import { motion, Variants } from "framer-motion";
@@ -10,18 +10,29 @@ import {
   Truck,
   ArrowRight,
   ArrowDown,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 
 const Concept = () => {
-  const [videoLoaded, setVideoLoaded] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [isMuted, setIsMuted] = useState(true);
 
   const headingVariants: Variants = {
     initial: { opacity: 0, y: 30 },
     animate: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.8, ease: "easeOut" }
-    }
+      transition: { duration: 0.8, ease: "easeOut" },
+    },
+  };
+
+  const wordVariants: Variants = {
+    initial: { backgroundPosition: "0% 50%" },
+    animate: {
+      backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+      transition: { duration: 3, repeat: Infinity, ease: "linear" },
+    },
   };
 
   const steps = [
@@ -33,6 +44,13 @@ const Concept = () => {
   ];
 
   useEffect(() => window.scrollTo(0, 0), []);
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !videoRef.current.muted;
+      setIsMuted(videoRef.current.muted);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-lime-50 to-green-100 p-4 sm:p-8">
@@ -61,30 +79,42 @@ const Concept = () => {
           At GoTreats, we deliver homemade meals that are fresh, healthy, and affordable – crafted with love and served with care.
         </p>
 
-        {/* ✅ Responsive video with image fallback */}
-        <div className="w-full flex justify-center my-8">
-          <div className="relative w-full max-w-4xl aspect-[16/9] rounded-2xl overflow-hidden shadow-lg group">
-            {!videoLoaded && (
-              <img
-                src="/gotreats-poster.jpg"
-                alt="Loading preview"
-                className="w-full h-full object-cover rounded-2xl absolute top-0 left-0 z-0"
-              />
-            )}
+        {/* ✅ Updated Video Section (Zomato-like) */}
+        <div className="w-full flex justify-center my-8 px-4">
+          <div className="relative w-full max-w-3xl aspect-video rounded-2xl overflow-hidden shadow-lg group">
+            {/* Fallback image */}
+            <img
+              src="/gotreats.png"
+              alt="GoTreats Video Fallback"
+              className="absolute w-full h-full object-cover z-0"
+              loading="lazy"
+            />
+
+            {/* Video */}
             <video
-              className="w-full h-full object-cover rounded-2xl relative z-10"
+              ref={videoRef}
+              className="absolute w-full h-full object-cover z-10"
               autoPlay
               loop
               muted
-              controls
               playsInline
-              controlsList="nodownload nofullscreen"
-              onLoadedData={() => setVideoLoaded(true)}
-              poster="/gotreats-poster.jpg"
+              onError={(e) => {
+                const video = e.currentTarget;
+                video.style.display = "none";
+              }}
             >
               <source src="/gotreats.mp4" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
+
+            {/* Mute/Unmute Button */}
+            <button
+              onClick={toggleMute}
+              className="absolute bottom-3 right-3 bg-black/60 text-white p-2 rounded-full z-20 hover:bg-black transition"
+              aria-label="Toggle Sound"
+            >
+              {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+            </button>
           </div>
         </div>
 
