@@ -43,27 +43,7 @@ const Concept = () => {
     { icon: <Truck size={28} />, title: "Delivery", desc: "Get it at your doorstep" },
   ];
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-
-    // Disable right-click globally on video & image
-    const handleContextMenu = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (
-        target.tagName === "VIDEO" ||
-        target.tagName === "IMG" ||
-        target.closest("video") ||
-        target.closest("img")
-      ) {
-        e.preventDefault();
-      }
-    };
-    document.addEventListener("contextmenu", handleContextMenu);
-
-    return () => {
-      document.removeEventListener("contextmenu", handleContextMenu);
-    };
-  }, []);
+  useEffect(() => window.scrollTo(0, 0), []);
 
   const toggleMute = () => {
     if (videoRef.current) {
@@ -99,16 +79,15 @@ const Concept = () => {
           At GoTreats, we deliver homemade meals that are fresh, healthy, and affordable – crafted with love and served with care.
         </p>
 
-        {/* ✅ Video Section with protections */}
+        {/* ✅ Updated Video Section (Zomato-like) */}
         <div className="w-full flex justify-center my-8 px-4">
-          <div className="relative w-full max-w-3xl aspect-video rounded-2xl overflow-hidden shadow-lg group select-none">
+          <div className="relative w-full max-w-3xl aspect-video rounded-2xl overflow-hidden shadow-lg group">
             {/* Fallback image */}
             <img
               src="/gotreats.png"
-              alt="GoTreats Fallback"
-              className="absolute w-full h-full object-cover z-0 pointer-events-none"
+              alt="GoTreats Video Fallback"
+              className="absolute w-full h-full object-cover z-0"
               loading="lazy"
-              draggable={false}
             />
 
             {/* Video */}
@@ -119,11 +98,6 @@ const Concept = () => {
               loop
               muted
               playsInline
-              controls
-              controlsList="nodownload noremoteplayback"
-              disablePictureInPicture
-              onContextMenu={(e) => e.preventDefault()}
-              onDragStart={(e) => e.preventDefault()}
               onError={(e) => {
                 const video = e.currentTarget;
                 video.style.display = "none";
@@ -133,7 +107,7 @@ const Concept = () => {
               Your browser does not support the video tag.
             </video>
 
-            {/* Mute/Unmute */}
+            {/* Mute/Unmute Button */}
             <button
               onClick={toggleMute}
               className="absolute bottom-3 right-3 bg-black/60 text-white p-2 rounded-full z-20 hover:bg-black transition"
@@ -144,7 +118,6 @@ const Concept = () => {
           </div>
         </div>
 
-        {/* Steps */}
         <h2 className="text-3xl font-bold mt-12 text-green-700">How It Works</h2>
         <p className="text-gray-700 mb-4">Just 5 steps to your meal!</p>
 
