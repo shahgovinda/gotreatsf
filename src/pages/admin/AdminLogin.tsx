@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import { Input, InputOtp } from "@heroui/react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -8,7 +8,7 @@ import {
   ConfirmationResult,
 } from "firebase/auth";
 
-import { auth } from "@/config/firebaseConfig";
+import { auth } from "@/config/firebaseConfig";          // ✅ keep this path
 import { getUserFromDb, handleLogout } from "@/services/authService";
 import { useAuthStore } from "@/store/authStore";
 import Button from "@/components/Button";
@@ -30,17 +30,9 @@ const AdminLogin: React.FC = () => {
   const [error, setError] = useState("");
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
-  const setUser = useAuthStore((s) => s.setUser);
-  const setUserDetails = useAuthStore((s) => s.setUserDetails);
-  const navigate = useNavigate();
-
-  const otpInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (confirmationResult && otpInputRef.current) {
-      otpInputRef.current.focus();
-    }
-  }, [confirmationResult]);
+  const setUser          = useAuthStore((s) => s.setUser);
+  const setUserDetails   = useAuthStore((s) => s.setUserDetails);
+  const navigate         = useNavigate();
 
   /* ----------------------- send OTP ------------------------------- */
   const handleSendOtp = async () => {
@@ -56,11 +48,11 @@ const AdminLogin: React.FC = () => {
     try {
       if (!window.recaptchaVerifier) {
         window.recaptchaVerifier = new RecaptchaVerifier(
-          auth,
-          "recaptcha-container",
+          auth,                        // ✅ first param must be Auth
+          "recaptcha-container",       // ✅ second param container‑id
           { size: "invisible" }
         );
-        await window.recaptchaVerifier.render();
+        await window.recaptchaVerifier.render(); // ensure it mounts
       }
 
       const result = await signInWithPhoneNumber(
@@ -69,10 +61,10 @@ const AdminLogin: React.FC = () => {
         window.recaptchaVerifier
       );
       setConfirmationResult(result);
-      toast.success("OTP sent successfully!");
+      toast.success("OTP sent");
     } catch (err) {
       console.error("[sendOtp]", err);
-      toast.error("Failed to send OTP. Please try again.");
+      toast.error("Failed to send OTP");
     } finally {
       setLoading(false);
     }
@@ -83,11 +75,6 @@ const AdminLogin: React.FC = () => {
     if (!confirmationResult) {
       toast.error("Please request OTP first");
       return;
-    }
-
-    if (otp.length !== 6) {
-        toast.error("Invalid OTP format. Please enter 6 digits.");
-        return;
     }
 
     setError("");
@@ -106,21 +93,22 @@ const AdminLogin: React.FC = () => {
       }
 
       if (userDetails.role !== "admin") {
-        toast.error("You are not authorized as an admin.");
+        toast.error("You are not authorized as admin.");
         await handleLogout();
         setLoading(false);
         return;
       }
 
-      setUser(firebaseUser);
+      // ✅ update zustand store
+      setUser(firebaseUser);          // store full Firebase User object
       setUserDetails(userDetails);
 
-      toast.success("Admin logged in successfully!");
-      navigate("/admin/dashboard");
+      toast.success("Admin logged in");
+      navigate("/admin/dashboard");   // adjust route to your admin page
     } catch (err) {
       console.error("[verifyOtp]", err);
       setError("Invalid OTP");
-      toast.error("The OTP you entered is incorrect. Please try again.");
+      toast.error("Invalid OTP");
     } finally {
       setLoading(false);
     }
@@ -128,103 +116,62 @@ const AdminLogin: React.FC = () => {
 
   /* --------------------------- UI -------------------------------- */
   return (
-    <div className="h-svh flex items-center justify-center bg-gray-900 text-white">
-      <div className="w-full max-w-md p-8 rounded-2xl bg-gray-800 shadow-2xl">
+    <div className="h-svh flex items-center justify-center bg-neutral-800 text-white">
+      <div className="w-full max-w-md p-8 rounded-xl bg-neutral-700">
         {/* brand */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-extrabold tracking-tight">
-            <span className="text-orange-500">admin.</span>
-            <span className="text-green-500">go</span>treats
-            <span className="text-orange-500">.in</span>
-          </h1>
-          <p className="text-gray-400 mt-2">Secure Admin Login</p>
-        </div>
+        <h1 className="text-center text-3xl font-bold mb-8">
+          <span className="text-orange-500">admin.</span>
+          <span className="text-green-500">go</span>treats
+          <span className="text-orange-500">.in</span>
+        </h1>
 
-        {/* Conditional rendering for phone or OTP form */}
-        {!confirmationResult ? (
-          <>
-            <Input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleSendOtp();
-                }
-              }}
-              label="Admin Number"
-              placeholder="Enter phone number"
-              variant="faded"
-              labelPlacement="outside"
-              maxLength={10}
-              isInvalid={!!error}
-              errorMessage={error}
-              startContent={
-                <div className="flex items-center gap-1 text-gray-400">
-                  <Phone size={16} />
-                  <span className="text-sm font-medium">+91</span>
-                </div>
-              }
-              className="w-full"
-            />
-            <Button
-              onClick={handleSendOtp}
-              className="mt-6 w-full py-3 text-lg font-semibold"
-              isLoading={loading}
-              variant="primary"
-            >
-              Send OTP
-            </Button>
-          </>
-        ) : (
-          /* otp input */
+        {/* phone input */}
+        <Input
+          type="tel"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          label="Admin Number"
+          placeholder="Enter phone number"
+          variant="faded"
+          labelPlacement="outside"
+          maxLength={10}
+          isInvalid={!!error}
+          errorMessage={error}
+          startContent={
+            <div className="flex items-center gap-1 text-white">
+              <Phone size={16} />
+              <span>+91</span>
+            </div>
+          }
+        />
+        <Button
+          onClick={handleSendOtp}
+          className="mt-4 w-full"
+          isLoading={loading}
+          variant="primary"
+        >
+          Send OTP
+        </Button>
+
+        {/* otp input */}
+        {confirmationResult && (
           <div className="mt-6">
-            <p className="text-sm text-gray-400 mb-4">
-              An OTP has been sent to +91{phone}
-            </p>
             <InputOtp
               value={otp}
-              onValueChange={(val) => {
-                setOtp(val);
-                if (val.length === 6) {
-                  handleVerifyOtp(); // Auto-submit on completion
-                }
-              }}
+              onValueChange={setOtp}
               length={6}
               variant="faded"
               isInvalid={!!error}
               errorMessage={error}
-              autoFocus
-              ref={otpInputRef}
-              className="flex justify-center mb-6"
-              onPaste={async (e) => {
-                e.preventDefault();
-                const pasteData = e.clipboardData.getData('text').slice(0, 6);
-                setOtp(pasteData);
-                if (pasteData.length === 6) {
-                    // Give a moment for state to update, then submit
-                    setTimeout(() => handleVerifyOtp(), 100);
-                }
-              }}
             />
             <Button
               onClick={handleVerifyOtp}
-              className="mt-6 w-full py-3 text-lg font-semibold"
+              className="mt-4 w-full"
               isLoading={loading}
               variant="primary"
             >
               Verify OTP
             </Button>
-            <button
-              onClick={() => {
-                setConfirmationResult(null);
-                setOtp("");
-                setError("");
-              }}
-              className="mt-4 w-full text-center text-sm text-gray-400 hover:text-orange-500 transition-colors"
-            >
-              Change number?
-            </button>
           </div>
         )}
       </div>
