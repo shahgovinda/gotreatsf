@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Locate, MapPin, Phone, Pin, Star, Quote, Box } from 'lucide-react'
 import ItemCards from '../components/ItemCards';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -397,4 +398,3 @@ const Home = () => {
 }
 
 export default Home
-
