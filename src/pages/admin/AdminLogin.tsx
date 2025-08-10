@@ -84,7 +84,7 @@ const AdminLogin: React.FC = () => {
       toast.error("Please request OTP first");
       return;
     }
-    
+
     if (otp.length !== 6) {
         toast.error("Invalid OTP format. Please enter 6 digits.");
         return;
