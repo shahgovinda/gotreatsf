@@ -122,7 +122,6 @@ const Home = () => {
     { month: 6, date: 6, message: "Happy Muharram! A day of remembrance, marked with our comforting meals." },
     { month: 7, date: 6, message: "Hiroshima Day! Hiroshima still echoes pain." },
     { month: 7, date: 9, message: "Happy Raksha Bandhan! Enjoy a special discount on all meals today." },
-  
     { month: 7, date: 15, message: "Happy Independence Day! Celebrate the spirit of freedom with our special offers." },
     { month: 7, date: 16, message: "Happy Janmashtami! Enjoy our special festive treats and meals." },
     { month: 7, date: 20, message: "A very Happy Birthday to the founder of GoTreats! Celebrating a special day with a special offer for you!" },
@@ -147,7 +146,7 @@ const Home = () => {
 
     return specialDay ? specialDay.message : null;
   };
-  
+
   const specialDayMessage = getSpecialDayMessage();
 
   return (
@@ -345,6 +344,35 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* ----- Mumbai Dabbawala Collaboration ----- */}
+      <section className="py-16 md:py-24 bg-gray-50 mt-10 md:mt-16">
+        <div className="container mx-auto px-4 md:px-8 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold lancelot mb-6 text-gray-900">
+            Now Delivering All Over Mumbai
+          </h2>
+          <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto mb-10">
+            We've partnered with the iconic Mumbai Dabbawala to ensure your freshly prepared meals reach you anywhere in the city, on time, every time.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-10">
+            <img 
+              src="/gotreats-logo.png" // Replace with your GoTreats logo path
+              alt="GoTreats Logo"
+              className="h-20 md:h-24 object-contain"
+            />
+            <span className="text-4xl md:text-5xl font-bold text-gray-400">&times;</span>
+            <img 
+              src="/mumbai-dabbawala-logo.png" // Replace with a Mumbai Dabbawala logo path
+              alt="Mumbai Dabbawala Logo"
+              className="h-20 md:h-24 object-contain"
+            />
+          </div>
+          <p className="mt-8 text-xl md:text-2xl font-semibold text-gray-800">
+            GoTreats <span className="text-orange-500 font-bold mx-2">X</span> Mumbai Dabbawala
+          </p>
+        </div>
+      </section>
+
     </main>
   )
 }
