@@ -196,7 +196,7 @@ const AdminLogin: React.FC = () => {
               ref={otpRef}
               onComplete={handleVerifyOtp} // Auto-submit on completion
               className="flex justify-center"
-              inputClassName="w-12 h-14 text-xl rounded-xl border-2 border-gray-600 bg-gray-700 text-white focus:border-orange-500 transition-colors duration-200"
+              // Removed the 'inputClassName' prop
             />
             <Button
               onClick={handleVerifyOtp}
