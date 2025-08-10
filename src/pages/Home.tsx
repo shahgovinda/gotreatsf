@@ -356,13 +356,13 @@ const Home = () => {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-10">
             <img 
-              src="/gotreats-logo.png" // Replace with your GoTreats logo path
+              src="/gotreats.png" // Replace with your GoTreats logo path
               alt="GoTreats Logo"
               className="h-20 md:h-24 object-contain"
             />
             <span className="text-4xl md:text-5xl font-bold text-gray-400">&times;</span>
             <img 
-              src="/mumbai-dabbawala-logo.png" // Replace with a Mumbai Dabbawala logo path
+              src="/mumbai-dabbawaaa.png" // Replace with a Mumbai Dabbawala logo path
               alt="Mumbai Dabbawala Logo"
               className="h-20 md:h-24 object-contain"
             />
