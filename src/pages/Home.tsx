@@ -346,32 +346,52 @@ const Home = () => {
       </section>
 
       {/* ----- Mumbai Dabbawala Collaboration ----- */}
-      <section className="py-16 md:py-24 bg-gray-50 mt-10 md:mt-16">
+      <motion.section
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        viewport={{ once: true, amount: 0.2 }}
+        className="py-16 md:py-24 bg-gray-100 mt-10 md:mt-16"
+      >
         <div className="container mx-auto px-4 md:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold lancelot mb-6 text-gray-900">
+          <h2 className="text-3xl md:text-4xl font-bold lancelot mb-4 text-gray-900">
             Now Delivering All Over Mumbai
           </h2>
           <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto mb-10">
             We've partnered with the iconic Mumbai Dabbawala to ensure your freshly prepared meals reach you anywhere in the city, on time, every time.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-10">
-            <img 
-              src="/gotreats.png" // Replace with your GoTreats logo path
-              alt="GoTreats Logo"
-              className="h-20 md:h-24 object-contain"
-            />
-            <span className="text-4xl md:text-5xl font-bold text-gray-400">&times;</span>
-            <img 
-              src="dabbawaa.png" // Replace with a Mumbai Dabbawala logo path
-              alt="Mumbai Dabbawala Logo"
-              className="h-20 md:h-24 object-contain"
-            />
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-16">
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="cursor-pointer"
+            >
+              <Image
+                src="/gotreats.png"
+                alt="GoTreats Logo"
+                className="h-24 md:h-32 object-contain"
+              />
+            </motion.div>
+            <span className="text-5xl md:text-7xl font-bold text-gray-400">&times;</span>
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="cursor-pointer"
+            >
+              <Image
+                src="dabbawaa.png"
+                alt="Mumbai Dabbawala Logo"
+                className="h-24 md:h-32 object-contain"
+              />
+            </motion.div>
           </div>
-          <p className="mt-8 text-xl md:text-2xl font-semibold text-gray-800">
+          <p className="mt-10 text-xl md:text-2xl font-semibold text-gray-800">
             GoTreats <span className="text-orange-500 font-bold mx-2">X</span> Mumbai Dabbawala
           </p>
         </div>
-      </section>
+      </motion.section>
 
     </main>
   )
