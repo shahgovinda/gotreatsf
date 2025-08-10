@@ -1,5 +1,3 @@
-import { useState, useEffect } from 'react'
-
 import { Locate, MapPin, Phone, Pin, Star, Quote, Box } from 'lucide-react'
 import ItemCards from '../components/ItemCards';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -45,9 +43,6 @@ const Home = () => {
   const navigate = useNavigate()
   const products = useProductStore((state) => state.products)
   const [swiperRef, setSwiperRef] = useState(null);
-  
-  // --- NEW STATE FOR MODAL ---
-  const [selectedReview, setSelectedReview] = useState<Review | null>(null);
 
   const { data: reviews = [], isLoading, error } = useQuery({
     queryKey: ['reviews'],
@@ -55,17 +50,6 @@ const Home = () => {
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false
   });
-
-  // --- NEW HANDLERS FOR MODAL ---
-  const handleOpenReview = (review: Review) => {
-    setSelectedReview(review);
-    document.body.style.overflow = 'hidden'; // Prevents background scroll
-  };
-
-  const handleCloseReview = () => {
-    setSelectedReview(null);
-    document.body.style.overflow = 'unset'; // Re-enables background scroll
-  };
 
   // For review card scrolling (copied from Customers page)
   const [reviewStartIndex, setReviewStartIndex] = useState(0);
@@ -329,9 +313,8 @@ const Home = () => {
                     className="flex-none w-[280px]"
                     whileHover={{ scale: 1.02 }}
                     transition={{ duration: 0.2 }}
-                    onClick={() => handleOpenReview(review)} // Add the new onClick handler
                   >
-                    <div className="bg-white rounded-xl shadow-md hover:shadow-lg p-6 transition-all duration-300 border border-gray-100 cursor-pointer">
+                    <div className="bg-white rounded-xl shadow-md hover:shadow-lg p-6 transition-all duration-300 border border-gray-100">
                       <div className="flex items-center gap-4">
                         <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 border-2 border-orange-200">
                           <img
@@ -409,52 +392,9 @@ const Home = () => {
         </div>
       </motion.section>
 
-      {/* The Modal for the Review */}
-      {selectedReview && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
-          onClick={handleCloseReview} // Close modal when clicking the backdrop
-        >
-          <div 
-            className="relative w-full max-w-lg p-6 bg-white rounded-lg shadow-xl max-h-[90vh] overflow-hidden"
-            onClick={(e) => e.stopPropagation()} // Prevent backdrop click from closing modal
-          >
-            {/* Close button */}
-            <button
-              onClick={handleCloseReview}
-              className="absolute top-4 right-4 p-2 text-gray-400 rounded-full hover:bg-gray-100 hover:text-gray-600 transition"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </button>
-
-            {/* User Info */}
-            <div className="flex items-center gap-4 border-b pb-4 mb-4">
-              <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 border-2 border-orange-200">
-                <img src={selectedReview.avatarUrl} alt={selectedReview.name} className="object-cover w-full h-full" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-gray-800">{selectedReview.name}</h3>
-                <p className="text-gray-600">{selectedReview.work}</p>
-              </div>
-            </div>
-
-            {/* Review text with scroll */}
-            <div className="max-h-[70vh] overflow-y-auto pr-2">
-              <p className="text-gray-700 italic leading-relaxed">
-                "{selectedReview.review}"
-              </p>
-            </div>
-
-            {/* Place/location */}
-            <div className="mt-4 text-sm text-gray-500 flex items-center">
-              <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 12.414a2 2 0 00-2.828 0l-4.243 4.243" /></svg>
-              {selectedReview.place}
-            </div>
-          </div>
-        </div>
-      )}
     </main>
   )
 }
 
 export default Home
+
