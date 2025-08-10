@@ -362,7 +362,7 @@ const Home = () => {
             />
             <span className="text-4xl md:text-5xl font-bold text-gray-400">&times;</span>
             <img 
-              src="/mumbai-dabbawaa.png" // Replace with a Mumbai Dabbawala logo path
+              src="dabbawaa.png" // Replace with a Mumbai Dabbawala logo path
               alt="Mumbai Dabbawala Logo"
               className="h-20 md:h-24 object-contain"
             />
