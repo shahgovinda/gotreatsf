@@ -8,7 +8,7 @@ import {
   ConfirmationResult,
 } from "firebase/auth";
 
-import { auth } from "@/config/firebaseConfig"; // ✅ keep this path
+import { auth } from "@/config/firebaseConfig";
 import { getUserFromDb, handleLogout } from "@/services/authService";
 import { useAuthStore } from "@/store/authStore";
 import Button from "@/components/Button";
@@ -28,18 +28,17 @@ const AdminLogin: React.FC = () => {
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [confirmationResult, setConfirmationResult] =
-    useState<ConfirmationResult | null>(null);
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
   const setUser = useAuthStore((s) => s.setUser);
   const setUserDetails = useAuthStore((s) => s.setUserDetails);
   const navigate = useNavigate();
 
-  const otpRef = useRef<HTMLInputElement>(null);
+  const otpInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (confirmationResult && otpRef.current) {
-      otpRef.current.focus();
+    if (confirmationResult && otpInputRef.current) {
+      otpInputRef.current.focus();
     }
   }, [confirmationResult]);
 
@@ -61,7 +60,7 @@ const AdminLogin: React.FC = () => {
           "recaptcha-container",
           { size: "invisible" }
         );
-        await window.recaptchaVerifier.render(); // ensure it mounts
+        await window.recaptchaVerifier.render();
       }
 
       const result = await signInWithPhoneNumber(
@@ -70,10 +69,10 @@ const AdminLogin: React.FC = () => {
         window.recaptchaVerifier
       );
       setConfirmationResult(result);
-      toast.success("OTP sent");
+      toast.success("OTP sent successfully!");
     } catch (err) {
       console.error("[sendOtp]", err);
-      toast.error("Failed to send OTP");
+      toast.error("Failed to send OTP. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -85,11 +84,10 @@ const AdminLogin: React.FC = () => {
       toast.error("Please request OTP first");
       return;
     }
-
+    
     if (otp.length !== 6) {
-      toast.error("OTP must be 6 digits");
-      setError("Invalid OTP");
-      return;
+        toast.error("Invalid OTP format. Please enter 6 digits.");
+        return;
     }
 
     setError("");
@@ -108,22 +106,21 @@ const AdminLogin: React.FC = () => {
       }
 
       if (userDetails.role !== "admin") {
-        toast.error("You are not authorized as admin.");
+        toast.error("You are not authorized as an admin.");
         await handleLogout();
         setLoading(false);
         return;
       }
 
-      // ✅ update zustand store
-      setUser(firebaseUser); // store full Firebase User object
+      setUser(firebaseUser);
       setUserDetails(userDetails);
 
-      toast.success("Admin logged in");
-      navigate("/admin/dashboard"); // adjust route to your admin page
+      toast.success("Admin logged in successfully!");
+      navigate("/admin/dashboard");
     } catch (err) {
       console.error("[verifyOtp]", err);
       setError("Invalid OTP");
-      toast.error("Invalid OTP");
+      toast.error("The OTP you entered is incorrect. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -143,7 +140,7 @@ const AdminLogin: React.FC = () => {
           <p className="text-gray-400 mt-2">Secure Admin Login</p>
         </div>
 
-        {/* phone input */}
+        {/* Conditional rendering for phone or OTP form */}
         {!confirmationResult ? (
           <>
             <Input
@@ -165,7 +162,7 @@ const AdminLogin: React.FC = () => {
               startContent={
                 <div className="flex items-center gap-1 text-gray-400">
                   <Phone size={16} />
-                  <span>+91</span>
+                  <span className="text-sm font-medium">+91</span>
                 </div>
               }
               className="w-full"
@@ -182,21 +179,33 @@ const AdminLogin: React.FC = () => {
         ) : (
           /* otp input */
           <div className="mt-6">
-            <p className="text-sm text-gray-400 mb-2">
+            <p className="text-sm text-gray-400 mb-4">
               An OTP has been sent to +91{phone}
             </p>
             <InputOtp
               value={otp}
-              onValueChange={setOtp}
+              onValueChange={(val) => {
+                setOtp(val);
+                if (val.length === 6) {
+                  handleVerifyOtp(); // Auto-submit on completion
+                }
+              }}
               length={6}
               variant="faded"
               isInvalid={!!error}
               errorMessage={error}
               autoFocus
-              ref={otpRef}
-              onComplete={handleVerifyOtp} // Auto-submit on completion
-              className="flex justify-center"
-              // Removed the 'inputClassName' prop
+              ref={otpInputRef}
+              className="flex justify-center mb-6"
+              onPaste={async (e) => {
+                e.preventDefault();
+                const pasteData = e.clipboardData.getData('text').slice(0, 6);
+                setOtp(pasteData);
+                if (pasteData.length === 6) {
+                    // Give a moment for state to update, then submit
+                    setTimeout(() => handleVerifyOtp(), 100);
+                }
+              }}
             />
             <Button
               onClick={handleVerifyOtp}
