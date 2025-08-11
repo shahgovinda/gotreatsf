@@ -113,22 +113,41 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
     const [showAllReviews, setShowAllReviews] = useState(false);
     const [reviewFilter, setReviewFilter] = useState<number | null>(null);
     const [isImageZoomed, setIsImageZoomed] = useState(false); // New state for image zoom
+    
+    const { user } = useAuthStore(); // Get user from auth store
+    const navigate = useNavigate();
 
     // Like (favorite) logic
     const [liked, setLiked] = useState(() => {
-        const likedItems = JSON.parse(localStorage.getItem('likedItems') || '[]');
-        return likedItems.includes(item.id);
+        // Only get liked items from localStorage if user is signed in
+        if (user) {
+            const likedItems = JSON.parse(localStorage.getItem('likedItems') || '[]');
+            return likedItems.includes(item.id);
+        }
+        return false;
     });
+
     useEffect(() => {
         const handler = () => {
-            const likedItems = JSON.parse(localStorage.getItem('likedItems') || '[]');
-            setLiked(likedItems.includes(item.id));
+            if (user) {
+                const likedItems = JSON.parse(localStorage.getItem('likedItems') || '[]');
+                setLiked(likedItems.includes(item.id));
+            } else {
+                setLiked(false);
+            }
         };
         window.addEventListener('likedItemsChanged', handler);
         return () => window.removeEventListener('likedItemsChanged', handler);
-    }, [item.id]);
+    }, [item.id, user]);
 
     const toggleLike = () => {
+        // Check if user is signed in
+        if (!user) {
+            toast.error('Please sign in to add to favorites.');
+            navigate('/register'); // Redirect to sign-in/register page
+            return;
+        }
+
         let likedItems = JSON.parse(localStorage.getItem('likedItems') || '[]');
         if (liked) {
             likedItems = likedItems.filter((id: string) => id !== item.id);
@@ -163,9 +182,8 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
     )
 
     const { items, addItem, updateQuantity } = useCartStore()
-    const { user, userDetails } = useAuthStore();
-    const navigate = useNavigate();
-
+    const { userDetails } = useAuthStore();
+    
     // Get quantity of this item from cart
     const cartItem = items.find(i => i.id === item.id)
     const quantity = cartItem?.quantity || 0
