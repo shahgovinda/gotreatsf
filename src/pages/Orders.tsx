@@ -20,9 +20,10 @@ import { addItemRating } from '../services/productService';
 import { getDocs, collection, query, where } from 'firebase/firestore';
 import { db } from '../config/firebaseConfig';
 
+//... (all other imports and code remain the same)
+// ...
 const Orders = () => {
-    const [detailOpen, setDetailOpen] = useState(false);
-    const [selectedOrder, setSelectedOrder] = useState<any>(null);
+    // ... (all other state and hooks remain the same)
     const userDetails = useAuthStore((state) => state.userDetails);
     const { isOpen, onOpen, onClose } = useDisclosure();
     const navigate = useNavigate()
@@ -221,14 +222,14 @@ const Orders = () => {
                         className='hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-600 text-white font-semibold shadow-md hover:bg-purple-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2'
                         onClick={() => navigate('/contact')}
                     >
-                        <Info size={22} className='text-white' /> Need help?
+                        <Info size={22} className='text-white' /> Need help, {userDetails?.displayName?.split(' ')[0] || 'User'}?
                     </button>
                 </div>
                 <button
                     className='flex sm:hidden w-full items-center justify-center gap-2 px-4 py-3 rounded-lg bg-purple-600 text-white font-semibold shadow-md hover:bg-purple-700 transition-all duration-200 mb-4 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2'
                     onClick={() => navigate('/contact')}
                 >
-                    <Info size={22} className='text-white' /> Need help?
+                    <Info size={22} className='text-white' /> Need help, {userDetails?.displayName?.split(' ')[0] || 'User'}?
                 </button>
                 {sortedOrders.length === 0 ? (
                     <div className='flex flex-col items-center gap-5 py-10 text-gray-500'>
@@ -316,7 +317,7 @@ const Orders = () => {
                                             </span>
                                             <p>{formatAddress(selectedOrder?.address)}</p>
                                         </div>
-                                        
+
                                         {selectedOrder?.deliveryTime && (
                                             <div className="flex flex-col text-sm text-gray-600">
                                                 <span className="font-semibold text-gray-800 text-lg flex items-center gap-2">
