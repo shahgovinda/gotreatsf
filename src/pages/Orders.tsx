@@ -224,12 +224,12 @@ const Orders = () => {
                         <Info size={22} className='text-white' /> Need help?
                     </button>
                 </div>
-                <button
-                    className='flex sm:hidden w-full items-center justify-center gap-2 px-4 py-3 rounded-lg bg-purple-600 text-white font-semibold shadow-md hover:bg-purple-700 transition-all duration-200 mb-4 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2'
-                    onClick={() => navigate('/contact')}
-                >
-                    <Info size={22} className='text-white' /> Need help?
-                </button>
+               <button
+    className='flex sm:hidden w-full items-center justify-center gap-2 px-4 py-3 rounded-lg bg-purple-600 text-white font-semibold shadow-md hover:bg-purple-700 transition-all duration-200 mb-4 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2'
+    onClick={() => navigate('/contact')}
+>
+    <Info size={22} className='text-white' /> Need help, {userDetails?.displayName?.split(' ')[0] || 'User'}?
+</button>
                 {sortedOrders.length === 0 ? (
                     <div className='flex flex-col items-center gap-5 py-10 text-gray-500'>
                         <p>You have not placed any order yet.</p>
