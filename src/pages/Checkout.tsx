@@ -303,7 +303,7 @@ const Checkout = () => {
                 <div className='flex flex-col gap-6 z-10 items-center w-full px-4'>
                     {/* Cart image with bounce, responsive */}
                     <img src="/shopping.png" className='mx-auto animate-bounce-slow max-w-[180px] sm:max-w-xs md:max-w-sm lg:max-w-md w-full' alt="Empty cart" />
-                    <p className='text-xl sm:text-2xl font-semibold text-center flex flex-col items-center'>Your cart is empty <span className="text-xl sm:text-2xl mt-1">😔</span></p>
+                    <p className='text-xl sm:text-2xl font-semibold text-center flex flex-col items-center'>{userDetails?.displayName ? `${userDetails.displayName}, ` : 'Your '}cart is empty <span className="text-xl sm:text-2xl mt-1">😔</span></p>
                     <Button onClick={() => navigate('/shop')} variant='primary' className="transition-transform duration-200 hover:scale-105 active:scale-95 px-8 sm:px-10 py-3 text-base sm:text-lg rounded-full shadow-lg">Go to Shop</Button>
                 </div>
                 {/* Animations CSS */}
