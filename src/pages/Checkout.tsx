@@ -358,24 +358,32 @@ const Checkout = () => {
                     <div className='lg:col-span-2 space-y-8'>
                         <CartSection items={items} updateItemQuantity={updateItemQuantity} />
                         {/* Add Items, Cooking requests, and Send cutlery in one row */}
-                        <div className="flex flex-row gap-2 items-center mb-4">
-                            <Button variant="secondary" onClick={() => navigate('/shop')}>
-                                + Add Items
-                            </Button>
-                            <Button variant="secondary" onClick={() => setShowInstructions(!showInstructions)}>
-                                Cooking requests
-                            </Button>
-                           <label className="send-cutlery-checkbox">
-  <input
-    type="checkbox"
-    checked={sendCutlery}
-    onChange={(e) => setSendCutlery(e.target.checked)}
-  />
-  <span className="checkmark"></span>
-  Send cutlery
-</label>
+                       <div className="flex flex-row gap-2 items-center mb-4">
+  <button
+    className="pill-btn"
+    onClick={() => navigate('/shop')}
+  >
+    + Add Items
+  </button>
 
-                        </div>
+  <button
+    className="pill-btn"
+    onClick={() => setShowInstructions(!showInstructions)}
+  >
+    Cooking requests
+  </button>
+
+  <label className="pill-btn checkbox-btn">
+    <input
+      type="checkbox"
+      checked={sendCutlery}
+      onChange={(e) => setSendCutlery(e.target.checked)}
+    />
+    <span className="checkmark"></span>
+    Send cutlery
+  </label>
+</div>
+
                         {/* Expandable Special Instructions */}
                         {showInstructions && (
                             <div className="bg-white rounded-2xl shadow-lg p-4 mb-2 animate-fade-in">
