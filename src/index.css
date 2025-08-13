@@ -549,4 +549,74 @@ body {
 .animate-slide-in-right {
   animation: slide-in-right 0.5s ease-out forwards;
 }
+/* Container */
+.send-cutlery-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+  font-size: 14px;
+  color: #444;
+  padding: 6px 12px;
+  border: 2px solid #f97316; /* orange border */
+  border-radius: 10px;
+  background-color: white;
+  transition: all 0.3s ease;
+}
+
+/* Hover effect */
+.send-cutlery-checkbox:hover {
+  background-color: #fff7ed; /* light orange bg */
+  transform: scale(1.03);
+}
+
+/* Hide default checkbox */
+.send-cutlery-checkbox input {
+  display: none;
+}
+
+/* Custom checkmark box */
+.checkmark {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #f97316;
+  border-radius: 4px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* Check animation */
+.send-cutlery-checkbox input:checked + .checkmark {
+  background-color: #f97316;
+  border-color: #f97316;
+  animation: pop 0.3s ease forwards;
+}
+
+/* Tick icon */
+.checkmark::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 0px;
+  width: 6px;
+  height: 12px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: scale(0) rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+.send-cutlery-checkbox input:checked + .checkmark::after {
+  transform: scale(1) rotate(45deg);
+}
+
+/* Pop animation */
+@keyframes pop {
+  0% { transform: scale(0.8); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
 
