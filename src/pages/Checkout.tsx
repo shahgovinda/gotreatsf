@@ -198,7 +198,9 @@ const Checkout = () => {
                 totalQuantity: items.reduce((total, item) => total + item.quantity, 0),
                 note: note,
                 deliveryTime: preferredDeliveryTime,
-                deliveryDate: preferredDeliveryDate.toISOString(), // Add delivery date to order details
+                // This is where the deliveryDate property is added,
+                // ensuring it's a known property of OrderDetails
+                deliveryDate: preferredDeliveryDate.toISOString(), 
                 customer: {
                     uid: userDetails.uid,
                     name: userDetails.displayName || '',
@@ -504,7 +506,7 @@ const Checkout = () => {
                             paymentMode={paymentMode as 'online' | 'cod'}
                             onPaymentModeChange={(mode) => setPaymentMode(mode)}
                             onHandlePayment={handlePaymentClick}
-                            isLoading={false} // You might want to connect this to a loading state
+                            isLoading={isPlacingOrder}
                         />
                     </div>
                 </div>
