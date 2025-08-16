@@ -5,7 +5,7 @@ import OrderSummary from '../components/OrderSummary';
 import { fetchUserOrders } from '../services/orderService';
 import { useAuthStore } from '../store/authStore';
 import { StatusBadge } from '../components/StatusBadge';
-import { ArrowLeft, ArrowRight, CheckCircle, CircleHelp, HandCoins, Home, RefreshCcw, Store, XIcon, Info, Car } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, CircleHelp, HandCoins, Home, RefreshCcw, Store, XIcon, Info, Car, Calendar } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerBody, DrawerFooter } from "@heroui/drawer";
 import { useDisclosure } from '@/hooks/useDisclosure';
 import { useCartStore } from '../store/cartStore';
@@ -224,12 +224,12 @@ const Orders = () => {
                         <Info size={22} className='text-white' /> Need help, {userDetails?.displayName?.split(' ')[0] || 'User'}?
                     </button>
                 </div>
-               <button
-    className='flex sm:hidden w-full items-center justify-center gap-2 px-4 py-3 rounded-lg bg-purple-600 text-white font-semibold shadow-md hover:bg-purple-700 transition-all duration-200 mb-4 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2'
-    onClick={() => navigate('/contact')}
->
-    <Info size={22} className='text-white' /> Need help, {userDetails?.displayName?.split(' ')[0] || 'User'}?
-</button>
+                <button
+                    className='flex sm:hidden w-full items-center justify-center gap-2 px-4 py-3 rounded-lg bg-purple-600 text-white font-semibold shadow-md hover:bg-purple-700 transition-all duration-200 mb-4 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2'
+                    onClick={() => navigate('/contact')}
+                >
+                    <Info size={22} className='text-white' /> Need help, {userDetails?.displayName?.split(' ')[0] || 'User'}?
+                </button>
                 {sortedOrders.length === 0 ? (
                     <div className='flex flex-col items-center gap-5 py-10 text-gray-500'>
                         <p>You have not placed any order yet.</p>
@@ -316,7 +316,17 @@ const Orders = () => {
                                             </span>
                                             <p>{formatAddress(selectedOrder?.address)}</p>
                                         </div>
-                                        
+
+                                        {/* ADDED DELIVERY DATE HERE */}
+                                        {selectedOrder?.deliveryDate && (
+                                            <div className="flex flex-col text-sm text-gray-600">
+                                                <span className="font-semibold text-gray-800 text-lg flex items-center gap-2">
+                                                    <Calendar size={19} /> Delivery Date
+                                                </span>
+                                                <p>{selectedOrder.deliveryDate}</p>
+                                            </div>
+                                        )}
+
                                         {selectedOrder?.deliveryTime && (
                                             <div className="flex flex-col text-sm text-gray-600">
                                                 <span className="font-semibold text-gray-800 text-lg flex items-center gap-2">
