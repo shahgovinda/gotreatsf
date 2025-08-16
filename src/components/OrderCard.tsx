@@ -10,14 +10,13 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
     const [expanded, setExpanded] = useState(false);
     const [selectedStatus, setSelectedStatus] = useState(new Set([order.orderStatus]));
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
     const handleStatusChange = (newStatus) => {
         setSelectedStatus(newStatus);
-        const status = Array.from(newStatus)[0]; // Convert Set to array and get the first value
-        onUpdateStatus(order.id, status); // Update the order status
-        // toast.success(`Order for ${order.customer.name} is ${status}`);
+        const status = Array.from(newStatus)[0];
+        onUpdateStatus(order.id, status);
     };
 
-    // Format the createdAt date and time
     const formatOrderDateTime = (dateString) => {
         const date = new Date(dateString);
         return new Intl.DateTimeFormat('en-US', {
@@ -26,7 +25,6 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
         }).format(date);
     };
 
-    // Get dynamic border color based on order status
     const getBorderColor = (status) => {
         switch (status) {
             case 'received':
@@ -48,7 +46,6 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
         }
     };
 
-    // Get dynamic background color based on order status
     const getBackgroundColor = (status) => {
         switch (status) {
             case 'received':
@@ -82,15 +79,14 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
     return (
         <motion.div
             key={order.id}
-            initial={{ opacity: 0, x: -50 }} // Mount animation: from top
+            initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 50 }} // Unmount animation: fade out to the right
+            exit={{ opacity: 0, x: 50 }}
             transition={{ duration: 0.3, delay: i * 0.1 }}
             className={`border rounded-lg overflow-hidden shadow ${getBorderColor(
                 order.orderStatus
             )}`}
         >
-            {/* Dynamic background color for the header */}
             <div className={`p-3 flex justify-between md:items-center transition-colors duration-300 ${getBackgroundColor(order.orderStatus)}`}>
                 <h2 className="font-semibold text-white text-lg"># {order.id.slice(-6)}</h2>
                 <h2 className=" font-semibold text-white text-lg animate-pulse">{order.razorpay_payment_id ? <p className='flex gap-1'><BanknoteIcon/> Paid</p> : <p className='flex gap-1'><HandCoins /> COD</p>}</h2>
@@ -100,7 +96,6 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
             <div className="p-4 bg-white">
                 <div className="grid grid-cols-1 md:grid-cols-5 items-center gap-2 md:gap-0 md:justify-items-center">
                     <div className=''>
-                        {/* for mobile */}
                         <div className='md:hidden flex items-center justify-between'>
                             <p className="font-semibold text-xl">{order.customer.name}</p>
                             <StatusBadge status={order.orderStatus} />
@@ -119,9 +114,11 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                     </div>
                     <hr className=" md:hidden border border-gray-400 my-2" />
                     <div>
+                        {/* --- ADDED DELIVERY DATE HERE --- */}
                         <p className="inline-flex items-center gap-2">
-                            <Clock size={16} /> **Delivery Time:** {order.deliveryTime}
+                            <Clock size={16} /> {order.deliveryDate} | {order.deliveryTime}
                         </p>
+                        {/* ---------------------------------- */}
                         <p className="inline-flex items-center gap-2">
                             <Home size={16} /> {order.address}
                         </p>
@@ -138,18 +135,16 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                             <strong>Payment Status:</strong> {order.paymentStatus}
                         </p>
                     </div>
-                    {/* <hr className=" md:hidden border border-gray-400 my-2" /> */}
                     <div className='flex w-full gap-4 '>
-                        {/* Dropdown to update order status */}
                         <Select
                             placeholder="Select Status"
-                            selectedKeys={new Set([order.orderStatus])} // Use order.orderStatus directly
+                            selectedKeys={new Set([order.orderStatus])}
                             variant="bordered"
                             radius="full"
                             className={`border-4 p-px rounded-full ${getBorderColor(order.orderStatus)}`}
                             onSelectionChange={(newStatus) => {
-                                const status = Array.from(newStatus)[0]; // Convert Set to array and get the first value
-                                onUpdateStatus(order.id, status); // Update the order status
+                                const status = Array.from(newStatus)[0];
+                                onUpdateStatus(order.id, status);
                             }}
                         >
                             <SelectItem
@@ -200,8 +195,6 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                 Failed
                             </SelectItem>
                         </Select>
-
-                        {/* Button to view order details */}
                         <Button size='sm' className='md:hidden'
                             variant='secondary' onClick={onOpen}
                         >
@@ -216,7 +209,6 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                         </Tooltip>
                     </div>
                 </div>
-                {/* for desktop */}
                 <AnimatePresence>
                     {
                         expanded && (
@@ -227,7 +219,6 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                 exit={{ height: 0 }}
                                 className='hidden md:block mt-4 border-t border-gray-300 p-4 overflow-hidden bg-white'>
                                 <div className="grid  grid-cols-1 md:grid-cols-3 gap-4">
-                                    {/* Customer Details */}
                                     <div className=''>
                                         <h3 className="font-semibold lancelot text-purple-700 mb-2 flex gap-2 item-center"><User size={19} /> Customer Details</h3>
                                         <p className='flex justify-between pr-10'><strong>Name:</strong> {order.customer.name}</p>
@@ -235,21 +226,19 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                         <p className='flex justify-between pr-10'><strong>Phone:</strong> {order.customer.phoneNumber}</p>
                                         <p className='flex justify-between pr-10'><strong>Email:</strong> {order.customer.email}</p>
                                     </div>
-                                    {/* Address Breakdown */}
                                     <div>
                                         <h3 className="font-semibold lancelot text-purple-700 mb-2 flex gap-2 item-center"><MapPin size={19} /> Address</h3>
                                         <p>{order.address}</p>
                                     </div>
-                                    {/* Payment Details */}
                                     <div>
                                         <h3 className="font-semibold lancelot text-purple-700 mb-2 flex gap-2 item-center"><Banknote size={19} /> Payment Details</h3>
                                         <p className='flex justify-between pr-10'><strong>Total Items:</strong> {order.totalQuantity}</p>
                                         <p className='flex justify-between pr-10'><strong>Total Price:</strong> ₹{order.totalAmount}</p>
                                         <p className='text-green-600 flex justify-between pr-10'><strong>Payment ID:</strong> {order.razorpay_payment_id || 'CASH ON DELIVERY'}</p>
                                         <p className='text-green-600 flex justify-between pr-10'><strong>Payment Status:</strong> {order.paymentStatus}</p>
+                                        <p className='flex justify-between pr-10'><strong>Delivery Date:</strong> {order.deliveryDate}</p>
                                         <p className='flex justify-between pr-10'><strong>Delivery Time:</strong> {order.deliveryTime}</p>
                                     </div>
-                                    {/* Items */}
                                     <div className="">
                                         <h3 className="font-semibold lancelot text-purple-700 flex gap-2 item-center"><ShoppingBasket size={19} /> Items</h3>
                                         <ul className="list-disc pl-5 space-y-1">
@@ -291,7 +280,6 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                             </DrawerHeader>
                             <DrawerBody className="h-full overflow-auto mt-18">
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                                    {/* Customer Details */}
                                     <div>
                                         <h3 className="font-semibold lancelot text-2xl mb-2">Customer Details</h3>
                                         <p className='flex justify-between '><strong>Name:</strong> {order.customer.name}</p>
@@ -300,13 +288,11 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                         <p className='flex justify-between '><strong>Email:</strong> {order.customer.email}</p>
                                     </div>
                                     <hr className='md:hidden border border-gray-400 my-1' />
-                                    {/* Address Breakdown */}
                                     <div>
                                         <h3 className="font-semibold lancelot text-2xl mb-2">Address</h3>
                                         <p>{order.address}</p>
                                     </div>
                                     <hr className='md:hidden border border-gray-400 my-1' />
-                                    {/* Items */}
                                     <div className="">
                                         <h3 className="font-semibold lancelot text-2xl mb-2">Items</h3>
                                         <ul className="list-disc px-5 space-y-1">
@@ -318,7 +304,6 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                         </ul>
                                     </div>
                                     <hr className='md:hidden border border-gray-400 my-1' />
-                                    {/* Payment Details */}
                                     <div>
                                         <h3 className="font-semibold lancelot text-2xl mb-2">Payment Details</h3>
                                         <p className='flex justify-between '><strong>Total Items:</strong> {order.totalQuantity}</p>
@@ -327,6 +312,7 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                         <p className='text-green-600 flex font-bold justify-between'><strong>Total Price:</strong> ₹{order.totalAmount}</p>
                                         <p className='text-green-600 flex justify-between'><strong>Payment ID:</strong> {order.razorpay_payment_id || 'CASH ON DELIVERY'}</p>
                                         <p className='text-green-600 flex justify-between'><strong>Payment Status:</strong> {order.paymentStatus}</p>
+                                        <p><strong>Delivery Date:</strong> {order.deliveryDate}</p>
                                         <p><strong>Delivery Time:</strong> {order.deliveryTime}</p>
                                     </div>
                                     <hr className='md:hidden border border-gray-400 my-1' />
@@ -351,13 +337,13 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                             <DrawerFooter className='border-t-2 border-gray-200'>
                                 <Select
                                     placeholder="Select Status"
-                                    selectedKeys={new Set([order.orderStatus])} // Use order.orderStatus directly
+                                    selectedKeys={new Set([order.orderStatus])}
                                     variant="bordered"
                                     radius="full"
                                     className={`border-4 p-px rounded-full ${getBorderColor(order.orderStatus)}`}
                                     onSelectionChange={(newStatus) => {
-                                        const status = Array.from(newStatus)[0]; // Convert Set to array and get the first value
-                                        onUpdateStatus(order.id, status); // Update the order status
+                                        const status = Array.from(newStatus)[0];
+                                        onUpdateStatus(order.id, status);
                                     }}
                                 >
                                     <SelectItem
