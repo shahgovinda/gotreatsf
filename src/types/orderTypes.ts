@@ -25,6 +25,7 @@ export type OrderDetails = {
     totalQuantity: number;
     note?: string;
     deliveryTime: string;
+    deliveryDate: string; // Add this line
     customer: Customer;
     address: Address;
     razorpay_payment_id?: string;
