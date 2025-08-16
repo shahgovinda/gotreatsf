@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Button, { IconButton } from '../components/Button';
 import OrderSummary from '../components/OrderSummary';
@@ -37,6 +37,7 @@ const Orders = () => {
         item: any | null,
         orderId: string | null
     }>({ open: false, item: null, orderId: null });
+
     const [ratedItems, setRatedItems] = useState<{ [key: string]: boolean }>({});
     const [checkingRatings, setCheckingRatings] = useState(false);
 
@@ -54,13 +55,6 @@ const Orders = () => {
         }
     }, []);
 
-    // Save rated items to local storage whenever it changes
-    useEffect(() => {
-        if (Object.keys(ratedItems).length > 0) {
-            localStorage.setItem('ratedItems', JSON.stringify(ratedItems));
-        }
-    }, [ratedItems]);
-
     const { data: orders = [], isLoading, isError } = useQuery({
         queryKey: ['userOrders', userDetails?.uid],
         queryFn: () => fetchUserOrders(userDetails?.uid),
@@ -77,44 +71,49 @@ const Orders = () => {
         }
     }, [orders, selectedOrder]);
 
-    useEffect(() => {
-        if (!orders || orders.length === 0 || checkingRatings) return;
+    const handleRatingCheck = useCallback(async () => {
+        if (!orders || orders.length === 0 || checkingRatings) {
+            return;
+        }
         setCheckingRatings(true);
-        (async () => {
-            for (const order of orders) {
-                if (order.orderStatus === 'delivered' && order.items) {
-                    for (const item of order.items) {
-                        const key = `${order.id}_${item.id}`;
-                        // 1. Check if the item has already been marked as 'rated' in our local state
-                        if (ratedItems[key]) {
-                            continue;
-                        }
 
-                        const q = query(
-                            collection(db, 'ratings'),
-                            where('itemId', '==', item.id),
-                            where('orderId', '==', order.id),
-                            where('userId', '==', userDetails?.uid || '')
-                        );
-                        const snap = await getDocs(q);
+        for (const order of orders) {
+            if (order.orderStatus === 'delivered' && order.items) {
+                for (const item of order.items) {
+                    const key = `${order.id}_${item.id}`;
+                    // 1. Check if the item has already been marked as 'handled' in our local state
+                    if (ratedItems[key]) {
+                        continue;
+                    }
 
-                        // 2. If no rating exists in the database
-                        if (snap.empty) {
-                            setRatingModal({ open: true, item, orderId: order.id });
-                            // 3. Mark the item as "handled" locally to prevent future checks
-                            setRatedItems(prev => ({ ...prev, [key]: true }));
-                            setCheckingRatings(false);
-                            return; // Stop checking after the first unrated item is found
-                        } else {
-                            // If a rating is found in the database, also mark it as rated locally
-                            setRatedItems(prev => ({ ...prev, [key]: true }));
-                        }
+                    const q = query(
+                        collection(db, 'ratings'),
+                        where('itemId', '==', item.id),
+                        where('orderId', '==', order.id),
+                        where('userId', '==', userDetails?.uid || '')
+                    );
+                    const snap = await getDocs(q);
+
+                    // 2. If no rating exists in the database
+                    if (snap.empty) {
+                        setRatingModal({ open: true, item, orderId: order.id });
+                        setCheckingRatings(false);
+                        return; // Stop checking after the first unrated item is found
+                    } else {
+                        // If a rating is found in the database, also mark it as handled locally and in localStorage
+                        const newRatedItems = { ...ratedItems, [key]: true };
+                        setRatedItems(newRatedItems);
+                        localStorage.setItem('ratedItems', JSON.stringify(newRatedItems));
                     }
                 }
             }
-            setCheckingRatings(false);
-        })();
-    }, [orders, userDetails, ratedItems, checkingRatings]);
+        }
+        setCheckingRatings(false);
+    }, [orders, ratedItems, checkingRatings, userDetails]);
+
+    useEffect(() => {
+        handleRatingCheck();
+    }, [orders, handleRatingCheck]);
 
     const handleSubmitRating = async (rating: number, review: string) => {
         if (!ratingModal.item || !ratingModal.orderId) return;
@@ -127,7 +126,9 @@ const Orders = () => {
             review,
             userName: userDetails?.displayName || 'User',
         });
-        setRatedItems(prev => ({ ...prev, [key]: true }));
+        const newRatedItems = { ...ratedItems, [key]: true };
+        setRatedItems(newRatedItems);
+        localStorage.setItem('ratedItems', JSON.stringify(newRatedItems));
         setRatingModal({ open: false, item: null, orderId: null });
     };
 
@@ -135,7 +136,9 @@ const Orders = () => {
         if (!ratingModal.item || !ratingModal.orderId) return;
         const key = `${ratingModal.orderId}_${ratingModal.item.id}`;
         // Mark the item as 'handled' without submitting a review
-        setRatedItems(prev => ({ ...prev, [key]: true }));
+        const newRatedItems = { ...ratedItems, [key]: true };
+        setRatedItems(newRatedItems);
+        localStorage.setItem('ratedItems', JSON.stringify(newRatedItems));
         setRatingModal({ open: false, item: null, orderId: null });
     };
 
