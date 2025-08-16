@@ -15,11 +15,10 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
         const status = Array.from(newStatus)[0]; // Convert Set to array and get the first value
         onUpdateStatus(order.id, status); // Update the order status
         // toast.success(`Order for ${order.customer.name} is ${status}`);
-
     };
 
     // Format the createdAt date and time
-     const formatOrderDateTime = (dateString) => {
+    const formatOrderDateTime = (dateString) => {
         const date = new Date(dateString);
         return new Intl.DateTimeFormat('en-US', {
             dateStyle: 'medium',
@@ -94,7 +93,7 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
             {/* Dynamic background color for the header */}
             <div className={`p-3 flex justify-between md:items-center transition-colors duration-300 ${getBackgroundColor(order.orderStatus)}`}>
                 <h2 className="font-semibold text-white text-lg"># {order.id.slice(-6)}</h2>
-                <h2 className=" font-semibold text-white text-lg animate-pulse">{order.razorpay_payment_id  ? <p className='flex gap-1'><BanknoteIcon/> Paid</p> : <p className='flex gap-1'><HandCoins /> COD</p>}</h2>
+                <h2 className=" font-semibold text-white text-lg animate-pulse">{order.razorpay_payment_id ? <p className='flex gap-1'><BanknoteIcon/> Paid</p> : <p className='flex gap-1'><HandCoins /> COD</p>}</h2>
                 <h2 className=" hidden md:block font-semibold text-white text-lg capitalize">{order.orderStatus}</h2>
                 <h2 className="text-white text-lg">{formatOrderDateTime(order.createdAt)}</h2>
             </div>
@@ -121,7 +120,7 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                     <hr className=" md:hidden border border-gray-400 my-2" />
                     <div>
                         <p className="inline-flex items-center gap-2">
-                            <Clock size={16} /> {order.deliveryTime}
+                            <Clock size={16} /> **Delivery Time:** {order.deliveryTime}
                         </p>
                         <p className="inline-flex items-center gap-2">
                             <Home size={16} /> {order.address}
@@ -142,7 +141,6 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                     {/* <hr className=" md:hidden border border-gray-400 my-2" /> */}
                     <div className='flex w-full gap-4 '>
                         {/* Dropdown to update order status */}
-
                         <Select
                             placeholder="Select Status"
                             selectedKeys={new Set([order.orderStatus])} // Use order.orderStatus directly
@@ -204,7 +202,6 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                         </Select>
 
                         {/* Button to view order details */}
-
                         <Button size='sm' className='md:hidden'
                             variant='secondary' onClick={onOpen}
                         >
@@ -220,21 +217,15 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                     </div>
                 </div>
                 {/* for desktop */}
-
                 <AnimatePresence>
-
-
                     {
                         expanded && (
-
                             <motion.div
                                 initial={{ height: 0 }}
                                 animate={{ height: 'auto' }}
                                 transition={{ duration: 0.3 }}
                                 exit={{ height: 0 }}
                                 className='hidden md:block mt-4 border-t border-gray-300 p-4 overflow-hidden bg-white'>
-
-
                                 <div className="grid  grid-cols-1 md:grid-cols-3 gap-4">
                                     {/* Customer Details */}
                                     <div className=''>
@@ -249,7 +240,6 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                         <h3 className="font-semibold lancelot text-purple-700 mb-2 flex gap-2 item-center"><MapPin size={19} /> Address</h3>
                                         <p>{order.address}</p>
                                     </div>
-
                                     {/* Payment Details */}
                                     <div>
                                         <h3 className="font-semibold lancelot text-purple-700 mb-2 flex gap-2 item-center"><Banknote size={19} /> Payment Details</h3>
@@ -280,7 +270,6 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                         <p className='flex justify-between pr-10'><strong>Delivery: </strong> ₹{order.deliveryCharge}</p>
                                         <p className='flex justify-between pr-10'><strong>GST: </strong> ₹{order.gst}</p>
                                         <p className='flex justify-between pr-10'><strong>Order Created At:</strong> {formatOrderDateTime(order.createdAt)}</p>
-
                                     </div>
                                     <div>
                                         <h3 className="font-bold lancelot text-purple-700 mb-2 flex gap-2 item-center">< CookingPot size={19} /> Instruction</h3>
@@ -292,7 +281,6 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                     }
                 </AnimatePresence>
             </div>
-
             <Drawer isOpen={isOpen} onOpenChange={onOpenChange}>
                 <DrawerContent className= "bg-white">
                     {(onClose) => (
@@ -300,7 +288,6 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                             <DrawerHeader className="flex items-center gap-1 bg-white  border-b fixed  top-0 w-full z-[100] shadow-sm">
                                 <IconButton><ArrowLeft size={20} onClick={onClose} /></IconButton>
                                 <p> Order #{order?.id}</p>
-
                             </DrawerHeader>
                             <DrawerBody className="h-full overflow-auto mt-18">
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
@@ -318,7 +305,6 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                         <h3 className="font-semibold lancelot text-2xl mb-2">Address</h3>
                                         <p>{order.address}</p>
                                     </div>
-
                                     <hr className='md:hidden border border-gray-400 my-1' />
                                     {/* Items */}
                                     <div className="">
@@ -331,7 +317,6 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                             ))}
                                         </ul>
                                     </div>
-
                                     <hr className='md:hidden border border-gray-400 my-1' />
                                     {/* Payment Details */}
                                     <div>
@@ -345,7 +330,6 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                         <p><strong>Delivery Time:</strong> {order.deliveryTime}</p>
                                     </div>
                                     <hr className='md:hidden border border-gray-400 my-1' />
-
                                     <div>
                                         <h3 className="font-bold lancelot text-2xl mb-2">Order Details</h3>
                                         <p className='flex justify-between '><strong>Total Items:</strong> {order.totalQuantity}</p>
@@ -356,7 +340,6 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                         <p className='flex justify-between '><strong>Delivery: </strong> ₹{order.deliveryCharge}</p>
                                         <p className='flex justify-between '><strong>GST: </strong> ₹{order.gst}</p>
                                         <p className='flex justify-between '><strong>Order Created At:</strong> {formatOrderDateTime(order.createdAt)}</p>
-
                                     </div>
                                     <hr className='md:hidden border border-gray-400 my-1' />
                                     <div>
@@ -428,7 +411,6 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                 <Button variant="secondary" size='sm' onClick={onClose}>
                                     Close
                                 </Button>
-
                             </DrawerFooter>
                         </>
                     )}
@@ -442,7 +424,6 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                     </div>
                 )
             }
-
         </motion.div>
     );
 };
