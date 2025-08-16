@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Button, { IconButton } from '../components/Button';
-import OrderSummary from '../components/OrderSummary';
 import { fetchUserOrders } from '../services/orderService';
 import { useAuthStore } from '../store/authStore';
 import { StatusBadge } from '../components/StatusBadge';
@@ -38,12 +37,13 @@ const Orders = () => {
         orderId: string | null
     }>({ open: false, item: null, orderId: null });
 
-    const [ratedItems, setRatedItems] = useState<{ [key: string]: boolean }>({});
+    // State to track handled items (rated or skipped) using a more descriptive value
+    const [ratedItems, setRatedItems] = useState<{ [key: string]: 'rated' | 'skipped' }>({});
     const [checkingRatings, setCheckingRatings] = useState(false);
 
     useEffect(() => window.scrollTo(0, 0), []);
 
-    // Load rated items from local storage on component mount
+    // Load handled items from local storage on component mount
     useEffect(() => {
         const storedRatedItems = localStorage.getItem('ratedItems');
         if (storedRatedItems) {
@@ -101,7 +101,7 @@ const Orders = () => {
                         return; // Stop checking after the first unrated item is found
                     } else {
                         // If a rating is found in the database, also mark it as handled locally and in localStorage
-                        const newRatedItems = { ...ratedItems, [key]: true };
+                        const newRatedItems = { ...ratedItems, [key]: 'rated' };
                         setRatedItems(newRatedItems);
                         localStorage.setItem('ratedItems', JSON.stringify(newRatedItems));
                     }
@@ -126,7 +126,7 @@ const Orders = () => {
             review,
             userName: userDetails?.displayName || 'User',
         });
-        const newRatedItems = { ...ratedItems, [key]: true };
+        const newRatedItems = { ...ratedItems, [key]: 'rated' };
         setRatedItems(newRatedItems);
         localStorage.setItem('ratedItems', JSON.stringify(newRatedItems));
         setRatingModal({ open: false, item: null, orderId: null });
@@ -135,8 +135,8 @@ const Orders = () => {
     const handleSkipRating = () => {
         if (!ratingModal.item || !ratingModal.orderId) return;
         const key = `${ratingModal.orderId}_${ratingModal.item.id}`;
-        // Mark the item as 'handled' without submitting a review
-        const newRatedItems = { ...ratedItems, [key]: true };
+        // Mark the item as 'skipped' without submitting a review
+        const newRatedItems = { ...ratedItems, [key]: 'skipped' };
         setRatedItems(newRatedItems);
         localStorage.setItem('ratedItems', JSON.stringify(newRatedItems));
         setRatingModal({ open: false, item: null, orderId: null });
@@ -331,7 +331,7 @@ const Orders = () => {
                             <div>
                                 <DrawerHeader className="flex items-center gap-1 bg-white border-b fixed top-0 w-full shadow-sm">
                                     <IconButton><ArrowLeft size={20} onClick={onClose} /></IconButton>
-                                    <p> Order #{selectedOrder?.id}</p>
+                                    <p> Order #{selectedOrder?.id?.slice(-6) || ''}</p>
                                 </DrawerHeader>
                                 <DrawerBody className="h-full overflow-auto mt-20">
                                     <div className="flex flex-col gap-4 items-start border-b pb-4">
@@ -386,14 +386,34 @@ const Orders = () => {
                                     <div className="mt-4 border-b pb-4">
                                         <h3 className="font-medium text-sm text-gray-800">Order Items</h3>
                                         <div className="mt-2 flex flex-col gap-2">
-                                            {selectedOrder?.items?.map((item: any, idx: number) => (
-                                                <div key={idx} className="flex justify-between items-center pl-2">
-                                                    <span>
-                                                        {item.productName} x {item.quantity}
-                                                    </span>
-                                                    <span>₹{item.offerPrice * item.quantity}</span>
-                                                </div>
-                                            ))}
+                                            {selectedOrder?.items?.map((item: any, idx: number) => {
+                                                const key = `${selectedOrder.id}_${item.id}`;
+                                                return (
+                                                    <div key={idx} className="flex justify-between items-center pl-2">
+                                                        <span>
+                                                            {item.productName} x {item.quantity}
+                                                        </span>
+                                                        <span>₹{item.offerPrice * item.quantity}</span>
+                                                        {selectedOrder?.orderStatus === 'delivered' && (
+                                                            <div className="flex items-center gap-1">
+                                                                {ratedItems[key] === 'rated' ? (
+                                                                    <span className="text-green-600 text-xs flex items-center gap-1">
+                                                                        <CheckCircle size={12} /> Rated
+                                                                    </span>
+                                                                ) : ratedItems[key] === 'skipped' ? (
+                                                                    <span className="text-gray-500 text-xs flex items-center gap-1">
+                                                                        <XIcon size={12} /> Not Rated
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="text-yellow-600 text-xs flex items-center gap-1">
+                                                                        <CircleHelp size={12} /> Pending Rating
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     </div>
 
@@ -417,7 +437,7 @@ const Orders = () => {
                                     </div>
 
                                     <div className="flex justify-between text-gray-800 font-semibold text-lg mt-4">
-                                        <span>{selectedOrder.paymentStatus === 'pending' && selectedOrder?.orderStatus !== 'delivered' ? "Amount To Pay : " : "Total Paid : "}</span>
+                                        <span>{selectedOrder?.paymentStatus === 'pending' && selectedOrder?.orderStatus !== 'delivered' ? "Amount To Pay : " : "Total Paid : "}</span>
                                         <span>₹{selectedOrder?.totalAmount || '0.00'}</span>
                                     </div>
 
@@ -431,7 +451,7 @@ const Orders = () => {
 
                                     {
                                         selectedOrder?.note && (
-                                            <p>📝 "{selectedOrder?.note}"</p>
+                                            <p className='text-sm text-gray-600 mt-2'>📝 "{selectedOrder?.note}"</p>
                                         )
                                     }
 
