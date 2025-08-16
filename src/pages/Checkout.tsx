@@ -82,7 +82,8 @@ const Checkout = () => {
   const getDates = () => {
     const dates = [];
     const today = new Date();
-    const options = { weekday: 'short', month: 'short', day: 'numeric' };
+    // FIX: Change weekday option to a valid type
+    const options: Intl.DateTimeFormatOptions = { weekday: 'short', month: 'short', day: 'numeric' };
 
     for (let i = 0; i < 7; i++) {
       const date = new Date(today);
@@ -176,19 +177,17 @@ const Checkout = () => {
         setIsPlacingOrder(false);
         return;
       }
-
-      // **NEW VALIDATION FOR DATE AND TIME**
       if (!preferredDeliveryDate || !preferredDeliveryTime) {
         toast.error('Please select your preferred delivery date and time');
         setIsPlacingOrder(false);
         return;
       }
-
       if (items.length === 0) {
         toast.error('Your cart is empty. Please add items to proceed.');
         setIsPlacingOrder(false);
         return;
       }
+      // FIX: The OrderDetails type must be updated to include 'deliveryDate'
       const orderDetails: OrderDetails = {
         items: items,
         grossTotalPrice: grossTotalPrice.toFixed(2),
@@ -197,7 +196,6 @@ const Checkout = () => {
         deliveryCharge: DELIVERY_PRICE,
         totalQuantity: items.reduce((total, item) => total + item.quantity, 0),
         note: note,
-        // **NEW DELIVERY DATE FIELD**
         deliveryDate: preferredDeliveryDate,
         deliveryTime: preferredDeliveryTime,
         customer: {
@@ -256,7 +254,6 @@ const Checkout = () => {
           customer_Phone: userDetails?.phoneNumber || '',
           customer_Address: userDetails?.address || '',
           customer_Note: note || '',
-          // **UPDATE NOTES WITH DELIVERY DATE**
           delivery_Date: preferredDeliveryDate,
           delivery_Time: preferredDeliveryTime,
         },
@@ -449,7 +446,6 @@ const Checkout = () => {
             )}
             <AddressSection uid={userDetails!.uid} />
             
-            {/* **NEW DELIVERY DATE PICKER SECTION** */}
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <h2 className="text-2xl font-semibold text-gray-800 mb-4">Preferred Delivery Date</h2>
               <div className="flex flex-row gap-4 overflow-x-auto pb-4">
@@ -470,7 +466,6 @@ const Checkout = () => {
               </div>
             </div>
 
-            {/* Existing Preferred Delivery Time Section */}
             <div className="bg-white rounded-2xl shadow-lg p-6">
               <h2 className="text-2xl font-semibold text-gray-800 mb-4">Preferred Delivery Time</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -499,7 +494,6 @@ const Checkout = () => {
             </div>
           </div>
 
-          {/* Right Column */}
           <div className="lg:col-span-1">
             <OrderSummary
               grossTotalPrice={grossTotalPrice}
