@@ -1,6 +1,7 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Button, { IconButton } from '../components/Button';
+import OrderSummary from '../components/OrderSummary';
 import { fetchUserOrders } from '../services/orderService';
 import { useAuthStore } from '../store/authStore';
 import { StatusBadge } from '../components/StatusBadge';
@@ -24,7 +25,7 @@ const Orders = () => {
     const [selectedOrder, setSelectedOrder] = useState<any>(null);
     const userDetails = useAuthStore((state) => state.userDetails);
     const { isOpen, onOpen, onClose } = useDisclosure();
-    const navigate = useNavigate();
+    const navigate = useNavigate()
     const reorderItems = useCartStore((state) => state.reorderItems);
 
     const [isPriceModalOpen, setPriceModalOpen] = useState(false);
@@ -36,24 +37,10 @@ const Orders = () => {
         item: any | null,
         orderId: string | null
     }>({ open: false, item: null, orderId: null });
-
-    // State to track handled items (rated or skipped) using a more descriptive value
-    const [ratedItems, setRatedItems] = useState<{ [key: string]: 'rated' | 'skipped' }>({});
+    const [ratedItems, setRatedItems] = useState<{ [key: string]: boolean }>({});
     const [checkingRatings, setCheckingRatings] = useState(false);
 
     useEffect(() => window.scrollTo(0, 0), []);
-
-    // Load handled items from local storage on component mount
-    useEffect(() => {
-        const storedRatedItems = localStorage.getItem('ratedItems');
-        if (storedRatedItems) {
-            try {
-                setRatedItems(JSON.parse(storedRatedItems));
-            } catch (e) {
-                console.error("Failed to parse rated items from localStorage", e);
-            }
-        }
-    }, []);
 
     const { data: orders = [], isLoading, isError } = useQuery({
         queryKey: ['userOrders', userDetails?.uid],
@@ -71,53 +58,36 @@ const Orders = () => {
         }
     }, [orders, selectedOrder]);
 
-    const handleRatingCheck = useCallback(async () => {
-        if (!orders || orders.length === 0 || checkingRatings) {
-            return;
-        }
+    useEffect(() => {
+        if (!orders || orders.length === 0 || checkingRatings) return;
         setCheckingRatings(true);
-
-        for (const order of orders) {
-            if (order.orderStatus === 'delivered' && order.items) {
-                for (const item of order.items) {
-                    const key = `${order.id}_${item.id}`;
-                    // 1. Check if the item has already been marked as 'handled' in our local state
-                    if (ratedItems[key]) {
-                        continue;
-                    }
-
-                    const q = query(
-                        collection(db, 'ratings'),
-                        where('itemId', '==', item.id),
-                        where('orderId', '==', order.id),
-                        where('userId', '==', userDetails?.uid || '')
-                    );
-                    const snap = await getDocs(q);
-
-                    // 2. If no rating exists in the database
-                    if (snap.empty) {
-                        setRatingModal({ open: true, item, orderId: order.id });
-                        setCheckingRatings(false);
-                        return; // Stop checking after the first unrated item is found
-                    } else {
-                        // If a rating is found in the database, also mark it as handled locally and in localStorage
-                        const newRatedItems = { ...ratedItems, [key]: 'rated' };
-                        setRatedItems(newRatedItems);
-                        localStorage.setItem('ratedItems', JSON.stringify(newRatedItems));
+        (async () => {
+            for (const order of orders) {
+                if (order.orderStatus === 'delivered' && order.items) {
+                    for (const item of order.items) {
+                        const key = `${order.id}_${item.id}`;
+                        if (ratedItems[key]) continue;
+                        const q = query(
+                            collection(db, 'ratings'),
+                            where('itemId', '==', item.id),
+                            where('orderId', '==', order.id),
+                            where('userId', '==', userDetails?.uid || '')
+                        );
+                        const snap = await getDocs(q);
+                        if (snap.empty) {
+                            setRatingModal({ open: true, item, orderId: order.id });
+                            setCheckingRatings(false);
+                            return;
+                        }
                     }
                 }
             }
-        }
-        setCheckingRatings(false);
-    }, [orders, ratedItems, checkingRatings, userDetails]);
-
-    useEffect(() => {
-        handleRatingCheck();
-    }, [orders, handleRatingCheck]);
+            setCheckingRatings(false);
+        })();
+    }, [orders, userDetails, ratedItems]);
 
     const handleSubmitRating = async (rating: number, review: string) => {
         if (!ratingModal.item || !ratingModal.orderId) return;
-        const key = `${ratingModal.orderId}_${ratingModal.item.id}`;
         await addItemRating({
             itemId: ratingModal.item.id,
             userId: userDetails?.uid,
@@ -126,19 +96,13 @@ const Orders = () => {
             review,
             userName: userDetails?.displayName || 'User',
         });
-        const newRatedItems = { ...ratedItems, [key]: 'rated' };
-        setRatedItems(newRatedItems);
-        localStorage.setItem('ratedItems', JSON.stringify(newRatedItems));
+        setRatedItems(prev => ({ ...prev, [`${ratingModal.orderId}_${ratingModal.item.id}`]: true }));
         setRatingModal({ open: false, item: null, orderId: null });
     };
 
     const handleSkipRating = () => {
         if (!ratingModal.item || !ratingModal.orderId) return;
-        const key = `${ratingModal.orderId}_${ratingModal.item.id}`;
-        // Mark the item as 'skipped' without submitting a review
-        const newRatedItems = { ...ratedItems, [key]: 'skipped' };
-        setRatedItems(newRatedItems);
-        localStorage.setItem('ratedItems', JSON.stringify(newRatedItems));
+        setRatedItems(prev => ({ ...prev, [`${ratingModal.orderId}_${ratingModal.item.id}`]: true }));
         setRatingModal({ open: false, item: null, orderId: null });
     };
 
@@ -331,7 +295,8 @@ const Orders = () => {
                             <div>
                                 <DrawerHeader className="flex items-center gap-1 bg-white border-b fixed top-0 w-full shadow-sm">
                                     <IconButton><ArrowLeft size={20} onClick={onClose} /></IconButton>
-                                    <p> Order #{selectedOrder?.id?.slice(-6) || ''}</p>
+                                    <p> Order #{selectedOrder?.id}</p>
+
                                 </DrawerHeader>
                                 <DrawerBody className="h-full overflow-auto mt-20">
                                     <div className="flex flex-col gap-4 items-start border-b pb-4">
@@ -352,6 +317,7 @@ const Orders = () => {
                                             <p>{formatAddress(selectedOrder?.address)}</p>
                                         </div>
 
+                                        {/* ADDED DELIVERY DATE HERE */}
                                         {selectedOrder?.deliveryDate && (
                                             <div className="flex flex-col text-sm text-gray-600">
                                                 <span className="font-semibold text-gray-800 text-lg flex items-center gap-2">
@@ -386,34 +352,14 @@ const Orders = () => {
                                     <div className="mt-4 border-b pb-4">
                                         <h3 className="font-medium text-sm text-gray-800">Order Items</h3>
                                         <div className="mt-2 flex flex-col gap-2">
-                                            {selectedOrder?.items?.map((item: any, idx: number) => {
-                                                const key = `${selectedOrder.id}_${item.id}`;
-                                                return (
-                                                    <div key={idx} className="flex justify-between items-center pl-2">
-                                                        <span>
-                                                            {item.productName} x {item.quantity}
-                                                        </span>
-                                                        <span>₹{item.offerPrice * item.quantity}</span>
-                                                        {selectedOrder?.orderStatus === 'delivered' && (
-                                                            <div className="flex items-center gap-1">
-                                                                {ratedItems[key] === 'rated' ? (
-                                                                    <span className="text-green-600 text-xs flex items-center gap-1">
-                                                                        <CheckCircle size={12} /> Rated
-                                                                    </span>
-                                                                ) : ratedItems[key] === 'skipped' ? (
-                                                                    <span className="text-gray-500 text-xs flex items-center gap-1">
-                                                                        <XIcon size={12} /> Not Rated
-                                                                    </span>
-                                                                ) : (
-                                                                    <span className="text-yellow-600 text-xs flex items-center gap-1">
-                                                                        <CircleHelp size={12} /> Pending Rating
-                                                                    </span>
-                                                                )}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                );
-                                            })}
+                                            {selectedOrder?.items?.map((item: any, idx: number) => (
+                                                <div key={idx} className="flex justify-between items-center pl-2">
+                                                    <span>
+                                                        {item.productName} x {item.quantity}
+                                                    </span>
+                                                    <span>₹{item.offerPrice * item.quantity}</span>
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
 
@@ -434,10 +380,11 @@ const Orders = () => {
                                             <span>Delivery Charges</span>
                                             <span>₹{selectedOrder?.deliveryCharge || '0.00'}</span>
                                         </div>
+
                                     </div>
 
                                     <div className="flex justify-between text-gray-800 font-semibold text-lg mt-4">
-                                        <span>{selectedOrder?.paymentStatus === 'pending' && selectedOrder?.orderStatus !== 'delivered' ? "Amount To Pay : " : "Total Paid : "}</span>
+                                        <span>{selectedOrder.paymentStatus === 'pending' && selectedOrder?.orderStatus !== 'delivered' ? "Amount To Pay : " : "Total Paid : "}</span>
                                         <span>₹{selectedOrder?.totalAmount || '0.00'}</span>
                                     </div>
 
@@ -451,9 +398,10 @@ const Orders = () => {
 
                                     {
                                         selectedOrder?.note && (
-                                            <p className='text-sm text-gray-600 mt-2'>📝 "{selectedOrder?.note}"</p>
+                                            <p>📝 "{selectedOrder?.note}"</p>
                                         )
                                     }
+
 
                                     <div>
                                         {
@@ -486,17 +434,19 @@ const Orders = () => {
                                             <p>{selectedOrder?.razorpay_payment_id}</p>
                                         </div>
                                     </div>
+
                                 </DrawerBody>
                             </div>
                             <DrawerFooter className='flex border-t-2 gap-2'>
+
                                 <Button variant="secondary" className='w-full' onClick={onClose}>
                                     <XIcon size={16} /> Close
                                 </Button>
                             </DrawerFooter>
                         </div>
                     )}
-                </DrawerContent>
-            </Drawer>
+                </DrawerContent >
+            </Drawer >
             <PriceChangeModal
                 isOpen={isPriceModalOpen}
                 onClose={() => setPriceModalOpen(false)}
@@ -509,8 +459,9 @@ const Orders = () => {
                 onClose={handleSkipRating}
                 onSubmit={handleSubmitRating}
             />
-        </div>
+        </div >
     );
 };
 
 export default Orders;
+
