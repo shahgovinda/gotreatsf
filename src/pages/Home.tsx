@@ -22,379 +22,514 @@ import SpecialDayBanner from '../components/SpecialDayBanner';
 
 // Define the Review interface
 interface Review {
-  id: string;
-  name: string;
-  work: string;
-  place: string;
-  review: string;
-  avatarUrl: string;
+  id: string;
+  name: string;
+  work: string;
+  place: string;
+  review: string;
+  avatarUrl: string;
 }
 
 const fetchReviews = async (): Promise<Review[]> => {
-  const reviewsCollection = collection(db, 'reviews');
-  const reviewSnapshot = await getDocs(reviewsCollection);
-  return reviewSnapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  })) as Review[];
+  const reviewsCollection = collection(db, 'reviews');
+  const reviewSnapshot = await getDocs(reviewsCollection);
+  return reviewSnapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  })) as Review[];
 };
 
 const Home = () => {
-  const userDetails = useAuthStore((state) => state.userDetails)
-  const navigate = useNavigate()
-  const products = useProductStore((state) => state.products)
-  const [swiperRef, setSwiperRef] = useState(null);
+  const userDetails = useAuthStore((state) => state.userDetails)
+  const navigate = useNavigate()
+  const products = useProductStore((state) => state.products)
+  const [swiperRef, setSwiperRef] = useState(null);
 
-  const { data: reviews = [], isLoading, error } = useQuery({
-    queryKey: ['reviews'],
-    queryFn: fetchReviews,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: false
-  });
+  const { data: reviews = [], isLoading, error } = useQuery({
+    queryKey: ['reviews'],
+    queryFn: fetchReviews,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false
+  });
 
-  // For review card scrolling (copied from Customers page)
-  const [reviewStartIndex, setReviewStartIndex] = useState(0);
-  const getVisibleReviewCards = () => {
-    const cards = [];
-    for (let i = 0; i < reviews.length * 2; i++) {
-      const index = (reviewStartIndex + i) % reviews.length;
-      cards.push(reviews[index]); // Corrected: reviews[index]
-    }
-    return cards;
-  };
-  const handleReviewScroll = (direction: 'left' | 'right') => {
-    const container = document.querySelector('.scroll-container');
-    if (container) {
-      container.classList.remove('animate-scroll');
-      if (direction === 'right') {
-        setReviewStartIndex((prev) => (prev + 1) % reviews.length);
-      } else {
-        setReviewStartIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
-      }
-      setTimeout(() => {
-        container.classList.add('animate-scroll');
-      }, 500);
-    }
-  };
+  // For review card scrolling (copied from Customers page)
+  const [reviewStartIndex, setReviewStartIndex] = useState(0);
+  const getVisibleReviewCards = () => {
+    const cards = [];
+    for (let i = 0; i < reviews.length * 2; i++) {
+      const index = (reviewStartIndex + i) % reviews.length;
+      cards.push(reviews[index]); // Corrected: reviews[index]
+    }
+    return cards;
+  };
+  const handleReviewScroll = (direction: 'left' | 'right') => {
+    const container = document.querySelector('.scroll-container');
+    if (container) {
+      container.classList.remove('animate-scroll');
+      if (direction === 'right') {
+        setReviewStartIndex((prev) => (prev + 1) % reviews.length);
+      } else {
+        setReviewStartIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
+      }
+      setTimeout(() => {
+        container.classList.add('animate-scroll');
+      }, 500);
+    }
+  };
 
-  const varieties = [
-    {
-      id: 1,
-      name: "Paav Bhaaji",
-      img: "/paavai.webp",
-      link: "/shop/?tag=paav-bhaaji"
-    },
-    {
-      id: 2,
-      name: "Egg Curry",
-      img: "egg.jpg",
-      link: "/shop/?tag=meals"
-    },
-    {
-      id: 3,
-      name: "Pasta",
-      img: "/pasta2.jpg",
-      link: "/shop/?tag=pasta"
-    },
-    {
-      id: 4,
-      name: "Meals",
-      img: "meal.jpg",
-      link: "/shop/?tag=meals"
-    }
-  ];
+  const varieties = [
+    {
+      id: 1,
+      name: "Paav Bhaaji",
+      img: "/paavai.webp",
+      link: "/shop/?tag=paav-bhaaji"
+    },
+    {
+      id: 2,
+      name: "Egg Curry",
+      img: "egg.jpg",
+      link: "/shop/?tag=meals"
+    },
+    {
+      id: 3,
+      name: "Pasta",
+      img: "/pasta2.jpg",
+      link: "/shop/?tag=pasta"
+    },
+    {
+      id: 4,
+      name: "Meals",
+      img: "meal.jpg",
+      link: "/shop/?tag=meals"
+    }
+  ];
 
-  // --- NEW LOGIC FOR MULTIPLE SPECIAL DAYS ---
-  const specialDays = [
-    { month: 0, date: 14, message: "Happy Makar Sankranti and Pongal! Enjoy festive flavors and discounts today." },
-    { month: 0, date: 26, message: "Happy Republic Day! Celebrate with our special patriotic meal combos." },
-    { month: 1, date: 19, message: "Happy Shivaji Jayanti! Enjoy delicious Maharashtrian dishes." },
-    { month: 1, date: 26, message: "Happy Maha Shivaratri! Order special fasting meals and treats." },
-    { month: 2, date: 14, message: "Happy Holi! Celebrate the festival of colors with our sweet and savory specials." },
-    { month: 2, date: 30, message: "Happy Gudi Padwa! Celebrate the new year with our festive meals." },
-    { month: 3, date: 6, message: "Happy Ram Navami! Enjoy our special fasting menu." },
-    { month: 3, date: 10, message: "Happy Mahavir Jayanti! Explore our special Jain-friendly meal options." },
-    { month: 3, date: 18, message: "Happy Good Friday! Find comfort in our special dishes today." },
-    { month: 4, date: 1, message: "Happy Maharashtra Day and Labour Day! A day to celebrate hard work with great food." },
-    { month: 4, date: 12, message: "Happy Buddha Purnima! Enjoy our peaceful and delicious vegetarian specials." },
-    { month: 4, date: 7, message: "Happy Eid al-Fitr! Celebrate with our special festive feasts." },
-    { month: 5, date: 7, message: "Happy Eid al-Adha (Bakrid)! Celebrate with our special festive feasts." },
-    { month: 6, date: 6, message: "Happy Muharram! A day of remembrance, marked with our comforting meals." },
-    { month: 7, date: 6, message: "Hiroshima Day! Hiroshima still echoes pain." },
-    { month: 7, date: 9, message: "Happy Raksha Bandhan! Enjoy a special discount on all meals today." },
-    { month: 7, date: 15, message: "Happy Independence Day! Celebrate the spirit of freedom with our special offers." },
-    { month: 7, date: 16, message: "Happy Janmashtami! Enjoy our special festive treats and meals." },
-    { month: 7, date: 20, message: "A very Happy Birthday to the founder of GoTreats! Celebrating a special day with a special offer for you!" },
-    { month: 7, date: 24, message: "Happy Ganesh Chaturthi! Celebrate with our special Ukadiche Modak and festive dishes." },
-    { month: 8, date: 5, message: "Happy Milad-un-Nabi (Eid-e-Milad)! Enjoy our special festive offers." },
-    { month: 8, date: 29, message: "Happy Navratri! Get our special fasting menu for nine days of celebration." },
-    { month: 9, date: 2, message: "Happy Gandhi Jayanti and Dussahra! Celebrate with our delicious festive combos." },
-    { month: 9, date: 20, message: "Happy Diwali! Enjoy the festival of lights with our amazing sweets and meal boxes." },
-    { month: 9, date: 21, message: "Happy Govardhan Puja! Celebrate with our festive meals." },
-    { month: 9, date: 22, message: "Happy Bhai Dooj! Celebrate the bond with our special sibling combos." },
-    { month: 10, date: 5, message: "Happy Guru Nanak Jayanti! A day to celebrate with our heartwarming meals." },
-    { month: 10, date: 7, message: "Happy Chhath Puja! Enjoy our special festive offerings." },
-    { month: 11, date: 25, message: "Merry Christmas! Enjoy a festive feast with our special Christmas menu." },
-  ];
+  // --- NEW LOGIC FOR MULTIPLE SPECIAL DAYS ---
+  const specialDays = [
+    { month: 0, date: 14, message: "Happy Makar Sankranti and Pongal! Enjoy festive flavors and discounts today." },
+    { month: 0, date: 26, message: "Happy Republic Day! Celebrate with our special patriotic meal combos." },
+    { month: 1, date: 19, message: "Happy Shivaji Jayanti! Enjoy delicious Maharashtrian dishes." },
+    { month: 1, date: 26, message: "Happy Maha Shivaratri! Order special fasting meals and treats." },
+    { month: 2, date: 14, message: "Happy Holi! Celebrate the festival of colors with our sweet and savory specials." },
+    { month: 2, date: 30, message: "Happy Gudi Padwa! Celebrate the new year with our festive meals." },
+    { month: 3, date: 6, message: "Happy Ram Navami! Enjoy our special fasting menu." },
+    { month: 3, date: 10, message: "Happy Mahavir Jayanti! Explore our special Jain-friendly meal options." },
+    { month: 3, date: 18, message: "Happy Good Friday! Find comfort in our special dishes today." },
+    { month: 4, date: 1, message: "Happy Maharashtra Day and Labour Day! A day to celebrate hard work with great food." },
+    { month: 4, date: 12, message: "Happy Buddha Purnima! Enjoy our peaceful and delicious vegetarian specials." },
+    { month: 4, date: 7, message: "Happy Eid al-Fitr! Celebrate with our special festive feasts." },
+    { month: 5, date: 7, message: "Happy Eid al-Adha (Bakrid)! Celebrate with our special festive feasts." },
+    { month: 6, date: 6, message: "Happy Muharram! A day of remembrance, marked with our comforting meals." },
+    { month: 7, date: 6, message: "Hiroshima Day! Hiroshima still echoes pain." },
+    { month: 7, date: 9, message: "Happy Raksha Bandhan! Enjoy a special discount on all meals today." },
+    { month: 7, date: 15, message: "Happy Independence Day! Celebrate the spirit of freedom with our special offers." },
+    { month: 7, date: 16, message: "Happy Janmashtami! Enjoy our special festive treats and meals." },
+    { month: 7, date: 20, message: "A very Happy Birthday to the founder of GoTreats! Celebrating a special day with a special offer for you!" },
+    { month: 7, date: 24, message: "Happy Ganesh Chaturthi! Celebrate with our special Ukadiche Modak and festive dishes." },
+    { month: 8, date: 5, message: "Happy Milad-un-Nabi (Eid-e-Milad)! Enjoy our special festive offers." },
+    { month: 8, date: 29, message: "Happy Navratri! Get our special fasting menu for nine days of celebration." },
+    { month: 9, date: 2, message: "Happy Gandhi Jayanti and Dussahra! Celebrate with our delicious festive combos." },
+    { month: 9, date: 20, message: "Happy Diwali! Enjoy the festival of lights with our amazing sweets and meal boxes." },
+    { month: 9, date: 21, message: "Happy Govardhan Puja! Celebrate with our festive meals." },
+    { month: 9, date: 22, message: "Happy Bhai Dooj! Celebrate the bond with our special sibling combos." },
+    { month: 10, date: 5, message: "Happy Guru Nanak Jayanti! A day to celebrate with our heartwarming meals." },
+    { month: 10, date: 7, message: "Happy Chhath Puja! Enjoy our special festive offerings." },
+    { month: 11, date: 25, message: "Merry Christmas! Enjoy a festive feast with our special Christmas menu." },
+  ];
 
-  const getSpecialDayMessage = () => {
-    const today = new Date();
-    const todayMonth = today.getMonth(); // getMonth() is 0-indexed
-    const todayDate = today.getDate();
+  const getSpecialDayMessage = () => {
+    const today = new Date();
+    const todayMonth = today.getMonth(); // getMonth() is 0-indexed
+    const todayDate = today.getDate();
 
-    const specialDay = specialDays.find(day => day.month === todayMonth && day.date === todayDate);
+    const specialDay = specialDays.find(day => day.month === todayMonth && day.date === todayDate);
 
-    return specialDay ? specialDay.message : null;
-  };
+    return specialDay ? specialDay.message : null;
+  };
 
-  const specialDayMessage = getSpecialDayMessage();
+  const specialDayMessage = getSpecialDayMessage();
 
-  return (
-    <main className="min-h-[calc(100vh-64px)] w-full overflow-x-hidden">
-      {/* -------------------- SPECIAL DAY BANNER ADDED HERE -------------------- */}
-      {specialDayMessage && <SpecialDayBanner specialDayMessage={specialDayMessage} />}
-      {/* ----------------------------------------------------------------------- */}
+  return (
+    <main className="min-h-[calc(100vh-64px)] w-full overflow-x-hidden">
+      {/* -------------------- SPECIAL DAY BANNER ADDED HERE -------------------- */}
+      {specialDayMessage && <SpecialDayBanner specialDayMessage={specialDayMessage} />}
+      {/* ----------------------------------------------------------------------- */}
 
-      <ScrollingBanner />
+      <ScrollingBanner />
 
-      <Link
-        to="https://zomato.onelink.me/xqzv/ut3cavr1"
-        target="_blank"
-        className="relative flex items-center justify-center h-14 bg-[#f44336] overflow-hidden group shadow-sm"
-      >
-        <div className="absolute left-5 w-2 h-2 bg-white rounded-full animate-ping opacity-60"></div>
-        <div className="absolute inset-0 bg-white/10 blur-sm animate-slideBg pointer-events-none"></div>
-        <div className="relative z-10 flex items-center gap-3 text-white font-medium tracking-wide text-sm sm:text-base">
-          <span className="opacity-90 group-hover:opacity-100 transition-all duration-300">
-            Now Available On
-          </span>
-          <img
-            src="https://cdn.brandfetch.io/idEql8nEWn/theme/light/logo.svg?c=1dxbfHSJFAPEGdCLU4o5B"
-            alt="Zomato"
-            className="h-6 sm:h-8 transition-transform duration-300 ease-in-out group-hover:scale-105"
-          />
-        </div>
-        <div className="absolute right-5 w-2 h-2 bg-white rounded-full animate-ping opacity-60"></div>
-      </Link>
+      <Link
+        to="https://zomato.onelink.me/xqzv/ut3cavr1"
+        target="_blank"
+        className="relative flex items-center justify-center h-14 bg-[#f44336] overflow-hidden group shadow-sm"
+      >
+        <div className="absolute left-5 w-2 h-2 bg-white rounded-full animate-ping opacity-60"></div>
+        <div className="absolute inset-0 bg-white/10 blur-sm animate-slideBg pointer-events-none"></div>
+        <div className="relative z-10 flex items-center gap-3 text-white font-medium tracking-wide text-sm sm:text-base">
+          <span className="opacity-90 group-hover:opacity-100 transition-all duration-300">
+            Now Available On
+          </span>
+          <img
+            src="https://cdn.brandfetch.io/idEql8nEWn/theme/light/logo.svg?c=1dxbfHSJFAPEGdCLU4o5B"
+            alt="Zomato"
+            className="h-6 sm:h-8 transition-transform duration-300 ease-in-out group-hover:scale-105"
+          />
+        </div>
+        <div className="absolute right-5 w-2 h-2 bg-white rounded-full animate-ping opacity-60"></div>
+      </Link>
 
-      <section className='bg-[#fff9f2]'>
-        <div className="container mx-auto px-4 py-10 md:py-30 flex flex-col md:flex-row items-center gap-4 md:gap-0 sm:px-30 md:justify-between">
-          <div className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left justify-center md:justify-start mt-2 md:mt-0">
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl lancelot mb-3 text-gray-900 animate-[fadeIn_0.6s_ease-out] flex items-center gap-2">
-              <span className="text-green-600">Enjoy</span>
-              <div className="loader text-orange-500">
-                <div className="words">
-                  <span className="word">Meals</span>
-                  <span className="word">Pasta</span>
-                  <span className="word">Maggi</span>
-                  <span className="word">Deserts</span>
-                  <span className="word">Snacks</span>
-                </div>
-              </div>
-            </h1>
-            <p className="text-gray-700 text-base sm:text-lg lg:text-xl mb-4 sm:mb-6 max-w-xl leading-relaxed font-medium animate-[fadeIn_0.8s_ease-in] tracking-wide">
-              <TypewriterText
-                text="Freshly prepared with love — nutritious, homestyle meals delivered just the way you like it."
-                speed={50}
-              />
-            </p>
-            <div className='mb-2'>
-              {userDetails?.role === 'admin' ?
-                <button className="cssbuttons-io animate-pulse" onClick={() => navigate('/admin/view-all-orders')}>
-                  <span className='flex items-center gap-2'>
-                    <Box className='animate-bounce' />
-                    Manage Orders
-                  </span>
-                </button>
-                :
-                <button className="animated-order-btn" onClick={() => navigate("/shop")}> <span>Order Now</span> </button>
-              }
-            </div>
-          </div>
-          <div className="w-full md:w-2/5 md:mt-0 mt-4">
-            <img
-              src="/indian-plate.png"
-              alt="Blog Hero Image"
-              className="object-cover w-full rounded-2xl transition-all duration-300 h-auto hover:scale-105"
-            />
-          </div>
-        </div>
-      </section>
+      <section className='bg-[#fff9f2]'>
+        <div className="container mx-auto px-4 py-10 md:py-30 flex flex-col md:flex-row items-center gap-4 md:gap-0 sm:px-30 md:justify-between">
+          <div className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left justify-center md:justify-start mt-2 md:mt-0">
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl lancelot mb-3 text-gray-900 animate-[fadeIn_0.6s_ease-out] flex items-center gap-2">
+              <span className="text-green-600">Enjoy</span>
+              <div className="loader text-orange-500">
+                <div className="words">
+                  <span className="word">Meals</span>
+                  <span className="word">Pasta</span>
+                  <span className="word">Maggi</span>
+                  <span className="word">Deserts</span>
+                  <span className="word">Snacks</span>
+                </div>
+              </div>
+            </h1>
+            <p className="text-gray-700 text-base sm:text-lg lg:text-xl mb-4 sm:mb-6 max-w-xl leading-relaxed font-medium animate-[fadeIn_0.8s_ease-in] tracking-wide">
+              <TypewriterText
+                text="Freshly prepared with love — nutritious, homestyle meals delivered just the way you like it."
+                speed={50}
+              />
+            </p>
+            <div className='mb-2'>
+              {userDetails?.role === 'admin' ?
+                <button className="cssbuttons-io animate-pulse" onClick={() => navigate('/admin/view-all-orders')}>
+                  <span className='flex items-center gap-2'>
+                    <Box className='animate-bounce' />
+                    Manage Orders
+                  </span>
+                </button>
+                :
+                <button className="animated-order-btn" onClick={() => navigate("/shop")}> <span>Order Now</span> </button>
+              }
+            </div>
+          </div>
+          <div className="w-full md:w-2/5 md:mt-0 mt-4">
+            <img
+              src="/indian-plate.png"
+              alt="Blog Hero Image"
+              className="object-cover w-full rounded-2xl transition-all duration-300 h-auto hover:scale-105"
+            />
+          </div>
+        </div>
+      </section>
 
-      {/* ------varieties------ */}
-      <section className="py-14 md:py-20 bg-gradient-to-b from-green-50 via-white to-green-100 mt-10 md:mt-16 mb-10 md:mb-16">
-        <div className="container mx-auto">
-          <h1 className="text-center mb-10 lancelot text-3xl sm:text-4xl md:text-5xl flex items-center justify-center tracking-wide">
-            Explore&nbsp;
-            <span className="text-green-600 font-bold transition duration-700 ease-in-out">Food</span>
-            &nbsp;Varieties
-          </h1>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10 px-2 md:px-8">
-            {varieties.map(variety => (
-              <div
-                key={variety.id}
-                onClick={() => navigate(variety.link)}
-                className="group p-3 md:p-4 flex flex-col items-center gap-3 cursor-pointer bg-white rounded-2xl shadow hover:shadow-lg border border-green-100 transition-all duration-300 ease-in hover:-translate-y-1"
-              >
-                <div className="hover:scale-105 transition-all duration-300 ease-in rounded-full overflow-hidden border-4 border-green-100 group-hover:border-green-300 bg-white">
-                  <img className="rounded-full object-cover w-32 h-32 md:w-36 md:h-36" src={variety.img} alt={variety.name} />
-                </div>
-                <p className="text-lg md:text-xl font-semibold lancelot text-center mt-2 text-gray-800 group-hover:text-green-600 transition-colors duration-200">{variety.name}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* ------varieties------ */}
+      <section className="py-14 md:py-20 bg-gradient-to-b from-green-50 via-white to-green-100 mt-10 md:mt-16 mb-10 md:mb-16">
+        <div className="container mx-auto">
+          <h1 className="text-center mb-10 lancelot text-3xl sm:text-4xl md:text-5xl flex items-center justify-center tracking-wide">
+            Explore&nbsp;
+            <span className="text-green-600 font-bold transition duration-700 ease-in-out">Food</span>
+            &nbsp;Varieties
+          </h1>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10 px-2 md:px-8">
+            {varieties.map(variety => (
+              <div
+                key={variety.id}
+                onClick={() => navigate(variety.link)}
+                className="group p-3 md:p-4 flex flex-col items-center gap-3 cursor-pointer bg-white rounded-2xl shadow hover:shadow-lg border border-green-100 transition-all duration-300 ease-in hover:-translate-y-1"
+              >
+                <div className="hover:scale-105 transition-all duration-300 ease-in rounded-full overflow-hidden border-4 border-green-100 group-hover:border-green-300 bg-white">
+                  <img className="rounded-full object-cover w-32 h-32 md:w-36 md:h-36" src={variety.img} alt={variety.name} />
+                </div>
+                <p className="text-lg md:text-xl font-semibold lancelot text-center mt-2 text-gray-800 group-hover:text-green-600 transition-colors duration-200">{variety.name}</p>
+              </div>
+            ))}
+        </div>
+      </section>
 
-      {/* -----popular dishes----- */}
-      <section className='bg-[#fff9f2] py-10 md:py-20 mt-10'>
-        <h1 className='text-center my-10 lancelot text-5xl sm:text-6xl lg:text-7xl flex items-center justify-center'>Popular Dishes</h1>
-        <div className='mx-2 md:mx-40'>
-          <Swiper className=''
-            spaceBetween={40}
-            modules={[Navigation, Autoplay]}
-            autoplay={{
-              delay: 3500,
-              disableOnInteraction: true,
-            }}
-            loop={true}
-            breakpoints={{
-              768: {
-                slidesPerView: 3
-              },
-              0: {
-                slidesPerView: 1
-              }
-            }}
-            onSwiper={setSwiperRef}>
-            {products?.slice(0, 9).map((item, index) => (
-              <SwiperSlide key={index}>
-                <ItemCards item={item} key={index} />
-              </SwiperSlide>
-            ))}
-          </Swiper>
-          <div className='flex justify-center my-5'>
-            <NavigationButton swiper={swiperRef} />
-          </div>
-          <div className="flex justify-center w-full">
-            <button onClick={() => navigate('/shop')} className="shop-all-btn w-1/2 md:w-36">
-              Check All
-            </button>
-          </div>
-        </div>
-      </section>
+      {/* -----popular dishes----- */}
+      <section className='bg-[#fff9f2] py-10 md:py-20 mt-10'>
+        <h1 className='text-center my-10 lancelot text-5xl sm:text-6xl lg:text-7xl flex items-center justify-center'>Popular Dishes</h1>
+        <div className='mx-2 md:mx-40'>
+          <Swiper className=''
+            spaceBetween={40}
+            modules={[Navigation, Autoplay]}
+            autoplay={{
+              delay: 3500,
+              disableOnInteraction: true,
+            }}
+            loop={true}
+            breakpoints={{
+              768: {
+                slidesPerView: 3
+              },
+              0: {
+                slidesPerView: 1
+              }
+            }}
+            onSwiper={setSwiperRef}>
+            {products?.slice(0, 9).map((item, index) => (
+              <SwiperSlide key={index}>
+                <ItemCards item={item} key={index} />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+          <div className='flex justify-center my-5'>
+            <NavigationButton swiper={swiperRef} />
+          </div>
+          <div className="flex justify-center w-full">
+            <button onClick={() => navigate('/shop')} className="shop-all-btn w-1/2 md:w-36">
+              Check All
+            </button>
+          </div>
+        </div>
+      </section>
 
-      {/* -----reviews----- */}
-      <section className="py-16 md:py-24 bg-gradient-to-b from-green-100 via-white to-green-50 mt-10 md:mt-16 mb-10 md:mb-16">
-        <div className="container mx-auto px-2 sm:px-4 md:px-8">
-          <div className="text-center mb-10 md:mb-14">
-            <h2 className="text-3xl md:text-4xl font-bold lancelot mb-2 md:mb-4 text-gray-900">
-              What Our <span className="text-orange-500 animate-glow">Customers</span> Say
-            </h2>
-            <p className="text-gray-500 text-base md:text-lg font-medium">Real feedback from our valued customers</p>
-          </div>
-          <div className="relative max-w-[90%] mx-auto">
-            <button
-              onClick={() => handleReviewScroll('left')}
-              className="absolute left-[-40px] top-1/2 -translate-y-1/2 z-10 bg-white p-3 rounded-full shadow-lg hover:bg-gray-50 hover:shadow-xl transition-all border border-gray-100"
-            >
-              <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
-            </button>
-            <button
-              onClick={() => handleReviewScroll('right')}
-              className="absolute right-[-40px] top-1/2 -translate-y-1/2 z-10 bg-white p-3 rounded-full shadow-lg hover:bg-gray-50 hover:shadow-xl transition-all border border-gray-100"
-            >
-              <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
-            </button>
-            <div className="relative overflow-hidden py-8">
-              <div className="scroll-container animate-scroll flex gap-6">
-                {!isLoading && getVisibleReviewCards().map((review, index) => (
-                  <motion.div
-                    key={index}
-                    className="flex-none w-[280px]"
-                    whileHover={{ scale: 1.02 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <div className="bg-white rounded-xl shadow-md hover:shadow-lg p-6 transition-all duration-300 border border-gray-100">
-                      <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 border-2 border-orange-200">
-                          <img
-                            src={review.avatarUrl}
-                            alt={review.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="min-w-0">
-                          <h3 className="font-semibold text-lg truncate">{review.name}</h3>
-                          <p className="text-gray-600 text-sm">{review.work}</p>
-                        </div>
-                      </div>
-                      <p className="text-gray-700 italic text-sm mt-4 line-clamp-3">
-                        "{review.review}"
-                      </p>
-                      <div className="mt-4 text-sm text-gray-500 flex items-center">
-                        <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 12.414a2 2 0 00-2.828 0l-4.243 4.243" /></svg>
-                        {review.place}
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* -----reviews----- */}
+      <section className="py-16 md:py-24 bg-gradient-to-b from-green-100 via-white to-green-50 mt-10 md:mt-16 mb-10 md:mb-16">
+        <div className="container mx-auto px-2 sm:px-4 md:px-8">
+          <div className="text-center mb-10 md:mb-14">
+            <h2 className="text-3xl md:text-4xl font-bold lancelot mb-2 md:mb-4 text-gray-900">
+              What Our <span className="text-orange-500 animate-glow">Customers</span> Say
+            </h2>
+            <p className="text-gray-500 text-base md:text-lg font-medium">Real feedback from our valued customers</p>
+          </div>
+          <div className="relative max-w-[90%] mx-auto">
+            <button
+              onClick={() => handleReviewScroll('left')}
+              className="absolute left-[-40px] top-1/2 -translate-y-1/2 z-10 bg-white p-3 rounded-full shadow-lg hover:bg-gray-50 hover:shadow-xl transition-all border border-gray-100"
+            >
+              <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <button
+              onClick={() => handleReviewScroll('right')}
+              className="absolute right-[-40px] top-1/2 -translate-y-1/2 z-10 bg-white p-3 rounded-full shadow-lg hover:bg-gray-50 hover:shadow-xl transition-all border border-gray-100"
+            >
+              <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+            </button>
+            <div className="relative overflow-hidden py-8">
+              <div className="scroll-container animate-scroll flex gap-6">
+                {!isLoading && getVisibleReviewCards().map((review, index) => (
+                  <motion.div
+                    key={index}
+                    className="flex-none w-[280px]"
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div className="bg-white rounded-xl shadow-md hover:shadow-lg p-6 transition-all duration-300 border border-gray-100">
+                      <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 border-2 border-orange-200">
+                          <img
+                            src={review.avatarUrl}
+                            alt={review.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="font-semibold text-lg truncate">{review.name}</h3>
+                          <p className="text-gray-600 text-sm">{review.work}</p>
+                        </div>
+                      </div>
+                      <p className="text-gray-700 italic text-sm mt-4 line-clamp-3">
+                        "{review.review}"
+                      </p>
+                      <div className="mt-4 text-sm text-gray-500 flex items-center">
+                        <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 12.414a2 2 0 00-2.828 0l-4.243 4.243" /></svg>
+                        {review.place}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      {/* ----- Mumbai Dabbawala Collaboration ----- */}
-      <motion.section
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        viewport={{ once: true, amount: 0.2 }}
-        className="py-16 md:py-24 bg-orange-100 mt-10 md:mt-16"
-      >
-        <div className="container mx-auto px-4 md:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold lancelot mb-4 text-gray-900">
-            Now Delivering All Over Mumbai
-          </h2>
-          <p className="text-gray-700 text-lg md:text-xl max-w-2xl mx-auto mb-10">
-            We've partnered with the iconic Mumbai Dabbawala to ensure your freshly prepared meals reach you anywhere in the city, on time, every time.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-10 sm:gap-20">
-            <motion.div
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 1.2 }} // Increased tap scale for better mobile visibility
-              transition={{ duration: 0.2 }}
-              className="cursor-pointer"
-            >
-              <Image
-                src="/gotreats.png"
-                alt="GoTreats Logo"
-                className="h-28 md:h-40 object-contain" // Increased initial height
-              />
-            </motion.div>
-            <span className="text-5xl md:text-7xl font-bold text-gray-400">&times;</span>
-            <motion.div
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 1.2 }} // Increased tap scale for better mobile visibility
-              transition={{ duration: 0.2 }}
-              className="cursor-pointer"
-            >
-              <Image
-                src="dabbawaa.png"
-                alt="Mumbai Dabbawala Logo"
-                className="h-28 md:h-40 object-contain" // Increased initial height
-              />
-            </motion.div>
-          </div>
-          <p className="mt-10 text-xl md:text-2xl font-semibold text-gray-800">
-            GoTreats <span className="text-orange-500 font-bold mx-2">X</span> Mumbai Dabbawala
-          </p>
-        </div>
-      </motion.section>
+      {/* ----- Mumbai Dabbawala Collaboration ----- */}
+      <motion.section
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        viewport={{ once: true, amount: 0.2 }}
+        className="py-16 md:py-24 bg-orange-100 mt-10 md:mt-16"
+      >
+        <div className="container mx-auto px-4 md:px-8 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold lancelot mb-4 text-gray-900">
+            Now Delivering All Over Mumbai
+          </h2>
+          <p className="text-gray-700 text-lg md:text-xl max-w-2xl mx-auto mb-10">
+            We've partnered with the iconic Mumbai Dabbawala to ensure your freshly prepared meals reach you anywhere in the city, on time, every time.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-10 sm:gap-20">
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 1.2 }} // Increased tap scale for better mobile visibility
+              transition={{ duration: 0.2 }}
+              className="cursor-pointer"
+            >
+              <Image
+                src="/gotreats.png"
+                alt="GoTreats Logo"
+                className="h-28 md:h-40 object-contain" // Increased initial height
+              />
+            </motion.div>
+            <span className="text-5xl md:text-7xl font-bold text-gray-400">&times;</span>
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 1.2 }} // Increased tap scale for better mobile visibility
+              transition={{ duration: 0.2 }}
+              className="cursor-pointer"
+            >
+              <Image
+                src="dabbawaa.png"
+                alt="Mumbai Dabbawala Logo"
+                className="h-28 md:h-40 object-contain" // Increased initial height
+              />
+            </motion.div>
+          </div>
+          <p className="mt-10 text-xl md:text-2xl font-semibold text-gray-800">
+            GoTreats <span className="text-orange-500 font-bold mx-2">X</span> Mumbai Dabbawala
+          </p>
+        </div>
+      </motion.section>
 
-    </main>
-  )
+      {/* ----- Party Orders ----- */}
+      <motion.section
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        viewport={{ once: true, amount: 0.2 }}
+        className="py-16 md:py-24 bg-[#fff9f2] mt-10 md:mt-16"
+      >
+        <div className="container mx-auto px-4 md:px-8 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold lancelot mb-4 text-gray-900">
+            Party Orders & Catering
+          </h2>
+          <p className="text-gray-700 text-lg md:text-xl max-w-2xl mx-auto mb-10">
+            Let us handle the food for your next party or corporate event. We deliver fresh, delicious, and customized meals for any occasion.
+          </p>
+
+          {/* Pricing Tiers */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+            <div className="bg-white rounded-xl shadow-lg p-6 border border-green-100 transition-transform hover:scale-105 duration-300">
+              <h3 className="text-2xl font-bold text-green-600 mb-2">Up to 100 People</h3>
+              <p className="text-xl font-semibold text-gray-800 mb-4">Starting at ₹150 per person</p>
+              <p className="text-gray-600">Perfect for small gatherings and office lunches. A variety of customizable meal options available.</p>
+            </div>
+            <div className="bg-white rounded-xl shadow-lg p-6 border border-orange-100 transition-transform hover:scale-105 duration-300 relative">
+              <span className="absolute top-0 right-0 -mt-3 -mr-3 bg-orange-500 text-white text-xs font-bold uppercase py-1 px-3 rounded-full animate-pulse">Most Popular</span>
+              <h3 className="text-2xl font-bold text-orange-600 mb-2">100 - 300 People</h3>
+              <p className="text-xl font-semibold text-gray-800 mb-4">Starting at ₹125 per person</p>
+              <p className="text-gray-600">Our most popular package for weddings, birthdays, and corporate events. Hassle-free and delicious.</p>
+            </div>
+            <div className="bg-white rounded-xl shadow-lg p-6 border border-blue-100 transition-transform hover:scale-105 duration-300">
+              <h3 className="text-2xl font-bold text-blue-600 mb-2">300 - 500+ People</h3>
+              <p className="text-xl font-semibold text-gray-800 mb-4">Custom pricing</p>
+              <p className="text-gray-600">Tailored solutions for large-scale events and functions. Contact us for a personalized quote.</p>
+            </div>
+          </div>
+
+          <Link
+            to="/contact" 
+            className="animated-order-btn"
+          >
+            <span>Get a Custom Quote</span>
+          </Link>
+        </div>
+      </motion.section>
+
+      {/* Party Order Reviews Section */}
+      <section className="py-16 md:py-24 bg-gradient-to-b from-green-100 via-white to-green-50 mt-10 md:mt-16 mb-10 md:mb-16">
+        <div className="container mx-auto px-2 sm:px-4 md:px-8">
+          <div className="text-center mb-10 md:mb-14">
+            <h2 className="text-3xl md:text-4xl font-bold lancelot mb-2 md:mb-4 text-gray-900">
+              Happy Customers, Happy Parties
+            </h2>
+            <p className="text-gray-500 text-base md:text-lg font-medium">Hear about our successful catering experiences</p>
+          </div>
+          <Swiper
+            spaceBetween={30}
+            modules={[Navigation, Autoplay, Pagination]}
+            autoplay={{
+              delay: 4500,
+              disableOnInteraction: false,
+            }}
+            loop={true}
+            pagination={{ clickable: true }}
+            breakpoints={{
+              1024: {
+                slidesPerView: 2,
+              },
+              768: {
+                slidesPerView: 1,
+              },
+              0: {
+                slidesPerView: 1,
+              }
+            }}
+          >
+            <SwiperSlide>
+              <div className="p-6 bg-white rounded-xl shadow-md border border-orange-100 relative overflow-hidden">
+                <Quote className="absolute top-6 right-6 w-10 h-10 text-orange-200 opacity-60" />
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 border-2 border-orange-400">
+                    <img src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Aakash Sharma" className="w-full h-full object-cover" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold">Aakash Sharma</h3>
+                    <p className="text-sm text-gray-600">Janmashtami Celebration</p>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-700 italic mb-4">
+                  "GoTreats made our Janmashtami celebration extra special. The 200 portions of half veg biryani were a massive hit! Delicious, perfectly cooked, and delivered right on time. Our guests loved it. The quality for the price was unbelievable. Highly recommend!"
+                </p>
+                <div className="flex items-center text-sm font-semibold text-gray-800">
+                  <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" /> 5.0 Rating
+                </div>
+                <div className="mt-4 p-4 bg-orange-50 rounded-lg border border-orange-200">
+                  <p className="font-semibold text-gray-800">Order Details:</p>
+                  <p className="text-sm text-gray-600">
+                    Order: <span className="font-medium">200 Half Veg Biryani</span>
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Total Price: <span className="font-medium">₹15,000</span>
+                  </p>
+                </div>
+              </div>
+            </SwiperSlide>
+            <SwiperSlide>
+              <div className="p-6 bg-white rounded-xl shadow-md border border-green-100 relative overflow-hidden">
+                <Quote className="absolute top-6 right-6 w-10 h-10 text-green-200 opacity-60" />
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0 border-2 border-green-400">
+                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Priya Mehta" className="w-full h-full object-cover" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold">Priya Mehta</h3>
+                    <p className="text-sm text-gray-600">Corporate Event</p>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-700 italic mb-4">
+                  "We ordered 300 meals for our company's annual day. The variety was excellent, and the food was fresh and delicious. Everyone was impressed with the quality and the efficient delivery. GoTreats is our go-to for corporate catering now!"
+                </p>
+                <div className="flex items-center text-sm font-semibold text-gray-800">
+                  <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" /> 5.0 Rating
+                </div>
+                <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                  <p className="font-semibold text-gray-800">Order Details:</p>
+                  <p className="text-sm text-gray-600">
+                    Order: <span className="font-medium">300 Meal Boxes</span>
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Total Price: <span className="font-medium">₹37,500</span>
+                  </p>
+                </div>
+              </div>
+            </SwiperSlide>
+          </Swiper>
+        </div>
+      </section>
+    </main>
+  )
 }
 
 export default Home
