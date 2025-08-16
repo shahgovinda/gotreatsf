@@ -62,7 +62,7 @@ const Home = () => {
     }
     return cards;
   };
-  const handleReviewScroll = (direction) => {
+  const handleReviewScroll = (direction: 'left' | 'right') => {
     const container = document.querySelector('.scroll-container');
     if (container) {
       container.classList.remove('animate-scroll');
@@ -327,17 +327,17 @@ const Home = () => {
                         <div className="min-w-0">
                           <h3 className="font-semibold text-lg truncate">{review.name}</h3>
                           <p className="text-gray-600 text-sm">{review.work}</p>
+                        </div>
                       </div>
-                    </div>
-                    <p className="text-gray-700 italic text-sm mt-4 line-clamp-3">
+                      <p className="text-gray-700 italic text-sm mt-4 line-clamp-3">
                         "{review.review}"
-                    </p>
-                    <div className="mt-4 text-sm text-gray-500 flex items-center">
+                      </p>
+                      <div className="mt-4 text-sm text-gray-500 flex items-center">
                         <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 12.414a2 2 0 00-2.828 0l-4.243 4.243" /></svg>
                         {review.place}
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
+                  </motion.div>
                 ))}
               </div>
             </div>
@@ -429,7 +429,7 @@ const Home = () => {
           </div>
 
           <Link
-            to="/contact" 
+            to="/contact" 
             className="animated-order-btn"
           >
             <span>Get a Custom Quote</span>
