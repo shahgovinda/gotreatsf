@@ -1,24 +1,26 @@
 .cursor-dot,
-.cursor-circle {
+.cursor-ring {
   position: fixed;
+  top: 0;
+  left: 0;
   pointer-events: none;
-  transform: translate(-50%, -50%);
   z-index: 9999;
 }
 
-/* small dot */
 .cursor-dot {
   width: 8px;
   height: 8px;
-  background-color: black;
+  background: black;
   border-radius: 50%;
+  transform: translate3d(0, 0, 0);
+  transition: transform 0.05s linear; /* fast follow */
 }
 
-/* outer circle */
-.cursor-circle {
-  width: 35px;
-  height: 35px;
-  border: 2px solid rgba(0, 0, 0, 0.6);
+.cursor-ring {
+  width: 30px;
+  height: 30px;
+  border: 2px solid gray;
   border-radius: 50%;
-  transition: transform 0.15s ease-out, left 0.15s ease-out, top 0.15s ease-out;
+  transform: translate3d(0, 0, 0);
+  transition: transform 0.15s ease-out; /* smooth lag */
 }
