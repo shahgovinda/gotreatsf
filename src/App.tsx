@@ -7,12 +7,14 @@ import { Spinner } from "@heroui/react";
 import { getSubdomain } from "./utils/getSubdomain";
 import { admin_router } from "./router/adminRouter";
 import { client_router } from "./router/clientRouter";
+import CustomCursor from "./components/CustomCursor"; // 👈 add import
 
 function App() {
   // Prevent right-click on images
   useEffect(() => {
-    const handleContextMenu = (e) => {
-      if (e.target.tagName === "IMG") {
+    const handleContextMenu = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === "IMG") {
         e.preventDefault();
       }
     };
@@ -78,6 +80,9 @@ function App() {
       </QueryClientProvider>
 
       <Analytics />
+
+      {/* 👇 Add custom cursor */}
+      <CustomCursor />
     </>
   );
 }
