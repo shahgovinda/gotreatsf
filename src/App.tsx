@@ -11,40 +11,14 @@ import { client_router } from "./router/clientRouter";
 function App() {
   // Prevent right-click on images
   useEffect(() => {
-    const handleContextMenu = (e: MouseEvent) => {
-      if ((e.target as HTMLElement).tagName === "IMG") {
+    const handleContextMenu = (e) => {
+      if (e.target.tagName === "IMG") {
         e.preventDefault();
       }
     };
     document.addEventListener("contextmenu", handleContextMenu);
-
-    // Smooth dot cursor
-    const cursor = document.createElement("div");
-    cursor.id = "custom-cursor";
-    document.body.appendChild(cursor);
-
-    let mouseX = 0, mouseY = 0;
-    let cursorX = 0, cursorY = 0;
-
-    const updateCursor = () => {
-      cursorX += (mouseX - cursorX) * 0.15; // smooth follow
-      cursorY += (mouseY - cursorY) * 0.15;
-      cursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0)`;
-      requestAnimationFrame(updateCursor);
-    };
-
-    const move = (e: MouseEvent) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-    };
-
-    document.addEventListener("mousemove", move);
-    updateCursor();
-
     return () => {
       document.removeEventListener("contextmenu", handleContextMenu);
-      document.removeEventListener("mousemove", move);
-      document.getElementById("custom-cursor")?.remove();
     };
   }, []);
 
