@@ -5,24 +5,27 @@ const CustomCursor = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    const moveCursor = (e: MouseEvent) => {
+    const handleMouseMove = (e: MouseEvent) => {
       setPosition({ x: e.clientX, y: e.clientY });
     };
-    window.addEventListener("mousemove", moveCursor);
-    return () => window.removeEventListener("mousemove", moveCursor);
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
   return (
     <>
-      {/* small dot */}
       <div
         className="cursor-dot"
-        style={{ left: `${position.x}px`, top: `${position.y}px` }}
+        style={{
+          transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
+        }}
       />
-      {/* big circle */}
       <div
-        className="cursor-circle"
-        style={{ left: `${position.x}px`, top: `${position.y}px` }}
+        className="cursor-ring"
+        style={{
+          transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
+        }}
       />
     </>
   );
