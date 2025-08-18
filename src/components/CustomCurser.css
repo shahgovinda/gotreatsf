@@ -1,0 +1,32 @@
+const customCursorStyles = `
+/* डिफ़ॉल्ट कर्सर को छिपाएँ */
+body {
+    cursor: none;
+}
+
+/* कस्टम कर्सर के लिए आधार शैलियाँ */
+.dot-cursor, .ring-cursor {
+    position: fixed;
+    pointer-events: none; /* यह बहुत ज़रूरी है ताकि कर्सर नीचे के तत्वों पर क्लिक करने में बाधा न डाले */
+    z-index: 9999;
+}
+
+/* छोटे बिंदु के लिए शैली */
+.dot-cursor {
+    width: 8px;
+    height: 8px;
+    background-color: black;
+    border-radius: 50%;
+    transform: translate(-50%, -50%); /* बिंदु को केंद्र में लाने के लिए */
+}
+
+/* बड़े रिंग के लिए शैली */
+.ring-cursor {
+    width: 40px;
+    height: 40px;
+    border: 1px solid black;
+    border-radius: 50%;
+    transform: translate(-50%, -50%); /* रिंग को केंद्र में लाने के लिए */
+    transition: transform 0.2s ease-out; /* माउस का smoothly पीछा करने के लिए */
+}
+`;
