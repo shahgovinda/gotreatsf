@@ -689,24 +689,31 @@ body {
   50% { transform: scale(1.2); }
   100% { transform: scale(1); }
 }
-/* Hide default cursor everywhere */
+/* Hide system cursor everywhere */
 * {
   cursor: none !important;
 }
 
-/* Custom smooth dot cursor */
-#custom-cursor {
+.custom-cursor {
   position: fixed;
-  top: 0;
-  left: 0;
   width: 12px;
   height: 12px;
+  background: #22c55e; /* green */
   border-radius: 50%;
-  background: #22c55e; /* green dot */
   pointer-events: none;
-  z-index: 9999;
   transform: translate(-50%, -50%);
-  will-change: transform;
-  transition: background 0.3s ease;
+  transition: transform 0.15s ease-out, opacity 0.25s ease-out;
+  z-index: 9999;
+  opacity: 0;
 }
+
+.custom-cursor.visible {
+  opacity: 1;
+}
+
+.custom-cursor.clicked {
+  transform: translate(-50%, -50%) scale(0.5);
+  background: #16a34a; /* darker green when pressed */
+}
+
 
