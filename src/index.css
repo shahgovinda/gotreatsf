@@ -8,7 +8,7 @@
 
 body {
   font-family: "Josefin Sans", serif;
-  cursor: none; /* hides default arrow cursor */
+ 
 }
 
 .comfortaa {
@@ -688,32 +688,6 @@ body {
   0% { transform: scale(0.8); }
   50% { transform: scale(1.2); }
   100% { transform: scale(1); }
-}
-/* Hide system cursor everywhere */
-* {
-  cursor: none !important;
-}
-
-.custom-cursor {
-  position: fixed;
-  width: 12px;
-  height: 12px;
-  background: #22c55e; /* green */
-  border-radius: 50%;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  transition: transform 0.15s ease-out, opacity 0.25s ease-out;
-  z-index: 9999;
-  opacity: 0;
-}
-
-.custom-cursor.visible {
-  opacity: 1;
-}
-
-.custom-cursor.clicked {
-  transform: translate(-50%, -50%) scale(0.5);
-  background: #16a34a; /* darker green when pressed */
 }
 
 
