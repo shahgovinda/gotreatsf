@@ -18,13 +18,15 @@ const CustomCursor = () => {
       <div
         className="cursor-dot"
         style={{
-          transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
+          left: `${position.x}px`,
+          top: `${position.y}px`,
         }}
       />
       <div
         className="cursor-ring"
         style={{
-          transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
+          left: `${position.x}px`,
+          top: `${position.y}px`,
         }}
       />
     </>
