@@ -8,6 +8,7 @@
 
 body {
   font-family: "Josefin Sans", serif;
+  cursor: none; /* hides default arrow cursor */
 }
 
 .comfortaa {
@@ -688,6 +689,4 @@ body {
   50% { transform: scale(1.2); }
   100% { transform: scale(1); }
 }
-body {
-  cursor: none; /* hides default arrow cursor */
-}
+
