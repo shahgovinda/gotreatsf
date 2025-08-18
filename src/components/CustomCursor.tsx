@@ -1,35 +1,27 @@
 import { useEffect, useState } from "react";
+import { Motion, spring } from "react-motion";
 import "./CustomCursor.css";
 
 const CustomCursor = () => {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [pos, setPos] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setPosition({ x: e.clientX, y: e.clientY });
+    const move = (e: MouseEvent) => {
+      setPos({ x: e.clientX, y: e.clientY });
     };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", move);
+    return () => window.removeEventListener("mousemove", move);
   }, []);
 
   return (
-    <>
-      <div
-        className="cursor-dot"
-        style={{
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-        }}
-      />
-      <div
-        className="cursor-ring"
-        style={{
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-        }}
-      />
-    </>
+    <Motion style={{ x: spring(pos.x), y: spring(pos.y) }}>
+      {({ x, y }) => (
+        <div
+          className="cursor-dot"
+          style={{ left: x, top: y }}
+        />
+      )}
+    </Motion>
   );
 };
 
