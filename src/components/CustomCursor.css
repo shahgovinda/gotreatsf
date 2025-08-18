@@ -1,23 +1,10 @@
-.cursor-dot,
-.cursor-ring {
-  position: fixed;
-  pointer-events: none;
-  z-index: 9999;
-  transform: translate(-50%, -50%); /* center at mouse */
-}
-
 .cursor-dot {
-  width: 8px;
-  height: 8px;
+  position: fixed;
+  width: 10px;
+  height: 10px;
   background: black;
   border-radius: 50%;
-  transition: left 0.05s linear, top 0.05s linear; /* fast follow */
-}
-
-.cursor-ring {
-  width: 30px;
-  height: 30px;
-  border: 2px solid gray;
-  border-radius: 50%;
-  transition: left 0.15s ease-out, top 0.15s ease-out; /* smooth lag */
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
 }
