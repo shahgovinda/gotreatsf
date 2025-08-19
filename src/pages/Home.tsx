@@ -193,10 +193,11 @@ const Home = () => {
               </div>
             </h1>
             <p className="text-gray-700 text-base sm:text-lg lg:text-xl mb-4 sm:mb-6 max-w-xl leading-relaxed font-medium animate-[fadeIn_0.8s_ease-in] tracking-wide">
-              <TypewriterText
-                text="Freshly prepared with love — nutritious, homestyle meals delivered just the way you like it."
-                speed={50}
-              />
+            <TypewriterText
+  text={`Healthy food, delivered with care — now serving all over <span style="color:#FF6C05;">Mumbai</span>!`}
+  speed={50}
+/>
+
             </p>
             <div className='mb-2'>
               {userDetails?.role === 'admin' ?
