@@ -194,7 +194,7 @@ const Home = () => {
             </h1>
             <p className="text-gray-700 text-base sm:text-lg lg:text-xl mb-4 sm:mb-6 max-w-xl leading-relaxed font-medium animate-[fadeIn_0.8s_ease-in] tracking-wide">
             <TypewriterText
-  text={`Healthy food, delivered with care — now serving all over <span style="color:#FF6C05;">Mumbai</span>!`}
+  text={"Healthy food, delivered with care — now serving all over Mumbai "}
   speed={50}
 />
 
