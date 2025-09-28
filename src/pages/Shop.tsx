@@ -35,7 +35,6 @@ const Shop = () => {
     const [animatedIndex, setAnimatedIndex] = useState(0);
     const [highlightedItemId, setHighlightedItemId] = useState<string | null>(null);
 
-    // NEW: State to trigger voice announcements for search results
     const [announcement, setAnnouncement] = useState('');
 
     const products = useProductStore((state) => state.products);
@@ -81,7 +80,6 @@ const Shop = () => {
                 const finalQuery = final.trim();
                 setSearchQuery(finalQuery);
                 setLiveTranscript('');
-                // NEW: Set the announcement text to trigger the speech synthesis effect
                 setAnnouncement(finalQuery);
             }
         };
@@ -144,30 +142,40 @@ const Shop = () => {
         return filteredProducts;
     };
     
-    // This is called on every render to get the latest list of products
     const filteredProducts = getFilteredProducts();
 
-    // NEW: useEffect for Text-to-Speech announcements
+    // UPDATED: useEffect for Text-to-Speech announcements (with debugging logs)
     useEffect(() => {
         // Guard clause: Do nothing if there's no announcement text
         if (!announcement) {
             return;
         }
 
+        console.log(`[DEBUG] Announcement effect triggered for: "${announcement}"`);
+
         // Define the speech function
         const speak = (text) => {
             if ('speechSynthesis' in window) {
+                console.log(`[DEBUG] Attempting to speak: "${text}"`);
+                
                 window.speechSynthesis.cancel(); // Stop any current speech
+                
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'en-IN';
+
+                // Add an error handler to see if the speech itself fails
+                utterance.onerror = (event) => {
+                    console.error("[DEBUG] Speech synthesis error:", event.error);
+                };
+
                 window.speechSynthesis.speak(utterance);
             } else {
-                console.error("Text-to-speech is not supported in this browser.");
+                console.error("[DEBUG] Text-to-speech is not supported in this browser.");
             }
         };
         
-        // A short delay helps sync the audio with the visual update of the items
         const timer = setTimeout(() => {
+            console.log(`[DEBUG] Filtered products count: ${filteredProducts.length}`);
             if (filteredProducts.length > 0) {
                 speak(`Here are your results for ${announcement}.`);
             } else {
@@ -175,7 +183,7 @@ const Shop = () => {
             }
         }, 300);
 
-        // Reset the announcement. This prevents the effect from running again until a new voice search.
+        // Reset the announcement.
         setAnnouncement('');
 
         // Cleanup function to clear the timeout if the component unmounts
