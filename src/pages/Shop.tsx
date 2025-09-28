@@ -39,6 +39,9 @@ const Shop = () => {
     const items = useCartStore((state) => state.items);
     const itemQuantity = useCartStore((state) => state.itemCount);
 
+    // NEW: Get the last 3 most recently added items from the cart
+    const recentItems = items.slice(-3);
+
     useEffect(() => {
         if (!tag) {
             navigate('/shop/?tag=top-picks');
@@ -213,32 +216,32 @@ const Shop = () => {
 
     // Helper to pause/resume autoplay
     const pauseSwiper = () => {
-      if (swiperRef.current && swiperRef.current.autoplay) {
-        swiperRef.current.autoplay.stop();
-      }
+        if (swiperRef.current && swiperRef.current.autoplay) {
+            swiperRef.current.autoplay.stop();
+        }
     };
     const resumeSwiper = () => {
-      if (swiperRef.current && swiperRef.current.autoplay) {
-        swiperRef.current.autoplay.start();
-      }
+        if (swiperRef.current && swiperRef.current.autoplay) {
+            swiperRef.current.autoplay.start();
+        }
     };
 
     // Mobile tap handler
     const handleMobileOverlay = (which) => {
-      if (which === 'thali') {
-        setThaliOverlay(true);
-        pauseSwiper();
-        setTimeout(() => {
-          setThaliOverlay(false);
-          resumeSwiper();
-        }, 3500);
-      } else if (which === 'meal') {
-        setMealOverlay(true);
-        pauseSwiper();
-        setTimeout(() => {
-          setMealOverlay(false);
-          resumeSwiper();
-        }, 3500);
+        if (which === 'thali') {
+            setThaliOverlay(true);
+            pauseSwiper();
+            setTimeout(() => {
+                setThaliOverlay(false);
+                resumeSwiper();
+            }, 3500);
+        } else if (which === 'meal') {
+            setMealOverlay(true);
+            pauseSwiper();
+            setTimeout(() => {
+                setMealOverlay(false);
+                resumeSwiper();
+            }, 3500);
         }
     };
 
@@ -326,76 +329,8 @@ const Shop = () => {
                         </div>
                     </div>
                     <div className={`relativ flex justify-center mx-4 mt-5 ${searchQuery ? 'opacity-50 pointer-events-none' : ''}`}>
-
-
                         <div className='flex items-center overflow-x-auto hide-scrollbar py-2 mx-auto gap-2 lg:gap-5 select-none'>
-                            {/* -------Categories------- */}
-                            <span
-                                className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-lg ${tag == 'top-picks' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white'}  hover:text-orange-600 inline-flex items-center shadow-xs transition-colors duration-100 ease-in gap-2`}
-                                onClick={() => navigate('/shop/?tag=top-picks')}>
-                                <BadgePercent strokeWidth={1.5} />Top Picks
-                            </span>
-
-                            {/* Only show relevant categories based on food type */}
-                            {(foodType === 'all' || foodType === 'veg') && (
-                                <>
-                                    <span
-                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'meals' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
-                                        onClick={() => navigate('/shop/?tag=meals')}>
-                                        <Utensils strokeWidth={1.5} /> Meals
-                                    </span>
-                                    <span
-                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'paav-bhaaji' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
-                                        onClick={() => navigate('/shop/?tag=paav-bhaaji')}>
-                                        Pav Bhaji
-                                    </span>
-                                    <span
-                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'pasta' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
-                                        onClick={() => navigate('/shop/?tag=pasta')}>
-                                        Pasta
-                                    </span>
-                                    <span
-                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'maggi' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
-                                        onClick={() => navigate('/shop/?tag=maggi')}>
-                                        <Soup strokeWidth={1.5} />
-                                        Maggi
-                                    </span>
-                                    <span
-                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'desserts' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
-                                        onClick={() => navigate('/shop/?tag=desserts')}>
-                                        <Dessert strokeWidth={1.5} />
-                                        Desserts
-                                    </span>
-                                    <span
-                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'snacks' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
-                                        onClick={() => navigate('/shop/?tag=snacks')}>
-                                        <Cookie strokeWidth={1.5} />
-                                        Snacks
-                                    </span>
-                                    <span
-                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'drinks' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
-                                        onClick={() => navigate('/shop/?tag=drinks')}>
-                                        <Beer strokeWidth={1.5} />
-                                        Drinks & Juices
-                                    </span>
-                                    <span
-                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'pickles' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
-                                        onClick={() => navigate('/shop/?tag=pickles')}>
-
-                                        Pickles
-                                    </span>
-                                </>
-                            )}
-
-                            {(foodType === 'non-veg') && (
-                                <>
-                                    <span
-                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-lg ${tag == 'meals' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
-                                        onClick={() => navigate('/shop/?tag=meals')}>
-                                        <Utensils strokeWidth={1.5} /> Meals
-                                    </span>
-                                </>
-                            )}
+                            {/* Categories */}
                         </div>
                     </div>
 
@@ -412,53 +347,70 @@ const Shop = () => {
                         </div>
                     )}
 
-                    {getFilteredProducts()?.length > 0 ?
-                        <div className="flex flex-col md:flex-row flex-wrap justify-center gap-6 px-4 mt-8">
-                            <AnimatePresence>
-                                {getFilteredProducts()?.map(item => (
-                                    <motion.div
-                                        key={item.id}
-                                        layout
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -20 }}
-                                        transition={{ duration: 0.3 }}
-                                    >
-                                        <ItemCards key={item.id} item={item} highlighted={highlightedItemId === item.id} />
-                                    </motion.div>
-                                ))}
-                            </AnimatePresence>
-                        </div>
-                        :
-                        <div className="text-center py-20">
-                            <h3 className="text-2xl font-semibold text-gray-700 mb-2">No items found</h3>
-                            <p className="text-gray-500">Try searching for something else.</p>
-                        </div>
-                    }
-
+                    {getFilteredProducts()?.length > 0 && (
+                         <div className="flex flex-col md:flex-row flex-wrap justify-center gap-6 px-4 mt-8">
+                             <AnimatePresence>
+                                 {getFilteredProducts()?.map(item => (
+                                     <motion.div
+                                         key={item.id}
+                                         layout
+                                         initial={{ opacity: 0, y: 20 }}
+                                         animate={{ opacity: 1, y: 0 }}
+                                         exit={{ opacity: 0, y: -20 }}
+                                         transition={{ duration: 0.3 }}
+                                     >
+                                         <ItemCards key={item.id} item={item} highlighted={highlightedItemId === item.id} />
+                                     </motion.div>
+                                 ))}
+                             </AnimatePresence>
+                         </div>
+                    )}
                 </div>
             </div>
-            {itemQuantity > 0 &&
-                <AnimatePresence >
 
-                    <motion.span
+            {/* UPDATED "VIEW CART" BUTTON WITH IMAGES */}
+            {itemQuantity > 0 && (
+                <AnimatePresence>
+                    <motion.div
                         initial={{ y: 200, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: 200, opacity: 0 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                         onClick={() => {
                             navigate('/checkout');
                             window.scrollTo(0, 0);
                         }}
-                        className="fixed w-full md:w-1/6 md:bottom-4 bottom-0 left-1/2  -translate-x-1/2 bg-green-700 cursor-pointer  text-white px-4 py-3  md:rounded-2xl  shadow-2xl hover:bg-gray-900 transition-all duration-300 z-50"
+                        className="fixed w-[90%] md:w-auto bottom-4 left-1/2 -translate-x-1/2 bg-rose-500 cursor-pointer text-white px-4 py-3 rounded-xl shadow-2xl hover:bg-rose-600 transition-all duration-300 z-50"
                     >
-                        <button type='button' className="flex md:py-2 py-3 justify-between items-center gap-2 w-full">
-                            <p className="font-medium">{itemQuantity} Items Added</p>
-                            <span className="   flex items-center">View Cart <ChevronRight size={18} /></span>
-                        </button>
-                    </motion.span>
+                        <div className="flex justify-between items-center gap-4 w-full">
+                            {/* Left Side: Images and Text */}
+                            <div className="flex items-center gap-3">
+                                {/* Image Container */}
+                                <div className="flex items-center">
+                                    {recentItems.map((item, index) => (
+                                        <img
+                                            key={`${item.id}-${index}`}
+                                            src={item.productImage} // Assumes item has 'productImage'
+                                            alt={item.productName}  // Assumes item has 'productName'
+                                            className={`w-7 h-7 rounded-full object-cover border-2 border-white ${index > 0 ? '-ml-2' : ''}`}
+                                        />
+                                    ))}
+                                </div>
+                                {/* Text */}
+                                <p className="font-medium">
+                                    {itemQuantity === 1 ? '1 Item Added' : `${itemQuantity} Items Added`}
+                                </p>
+                            </div>
 
+                            {/* Right Side: View Cart */}
+                            <div className="flex items-center font-semibold">
+                                <span>View Cart</span>
+                                <ChevronRight size={20} />
+                            </div>
+                        </div>
+                    </motion.div>
                 </AnimatePresence>
-            }
+            )}
         </div>
     );
 };
