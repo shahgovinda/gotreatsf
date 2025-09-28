@@ -112,7 +112,7 @@ const Navbar = () => {
                                 <nav className="flex gap-10 items-center justify-center">
                                     <Link to="/shop" className="nav-underline">Menu</Link>
                                     <Link to="/concept" className="nav-underline">Concept</Link>
-                                    <Link to="/about" className="nav-underline">Catering Services</Link>
+                                    <Link to="/about" className="nav-underline">Catering</Link>
                                     <Link to="/customers" className="nav-underline">Customers</Link>
                                     <Link to="/contact" className="nav-underline">Contact</Link>
                                 </nav>
