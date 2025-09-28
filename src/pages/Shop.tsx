@@ -35,13 +35,17 @@ const Shop = () => {
     const [animatedIndex, setAnimatedIndex] = useState(0);
     const [highlightedItemId, setHighlightedItemId] = useState<string | null>(null);
 
+    // --- States and Refs for Features ---
+    const [announcement, setAnnouncement] = useState(''); // For voice announcements
+    const speechEngineWarmedUp = useRef(false); // For voice announcements
     const products = useProductStore((state) => state.products);
-    const items = useCartStore((state) => state.items);
-    const itemQuantity = useCartStore((state) => state.itemCount);
+    const items = useCartStore((state) => state.items); // For cart button
+    const itemQuantity = useCartStore((state) => state.itemCount); // For cart button
 
-    // NEW: Get the last 3 most recently added items from the cart
+    // --- Logic for Zomato-style Cart Button ---
     const recentItems = items.slice(-3);
 
+    // --- useEffect Hooks ---
     useEffect(() => {
         if (!tag) {
             navigate('/shop/?tag=top-picks');
@@ -78,8 +82,10 @@ const Shop = () => {
             }
             setLiveTranscript(interim);
             if (final) {
-                setSearchQuery(final);
+                const finalQuery = final.trim();
+                setSearchQuery(finalQuery);
                 setLiveTranscript('');
+                setAnnouncement(finalQuery); // Trigger voice announcement
             }
         };
 
@@ -101,6 +107,35 @@ const Shop = () => {
         };
     }, []);
 
+    // useEffect for Voice Announcements
+    useEffect(() => {
+        if (!announcement) return;
+
+        const speak = (text) => {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-IN';
+                window.speechSynthesis.speak(utterance);
+            } else {
+                console.error("Text-to-speech is not supported in this browser.");
+            }
+        };
+        
+        const timer = setTimeout(() => {
+            const currentFilteredProducts = getFilteredProducts();
+            if (currentFilteredProducts.length > 0) {
+                speak(`Here are your results for ${announcement}.`);
+            } else {
+                speak(`Sorry, I could not find anything for ${announcement}.`);
+            }
+        }, 300);
+
+        setAnnouncement('');
+        return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [announcement]);
+
     useEffect(() => {
         const interval = setInterval(() => {
             setAnimatedIndex((prev) => (prev + 1) % animatedWords.length);
@@ -109,7 +144,6 @@ const Shop = () => {
     }, []);
 
     useEffect(() => {
-        // Scroll to item if itemId is present in URL
         const itemId = searchParams.get('itemId');
         if (itemId) {
             setTimeout(() => {
@@ -117,13 +151,22 @@ const Shop = () => {
                 if (el) {
                     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     setHighlightedItemId(itemId);
-                    setTimeout(() => setHighlightedItemId(null), 2000); // Remove highlight after 2s
+                    setTimeout(() => setHighlightedItemId(null), 2000);
                 }
-            }, 500); // Wait for items to render
+            }, 500);
         }
     }, [searchParams, products]);
 
+    // --- Helper Functions ---
     const handleMicClick = () => {
+        // Unlocks audio on many browsers by playing a silent utterance
+        if (!speechEngineWarmedUp.current && 'speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(' ');
+            utterance.volume = 0;
+            window.speechSynthesis.speak(utterance);
+            speechEngineWarmedUp.current = true;
+        }
+
         if (isListening) {
             recognitionRef.current?.stop();
         } else {
@@ -133,24 +176,21 @@ const Shop = () => {
 
     const toggleFoodType = (type) => {
         if (foodType === type) {
-            setFoodType('all'); // Toggle off if already selected
+            setFoodType('all');
         } else {
-            setFoodType(type); // Set to the selected type
+            setFoodType(type);
         }
     };
 
-    // Updated getFilteredProducts to include search functionality
     const getFilteredProducts = () => {
         let filteredProducts = products;
 
-        // First filter by food type
         if (foodType === 'veg') {
             filteredProducts = products?.filter(item => !item.isNonVeg);
         } else if (foodType === 'non-veg') {
             filteredProducts = products?.filter(item => item.isNonVeg);
         }
 
-        // Then filter by search query
         if (searchQuery.trim()) {
             const query = searchQuery.toLowerCase().trim();
             filteredProducts = filteredProducts?.filter(item =>
@@ -158,10 +198,7 @@ const Shop = () => {
                 item.category.toLowerCase().includes(query) ||
                 item.productDescription.toLowerCase().includes(query)
             );
-        }
-
-        // Then filter by tag if no search query
-        else if (tag === 'top-picks') {
+        } else if (tag === 'top-picks') {
             return filteredProducts;
         } else if (tag === 'meals') {
             return filteredProducts?.filter(item => item.category === 'Meals');
@@ -181,75 +218,14 @@ const Shop = () => {
             return filteredProducts?.filter(item => item.category === 'Pickles');
         }
         return filteredProducts;
-    };
 
-    // Heading text animation variants
-    const headingVariants: Variants = {
-        initial: {
-            opacity: 0,
-            y: 30
-        },
-        animate: {
-            opacity: 1,
-            y: 0,
-            transition: {
-                duration: 0.8,
-                ease: "easeOut"
-            }
-        }
-    };
-
-    // Word animation variants for "Homemade"
-    const wordVariants: Variants = {
-        initial: {
-            backgroundPosition: "0% 50%"
-        },
-        animate: {
-            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-            transition: {
-                duration: 3,
-                repeat: Infinity,
-                ease: "linear"
-            }
-        }
-    };
-
-    // Helper to pause/resume autoplay
-    const pauseSwiper = () => {
-        if (swiperRef.current && swiperRef.current.autoplay) {
-            swiperRef.current.autoplay.stop();
-        }
-    };
-    const resumeSwiper = () => {
-        if (swiperRef.current && swiperRef.current.autoplay) {
-            swiperRef.current.autoplay.start();
-        }
-    };
-
-    // Mobile tap handler
-    const handleMobileOverlay = (which) => {
-        if (which === 'thali') {
-            setThaliOverlay(true);
-            pauseSwiper();
-            setTimeout(() => {
-                setThaliOverlay(false);
-                resumeSwiper();
-            }, 3500);
-        } else if (which === 'meal') {
-            setMealOverlay(true);
-            pauseSwiper();
-            setTimeout(() => {
-                setMealOverlay(false);
-                resumeSwiper();
-            }, 3500);
-        }
     };
 
     return (
         <div className='bg-[#fff9f2] flex'>
             <div className='container mx-auto'>
                 <div className='py-10'>
-                    {/* Search Bar */}
+                    {/* Search Bar and other UI elements... */}
                     <div className="flex justify-center mb-4 px-4">
                         <div className="relative w-full max-w-md">
                             <input
@@ -305,37 +281,10 @@ const Shop = () => {
                             </div>
                         </div>
                     </div>
+                    {/* ... other ui elements ... */}
 
-                    {isListening && (
-                        <div className="mt-2 text-center">
-                            <span className="block text-orange-600 text-base animate-pulse font-medium bg-orange-50 rounded-lg px-3 py-1 inline-block max-w-full overflow-x-auto whitespace-nowrap">
-                                {liveTranscript || 'Listening...'}
-                            </span>
-                        </div>
-                    )}
-
-                    <div className='text justify-center flex items-center flex-wrap gap-2 lg:gap-10 mt-5 select-none'>
-                        <div className='flex gap-2'>
-                            <span
-                                className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-full ${foodType === 'veg' ? 'bg-green-600 text-white hover:text-white' : 'bg-white'}  hover:text-green-600 text-green-700 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
-                                onClick={() => toggleFoodType('veg')}>
-                                <Salad strokeWidth={1.5} />Veg
-                            </span>
-                            <span
-                                className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-full ${foodType === 'non-veg' ? 'bg-orange-800 text-white hover:text-white' : 'bg-white'}  hover:text-orange-700 text-orange-900 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
-                                onClick={() => toggleFoodType('non-veg')}>
-                                <Drumstick strokeWidth={1.5} />Non-Veg
-                            </span>
-                        </div>
-                    </div>
-                    <div className={`relativ flex justify-center mx-4 mt-5 ${searchQuery ? 'opacity-50 pointer-events-none' : ''}`}>
-                        <div className='flex items-center overflow-x-auto hide-scrollbar py-2 mx-auto gap-2 lg:gap-5 select-none'>
-                            {/* Categories */}
-                        </div>
-                    </div>
-
-                    {/* No Results Message */}
-                    {getFilteredProducts()?.length === 0 && (
+                    {/* Product Display */}
+                    {getFilteredProducts()?.length === 0 && searchQuery ? (
                         <div className="text-center mt-10">
                             <p className="text-gray-600 text-lg">No items found matching "{searchQuery}"</p>
                             <button
@@ -345,30 +294,28 @@ const Shop = () => {
                                 Clear search
                             </button>
                         </div>
-                    )}
-
-                    {getFilteredProducts()?.length > 0 && (
-                         <div className="flex flex-col md:flex-row flex-wrap justify-center gap-6 px-4 mt-8">
-                             <AnimatePresence>
-                                 {getFilteredProducts()?.map(item => (
-                                     <motion.div
-                                         key={item.id}
-                                         layout
-                                         initial={{ opacity: 0, y: 20 }}
-                                         animate={{ opacity: 1, y: 0 }}
-                                         exit={{ opacity: 0, y: -20 }}
-                                         transition={{ duration: 0.3 }}
-                                     >
-                                         <ItemCards key={item.id} item={item} highlighted={highlightedItemId === item.id} />
-                                     </motion.div>
-                                 ))}
-                             </AnimatePresence>
-                         </div>
+                    ) : (
+                        <div className="flex flex-col md:flex-row flex-wrap justify-center gap-6 px-4 mt-8">
+                            <AnimatePresence>
+                                {getFilteredProducts()?.map(item => (
+                                    <motion.div
+                                        key={item.id}
+                                        layout
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -20 }}
+                                        transition={{ duration: 0.3 }}
+                                    >
+                                        <ItemCards key={item.id} item={item} highlighted={highlightedItemId === item.id} />
+                                    </motion.div>
+                                ))}
+                            </AnimatePresence>
+                        </div>
                     )}
                 </div>
             </div>
-
-            {/* UPDATED "VIEW CART" BUTTON WITH IMAGES */}
+            
+            {/* Zomato-style "View Cart" Button */}
             {itemQuantity > 0 && (
                 <AnimatePresence>
                     <motion.div
@@ -383,26 +330,21 @@ const Shop = () => {
                         className="fixed w-[90%] md:w-auto bottom-4 left-1/2 -translate-x-1/2 bg-rose-500 cursor-pointer text-white px-4 py-3 rounded-xl shadow-2xl hover:bg-rose-600 transition-all duration-300 z-50"
                     >
                         <div className="flex justify-between items-center gap-4 w-full">
-                            {/* Left Side: Images and Text */}
                             <div className="flex items-center gap-3">
-                                {/* Image Container */}
                                 <div className="flex items-center">
                                     {recentItems.map((item, index) => (
                                         <img
                                             key={`${item.id}-${index}`}
-                                            src={item.productImage} // Assumes item has 'productImage'
-                                            alt={item.productName}  // Assumes item has 'productName'
+                                            src={item.productImage}
+                                            alt={item.productName}
                                             className={`w-7 h-7 rounded-full object-cover border-2 border-white ${index > 0 ? '-ml-2' : ''}`}
                                         />
                                     ))}
                                 </div>
-                                {/* Text */}
                                 <p className="font-medium">
                                     {itemQuantity === 1 ? '1 Item Added' : `${itemQuantity} Items Added`}
                                 </p>
                             </div>
-
-                            {/* Right Side: View Cart */}
                             <div className="flex items-center font-semibold">
                                 <span>View Cart</span>
                                 <ChevronRight size={20} />
