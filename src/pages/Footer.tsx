@@ -140,7 +140,7 @@ const Footer = () => {
                 // { to: '/shop', label: 'Products', Icon: ShoppingBag },
                 { to: '/terms-and-conditions', label: 'Terms & Conditions', Icon: ScrollText },
                 { to: '/concept', label: 'Concept', Icon: Lightbulb },
-                { to: '/about', label: 'About', Icon: Info },
+                { to: '/about', label: 'Catering Services', Icon: Info },
                 { to: '/privacy-policy', label: 'Privacy Policy', Icon: Info },
                 { to: '/refund-policy', label: 'Refund Policy', Icon: Info },
                 { to: '/contact', label: 'Contact', Icon: PhoneCall },
