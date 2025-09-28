@@ -13,7 +13,7 @@ const About = () => {
     },
     {
       title: "Affordable Pricing",
-      desc: "Starting from just ₹250 per person for veg menus and ₹350 per person for non-veg menus. Customizable packages available to suit your budget.",
+      desc: "Starting from just ₹150 per person for veg menus and ₹180 per person for non-veg menus. Customizable packages available to suit your budget.",
       icon: <IndianRupee size={40} className="text-orange-500" />,
     },
     {
@@ -23,7 +23,7 @@ const About = () => {
     },
     {
       title: "Live Catering Experience",
-      desc: "Enjoy a live food counter at your event – from fresh rotis and dosas to live pasta, chaats, and BBQ setups. Made fresh, served hot.",
+      desc: "Enjoy a live food counter at your event – Veg Biryani,Non-vg Biryani, Pav Bhaji, Pulao, served hot.",
       icon: <Utensils size={40} className="text-orange-600" />,
     },
   ];
@@ -73,7 +73,7 @@ const About = () => {
           </p>
           <a href="/contact">
             <button className="px-8 py-3 text-lg font-semibold text-white rounded-xl bg-gradient-to-r from-green-500 to-green-600 shadow-md hover:shadow-xl hover:scale-105 transition duration-300">
-              Get a Catering Quote →
+              Get a Catering Quot →
             </button>
           </a>
         </div>
