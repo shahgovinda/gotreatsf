@@ -35,10 +35,6 @@ const Shop = () => {
     const [animatedIndex, setAnimatedIndex] = useState(0);
     const [highlightedItemId, setHighlightedItemId] = useState<string | null>(null);
 
-    const [announcement, setAnnouncement] = useState('');
-    // NEW: Ref to track if the speech engine has been activated by a user gesture
-    const speechEngineWarmedUp = useRef(false);
-
     const products = useProductStore((state) => state.products);
     const items = useCartStore((state) => state.items);
     const itemQuantity = useCartStore((state) => state.itemCount);
@@ -79,10 +75,8 @@ const Shop = () => {
             }
             setLiveTranscript(interim);
             if (final) {
-                const finalQuery = final.trim();
-                setSearchQuery(finalQuery);
+                setSearchQuery(final);
                 setLiveTranscript('');
-                setAnnouncement(finalQuery);
             }
         };
 
@@ -104,15 +98,56 @@ const Shop = () => {
         };
     }, []);
 
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setAnimatedIndex((prev) => (prev + 1) % animatedWords.length);
+        }, 1700);
+        return () => clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
+        // Scroll to item if itemId is present in URL
+        const itemId = searchParams.get('itemId');
+        if (itemId) {
+            setTimeout(() => {
+                const el = document.getElementById(`shop-item-${itemId}`);
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    setHighlightedItemId(itemId);
+                    setTimeout(() => setHighlightedItemId(null), 2000); // Remove highlight after 2s
+                }
+            }, 500); // Wait for items to render
+        }
+    }, [searchParams, products]);
+
+    const handleMicClick = () => {
+        if (isListening) {
+            recognitionRef.current?.stop();
+        } else {
+            recognitionRef.current?.start();
+        }
+    };
+
+    const toggleFoodType = (type) => {
+        if (foodType === type) {
+            setFoodType('all'); // Toggle off if already selected
+        } else {
+            setFoodType(type); // Set to the selected type
+        }
+    };
+
+    // Updated getFilteredProducts to include search functionality
     const getFilteredProducts = () => {
         let filteredProducts = products;
 
+        // First filter by food type
         if (foodType === 'veg') {
             filteredProducts = products?.filter(item => !item.isNonVeg);
         } else if (foodType === 'non-veg') {
             filteredProducts = products?.filter(item => item.isNonVeg);
         }
 
+        // Then filter by search query
         if (searchQuery.trim()) {
             const query = searchQuery.toLowerCase().trim();
             filteredProducts = filteredProducts?.filter(item =>
@@ -122,6 +157,7 @@ const Shop = () => {
             );
         }
 
+        // Then filter by tag if no search query
         else if (tag === 'top-picks') {
             return filteredProducts;
         } else if (tag === 'meals') {
@@ -143,97 +179,72 @@ const Shop = () => {
         }
         return filteredProducts;
     };
-    
-    const filteredProducts = getFilteredProducts();
 
-    // useEffect for Text-to-Speech announcements
-    useEffect(() => {
-        if (!announcement) {
-            return;
-        }
-        const speak = (text) => {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'en-IN';
-                window.speechSynthesis.speak(utterance);
-            } else {
-                console.error("Text-to-speech is not supported in this browser.");
+    // Heading text animation variants
+    const headingVariants: Variants = {
+        initial: {
+            opacity: 0,
+            y: 30
+        },
+        animate: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                duration: 0.8,
+                ease: "easeOut"
             }
-        };
-        
-        const timer = setTimeout(() => {
-            if (filteredProducts.length > 0) {
-                speak(`Here are your results for ${announcement}.`);
-            } else {
-                speak(`Sorry, I could not find anything for ${announcement}.`);
-            }
-        }, 300);
-
-        setAnnouncement('');
-        return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [announcement]);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setAnimatedIndex((prev) => (prev + 1) % animatedWords.length);
-        }, 1700);
-        return () => clearInterval(interval);
-    }, []);
-
-    useEffect(() => {
-        const itemId = searchParams.get('itemId');
-        if (itemId) {
-            setTimeout(() => {
-                const el = document.getElementById(`shop-item-${itemId}`);
-                if (el) {
-                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    setHighlightedItemId(itemId);
-                    setTimeout(() => setHighlightedItemId(null), 2000);
-                }
-            }, 500);
-        }
-    }, [searchParams, products]);
-
-    // UPDATED: handleMicClick now "warms up" the speech engine
-    const handleMicClick = () => {
-        // This unlocks audio on many browsers by playing a silent utterance
-        if (!speechEngineWarmedUp.current && 'speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance(' ');
-            utterance.volume = 0;
-            window.speechSynthesis.speak(utterance);
-            speechEngineWarmedUp.current = true;
-        }
-
-        if (isListening) {
-            recognitionRef.current?.stop();
-        } else {
-            recognitionRef.current?.start();
         }
     };
 
-    const toggleFoodType = (type) => {
-        if (foodType === type) {
-            setFoodType('all');
-        } else {
-            setFoodType(type);
+    // Word animation variants for "Homemade"
+    const wordVariants: Variants = {
+        initial: {
+            backgroundPosition: "0% 50%"
+        },
+        animate: {
+            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+            transition: {
+                duration: 3,
+                repeat: Infinity,
+                ease: "linear"
+            }
         }
     };
 
-    // ... (rest of the functions like headingVariants, wordVariants, etc. are unchanged)
+    // Helper to pause/resume autoplay
+    const pauseSwiper = () => {
+      if (swiperRef.current && swiperRef.current.autoplay) {
+        swiperRef.current.autoplay.stop();
+      }
+    };
+    const resumeSwiper = () => {
+      if (swiperRef.current && swiperRef.current.autoplay) {
+        swiperRef.current.autoplay.start();
+      }
+    };
 
-    const headingVariants: Variants = { /* ... */ };
-    const wordVariants: Variants = { /* ... */ };
-    const pauseSwiper = () => { /* ... */ };
-    const resumeSwiper = () => { /* ... */ };
-    const handleMobileOverlay = (which) => { /* ... */ };
+    // Mobile tap handler
+    const handleMobileOverlay = (which) => {
+      if (which === 'thali') {
+        setThaliOverlay(true);
+        pauseSwiper();
+        setTimeout(() => {
+          setThaliOverlay(false);
+          resumeSwiper();
+        }, 3500);
+      } else if (which === 'meal') {
+        setMealOverlay(true);
+        pauseSwiper();
+        setTimeout(() => {
+          setMealOverlay(false);
+          resumeSwiper();
+        }, 3500);
+        }
+    };
 
     return (
         <div className='bg-[#fff9f2] flex'>
             <div className='container mx-auto'>
-                {/* --- Image Slider Section --- */}
-                {/* <section> ... </section> */}
                 <div className='py-10'>
                     {/* Search Bar */}
                     <div className="flex justify-center mb-4 px-4">
@@ -301,13 +312,95 @@ const Shop = () => {
                     )}
 
                     <div className='text justify-center flex items-center flex-wrap gap-2 lg:gap-10 mt-5 select-none'>
-                         {/* ... Veg/Non-Veg buttons ... */}
+                        <div className='flex gap-2'>
+                            <span
+                                className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-full ${foodType === 'veg' ? 'bg-green-600 text-white hover:text-white' : 'bg-white'}  hover:text-green-600 text-green-700 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
+                                onClick={() => toggleFoodType('veg')}>
+                                <Salad strokeWidth={1.5} />Veg
+                            </span>
+                            <span
+                                className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-full ${foodType === 'non-veg' ? 'bg-orange-800 text-white hover:text-white' : 'bg-white'}  hover:text-orange-700 text-orange-900 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
+                                onClick={() => toggleFoodType('non-veg')}>
+                                <Drumstick strokeWidth={1.5} />Non-Veg
+                            </span>
+                        </div>
                     </div>
                     <div className={`relativ flex justify-center mx-4 mt-5 ${searchQuery ? 'opacity-50 pointer-events-none' : ''}`}>
-                         {/* ... Category filters ... */}
+
+
+                        <div className='flex items-center overflow-x-auto hide-scrollbar py-2 mx-auto gap-2 lg:gap-5 select-none'>
+                            {/* -------Categories------- */}
+                            <span
+                                className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-lg ${tag == 'top-picks' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white'}  hover:text-orange-600 inline-flex items-center shadow-xs transition-colors duration-100 ease-in gap-2`}
+                                onClick={() => navigate('/shop/?tag=top-picks')}>
+                                <BadgePercent strokeWidth={1.5} />Top Picks
+                            </span>
+
+                            {/* Only show relevant categories based on food type */}
+                            {(foodType === 'all' || foodType === 'veg') && (
+                                <>
+                                    <span
+                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'meals' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
+                                        onClick={() => navigate('/shop/?tag=meals')}>
+                                        <Utensils strokeWidth={1.5} /> Meals
+                                    </span>
+                                    <span
+                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'paav-bhaaji' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
+                                        onClick={() => navigate('/shop/?tag=paav-bhaaji')}>
+                                        Pav Bhaji
+                                    </span>
+                                    <span
+                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'pasta' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
+                                        onClick={() => navigate('/shop/?tag=pasta')}>
+                                        Pasta
+                                    </span>
+                                    <span
+                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'maggi' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
+                                        onClick={() => navigate('/shop/?tag=maggi')}>
+                                        <Soup strokeWidth={1.5} />
+                                        Maggi
+                                    </span>
+                                    <span
+                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'desserts' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
+                                        onClick={() => navigate('/shop/?tag=desserts')}>
+                                        <Dessert strokeWidth={1.5} />
+                                        Desserts
+                                    </span>
+                                    <span
+                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'snacks' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
+                                        onClick={() => navigate('/shop/?tag=snacks')}>
+                                        <Cookie strokeWidth={1.5} />
+                                        Snacks
+                                    </span>
+                                    <span
+                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'drinks' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
+                                        onClick={() => navigate('/shop/?tag=drinks')}>
+                                        <Beer strokeWidth={1.5} />
+                                        Drinks & Juices
+                                    </span>
+                                    <span
+                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'pickles' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
+                                        onClick={() => navigate('/shop/?tag=pickles')}>
+
+                                        Pickles
+                                    </span>
+                                </>
+                            )}
+
+                            {(foodType === 'non-veg') && (
+                                <>
+                                    <span
+                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-lg ${tag == 'meals' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
+                                        onClick={() => navigate('/shop/?tag=meals')}>
+                                        <Utensils strokeWidth={1.5} /> Meals
+                                    </span>
+                                </>
+                            )}
+                        </div>
                     </div>
 
-                    {filteredProducts?.length === 0 && (
+                    {/* No Results Message */}
+                    {getFilteredProducts()?.length === 0 && (
                         <div className="text-center mt-10">
                             <p className="text-gray-600 text-lg">No items found matching "{searchQuery}"</p>
                             <button
@@ -319,10 +412,10 @@ const Shop = () => {
                         </div>
                     )}
 
-                    {filteredProducts?.length > 0 && (
+                    {getFilteredProducts()?.length > 0 ?
                         <div className="flex flex-col md:flex-row flex-wrap justify-center gap-6 px-4 mt-8">
                             <AnimatePresence>
-                                {filteredProducts?.map(item => (
+                                {getFilteredProducts()?.map(item => (
                                     <motion.div
                                         key={item.id}
                                         layout
@@ -336,11 +429,18 @@ const Shop = () => {
                                 ))}
                             </AnimatePresence>
                         </div>
-                    )}
+                        :
+                        <div className="text-center py-20">
+                            <h3 className="text-2xl font-semibold text-gray-700 mb-2">No items found</h3>
+                            <p className="text-gray-500">Try searching for something else.</p>
+                        </div>
+                    }
+
                 </div>
             </div>
             {itemQuantity > 0 &&
                 <AnimatePresence >
+
                     <motion.span
                         initial={{ y: 200, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
@@ -356,6 +456,7 @@ const Shop = () => {
                             <span className="   flex items-center">View Cart <ChevronRight size={18} /></span>
                         </button>
                     </motion.span>
+
                 </AnimatePresence>
             }
         </div>
