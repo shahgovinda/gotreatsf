@@ -1,5 +1,5 @@
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { BadgePercent, Beer, ChevronRight, Cookie, Dessert, Drumstick, Mic, Salad, Search, Soup, Utensils } from 'lucide-react';
+import { BadgePercent, Beer, Candy, ChevronRight, Cookie, Dessert, Drumstick, Mic, Salad, Search, Soup, Utensils } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import ItemCards from '../components/ItemCards';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -7,6 +7,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination } from 'swiper/modules';
 
 import { useProductStore } from '../store/productStore';
+import Button from '../components/Button';
 import { useCartStore } from '../store/cartStore';
 
 declare global {
@@ -127,7 +128,7 @@ const Shop = () => {
         }
     };
 
-    const toggleFoodType = (type: string) => {
+    const toggleFoodType = (type) => {
         if (foodType === type) {
             setFoodType('all'); // Toggle off if already selected
         } else {
@@ -177,6 +178,68 @@ const Shop = () => {
             return filteredProducts?.filter(item => item.category === 'Pickles');
         }
         return filteredProducts;
+    };
+
+    // Heading text animation variants
+    const headingVariants: Variants = {
+        initial: {
+            opacity: 0,
+            y: 30
+        },
+        animate: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                duration: 0.8,
+                ease: "easeOut"
+            }
+        }
+    };
+
+    // Word animation variants for "Homemade"
+    const wordVariants: Variants = {
+        initial: {
+            backgroundPosition: "0% 50%"
+        },
+        animate: {
+            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+            transition: {
+                duration: 3,
+                repeat: Infinity,
+                ease: "linear"
+            }
+        }
+    };
+
+    // Helper to pause/resume autoplay
+    const pauseSwiper = () => {
+      if (swiperRef.current && swiperRef.current.autoplay) {
+        swiperRef.current.autoplay.stop();
+      }
+    };
+    const resumeSwiper = () => {
+      if (swiperRef.current && swiperRef.current.autoplay) {
+        swiperRef.current.autoplay.start();
+      }
+    };
+
+    // Mobile tap handler
+    const handleMobileOverlay = (which) => {
+      if (which === 'thali') {
+        setThaliOverlay(true);
+        pauseSwiper();
+        setTimeout(() => {
+          setThaliOverlay(false);
+          resumeSwiper();
+        }, 3500);
+      } else if (which === 'meal') {
+        setMealOverlay(true);
+        pauseSwiper();
+        setTimeout(() => {
+          setMealOverlay(false);
+          resumeSwiper();
+        }, 3500);
+        }
     };
 
     return (
@@ -377,7 +440,8 @@ const Shop = () => {
             </div>
             {itemQuantity > 0 &&
                 <AnimatePresence >
-                    <motion.div
+
+                    <motion.span
                         initial={{ y: 200, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: 200, opacity: 0 }}
@@ -385,29 +449,14 @@ const Shop = () => {
                             navigate('/checkout');
                             window.scrollTo(0, 0);
                         }}
-                        className="fixed w-full md:w-auto md:bottom-4 bottom-0 left-1/2 -translate-x-1/2 bg-green-700 cursor-pointer text-white px-4 py-2 md:rounded-xl shadow-2xl hover:bg-green-800 transition-colors duration-300 z-50"
+                        className="fixed w-full md:w-1/6 md:bottom-4 bottom-0 left-1/2  -translate-x-1/2 bg-green-700 cursor-pointer  text-white px-4 py-3  md:rounded-2xl  shadow-2xl hover:bg-gray-900 transition-all duration-300 z-50"
                     >
-                        {/* --- MODIFIED BUTTON SECTION START --- */}
-                        <div className="flex justify-between items-center gap-4 w-full">
-                            <div className="flex items-center gap-3">
-                                <div className="flex items-center -space-x-4">
-                                    {items.slice(-3).map((cartItem) => (
-                                        <img
-                                            key={cartItem.id}
-                                            src={cartItem.productImage} // This assumes your item object in the cart has a `productImage` property
-                                            alt={cartItem.productName}
-                                            className="w-9 h-9 rounded-full object-cover border-2 border-white"
-                                        />
-                                    ))}
-                                </div>
-                                <p className="font-medium">{itemQuantity} {itemQuantity === 1 ? 'Item' : 'Items'} Added</p>
-                            </div>
-                            <div className="flex items-center font-semibold">
-                                View Cart <ChevronRight size={20} />
-                            </div>
-                        </div>
-                        {/* --- MODIFIED BUTTON SECTION END --- */}
-                    </motion.div>
+                        <button type='button' className="flex md:py-2 py-3 justify-between items-center gap-2 w-full">
+                            <p className="font-medium">{itemQuantity} Items Added</p>
+                            <span className="   flex items-center">View Cart <ChevronRight size={18} /></span>
+                        </button>
+                    </motion.span>
+
                 </AnimatePresence>
             }
         </div>
