@@ -23,7 +23,7 @@ const About = () => {
     },
     {
       title: "Live Catering Experience",
-      desc: "Enjoy a live food counter at your event – Veg Biryani,Non-vg Biryani, Pav Bhaji, Pulao, served hot.",
+      desc: "Enjoy a live food counter at your event – Veg Biryani, Non-veg Biryani, Pav Bhaji, Pulao, served hot.",
       icon: <Utensils size={40} className="text-orange-600" />,
     },
   ];
