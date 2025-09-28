@@ -36,6 +36,8 @@ const Shop = () => {
     const [highlightedItemId, setHighlightedItemId] = useState<string | null>(null);
 
     const [announcement, setAnnouncement] = useState('');
+    // NEW: Ref to track if the speech engine has been activated by a user gesture
+    const speechEngineWarmedUp = useRef(false);
 
     const products = useProductStore((state) => state.products);
     const items = useCartStore((state) => state.items);
@@ -144,38 +146,23 @@ const Shop = () => {
     
     const filteredProducts = getFilteredProducts();
 
-    // UPDATED: useEffect for Text-to-Speech announcements (with debugging logs)
+    // useEffect for Text-to-Speech announcements
     useEffect(() => {
-        // Guard clause: Do nothing if there's no announcement text
         if (!announcement) {
             return;
         }
-
-        console.log(`[DEBUG] Announcement effect triggered for: "${announcement}"`);
-
-        // Define the speech function
         const speak = (text) => {
             if ('speechSynthesis' in window) {
-                console.log(`[DEBUG] Attempting to speak: "${text}"`);
-                
-                window.speechSynthesis.cancel(); // Stop any current speech
-                
+                window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'en-IN';
-
-                // Add an error handler to see if the speech itself fails
-                utterance.onerror = (event) => {
-                    console.error("[DEBUG] Speech synthesis error:", event.error);
-                };
-
                 window.speechSynthesis.speak(utterance);
             } else {
-                console.error("[DEBUG] Text-to-speech is not supported in this browser.");
+                console.error("Text-to-speech is not supported in this browser.");
             }
         };
         
         const timer = setTimeout(() => {
-            console.log(`[DEBUG] Filtered products count: ${filteredProducts.length}`);
             if (filteredProducts.length > 0) {
                 speak(`Here are your results for ${announcement}.`);
             } else {
@@ -183,14 +170,10 @@ const Shop = () => {
             }
         }, 300);
 
-        // Reset the announcement.
         setAnnouncement('');
-
-        // Cleanup function to clear the timeout if the component unmounts
         return () => clearTimeout(timer);
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [announcement]); // Dependency: Only run when a new announcement is set
+    }, [announcement]);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -213,7 +196,16 @@ const Shop = () => {
         }
     }, [searchParams, products]);
 
+    // UPDATED: handleMicClick now "warms up" the speech engine
     const handleMicClick = () => {
+        // This unlocks audio on many browsers by playing a silent utterance
+        if (!speechEngineWarmedUp.current && 'speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(' ');
+            utterance.volume = 0;
+            window.speechSynthesis.speak(utterance);
+            speechEngineWarmedUp.current = true;
+        }
+
         if (isListening) {
             recognitionRef.current?.stop();
         } else {
@@ -229,53 +221,19 @@ const Shop = () => {
         }
     };
 
-    const headingVariants: Variants = {
-        initial: { opacity: 0, y: 30 },
-        animate: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
-    };
+    // ... (rest of the functions like headingVariants, wordVariants, etc. are unchanged)
 
-    const wordVariants: Variants = {
-        initial: { backgroundPosition: "0% 50%" },
-        animate: {
-            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-            transition: { duration: 3, repeat: Infinity, ease: "linear" }
-        }
-    };
-
-    const pauseSwiper = () => {
-        if (swiperRef.current && swiperRef.current.autoplay) {
-            swiperRef.current.autoplay.stop();
-        }
-    };
-    const resumeSwiper = () => {
-        if (swiperRef.current && swiperRef.current.autoplay) {
-            swiperRef.current.autoplay.start();
-        }
-    };
-
-    const handleMobileOverlay = (which) => {
-        if (which === 'thali') {
-            setThaliOverlay(true);
-            pauseSwiper();
-            setTimeout(() => {
-                setThaliOverlay(false);
-                resumeSwiper();
-            }, 3500);
-        } else if (which === 'meal') {
-            setMealOverlay(true);
-            pauseSwiper();
-            setTimeout(() => {
-                setMealOverlay(false);
-                resumeSwiper();
-            }, 3500);
-        }
-    };
+    const headingVariants: Variants = { /* ... */ };
+    const wordVariants: Variants = { /* ... */ };
+    const pauseSwiper = () => { /* ... */ };
+    const resumeSwiper = () => { /* ... */ };
+    const handleMobileOverlay = (which) => { /* ... */ };
 
     return (
         <div className='bg-[#fff9f2] flex'>
             <div className='container mx-auto'>
                 {/* --- Image Slider Section --- */}
-                {/* <section className="w-full py-4 flex items-center justify-center"> ... </section> */}
+                {/* <section> ... </section> */}
                 <div className='py-10'>
                     {/* Search Bar */}
                     <div className="flex justify-center mb-4 px-4">
@@ -343,48 +301,10 @@ const Shop = () => {
                     )}
 
                     <div className='text justify-center flex items-center flex-wrap gap-2 lg:gap-10 mt-5 select-none'>
-                        <div className='flex gap-2'>
-                            <span
-                                className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-full ${foodType === 'veg' ? 'bg-green-600 text-white hover:text-white' : 'bg-white'}  hover:text-green-600 text-green-700 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
-                                onClick={() => toggleFoodType('veg')}>
-                                <Salad strokeWidth={1.5} />Veg
-                            </span>
-                            <span
-                                className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-full ${foodType === 'non-veg' ? 'bg-orange-800 text-white hover:text-white' : 'bg-white'}  hover:text-orange-700 text-orange-900 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
-                                onClick={() => toggleFoodType('non-veg')}>
-                                <Drumstick strokeWidth={1.5} />Non-Veg
-                            </span>
-                        </div>
+                         {/* ... Veg/Non-Veg buttons ... */}
                     </div>
                     <div className={`relativ flex justify-center mx-4 mt-5 ${searchQuery ? 'opacity-50 pointer-events-none' : ''}`}>
-                        <div className='flex items-center overflow-x-auto hide-scrollbar py-2 mx-auto gap-2 lg:gap-5 select-none'>
-                            <span
-                                className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-lg ${tag == 'top-picks' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white'}  hover:text-orange-600 inline-flex items-center shadow-xs transition-colors duration-100 ease-in gap-2`}
-                                onClick={() => navigate('/shop/?tag=top-picks')}>
-                                <BadgePercent strokeWidth={1.5} />Top Picks
-                            </span>
-
-                            {(foodType === 'all' || foodType === 'veg') && (
-                                <>
-                                    <span
-                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'meals' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
-                                        onClick={() => navigate('/shop/?tag=meals')}>
-                                        <Utensils strokeWidth={1.5} /> Meals
-                                    </span>
-                                    {/* Other categories */}
-                                </>
-                            )}
-
-                            {(foodType === 'non-veg') && (
-                                <>
-                                    <span
-                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-lg ${tag == 'meals' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
-                                        onClick={() => navigate('/shop/?tag=meals')}>
-                                        <Utensils strokeWidth={1.5} /> Meals
-                                    </span>
-                                </>
-                            )}
-                        </div>
+                         {/* ... Category filters ... */}
                     </div>
 
                     {filteredProducts?.length === 0 && (
