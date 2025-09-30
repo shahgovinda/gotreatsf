@@ -1,10 +1,11 @@
-import { useState } from 'react'
-import { Box } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Locate, MapPin, Phone, Pin, Star, Quote, Box } from 'lucide-react'
 import ItemCards from '../components/ItemCards';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, Navigation } from 'swiper/modules';
+import { Autoplay, Navigation, Pagination } from 'swiper/modules';
 import { useAuthStore } from '../store/authStore';
 import { useProductStore } from '../store/productStore';
+import CountUp from 'react-countup';
 import NavigationButton from '../components/NavigationButton';
 import { Link, useNavigate } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
@@ -12,7 +13,9 @@ import { db } from '../config/firebaseConfig';
 import { useQuery } from '@tanstack/react-query';
 import TypewriterText from '../components/TypewriterText';
 import ScrollingBanner from '../components/ScrollingBanner';
-import { motion } from 'framer-motion';
+import { Image } from '@heroui/react';
+import { deleteOrdersByCustomerUid } from '@/services/orderService';
+import { motion, Variants } from 'framer-motion';
 
 // --- IMPORTS FOR SPECIAL DAY BANNER ---
 import SpecialDayBanner from '../components/SpecialDayBanner';
@@ -42,26 +45,24 @@ const Home = () => {
   const products = useProductStore((state) => state.products)
   const [swiperRef, setSwiperRef] = useState(null);
 
-  const { data: reviews = [], isLoading } = useQuery({
+  const { data: reviews = [], isLoading, error } = useQuery({
     queryKey: ['reviews'],
     queryFn: fetchReviews,
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false
   });
 
-  // For review card scrolling
+  // For review card scrolling (copied from Customers page)
   const [reviewStartIndex, setReviewStartIndex] = useState(0);
   const getVisibleReviewCards = () => {
-    if (reviews.length === 0) return [];
     const cards = [];
     for (let i = 0; i < reviews.length * 2; i++) {
       const index = (reviewStartIndex + i) % reviews.length;
-      cards.push(reviews[index]);
+      cards.push(reviews[index]); // Corrected: reviews[index]
     }
     return cards;
   };
   const handleReviewScroll = (direction: 'left' | 'right') => {
-    if (reviews.length === 0) return;
     const container = document.querySelector('.scroll-container');
     if (container) {
       container.classList.remove('animate-scroll');
@@ -103,9 +104,8 @@ const Home = () => {
     }
   ];
 
-  // Using current date (Sept 30, 2025) for a relevant special day message
-  // In 2025, Navratri begins on Sep 29.
- const specialDays = [
+  // --- NEW LOGIC FOR MULTIPLE SPECIAL DAYS ---
+  const specialDays = [
     { month: 0, date: 14, message: "Happy Makar Sankranti and Pongal! Enjoy festive flavors and discounts today." },
     { month: 0, date: 26, message: "Happy Republic Day! Celebrate with our special patriotic meal combos." },
     { month: 1, date: 19, message: "Happy Shivaji Jayanti! Enjoy delicious Maharashtrian dishes." },
@@ -138,31 +138,23 @@ const Home = () => {
   ];
 
   const getSpecialDayMessage = () => {
-    const today = new Date(); // Will be Sept 30
-    const todayMonth = today.getMonth(); // 8
-    const todayDate = today.getDate(); // 30
+    const today = new Date();
+    const todayMonth = today.getMonth(); // getMonth() is 0-indexed
+    const todayDate = today.getDate();
+
     const specialDay = specialDays.find(day => day.month === todayMonth && day.date === todayDate);
+
     return specialDay ? specialDay.message : null;
   };
 
   const specialDayMessage = getSpecialDayMessage();
 
-  // --- DATA FOR DABBAWALA PARTNERS ---
-  // IMPORTANT: Replace with your actual partner data and image paths.
-  const dabbawalaPartners = [
-    { id: 1, name: "Sankar", imageUrl: "sankar.jpg" },
-    { id: 2, name: "Sankar", imageUrl: "sankar.jpg" },
-    { id: 3, name: "Sankar", imageUrl: "sankar.jpg" },
-    { id: 4, name: "Sankar", imageUrl: "sankar.jpg" },
-    { id: 5, name: "Sankar", imageUrl: "sankar.jpg" },
-    { id: 6, name: "Sankar", imageUrl: "sankar.jpg" },
-    { id: 7, name: "Sankar", imageUrl: "sankar.jpg" },
-    { id: 8, name: "Sankar", imageUrl: "sankar.jpg" },
-  ];
-
   return (
     <main className="min-h-[calc(100vh-64px)] w-full overflow-x-hidden">
+      {/* -------------------- SPECIAL DAY BANNER ADDED HERE -------------------- */}
       {specialDayMessage && <SpecialDayBanner specialDayMessage={specialDayMessage} />}
+      {/* ----------------------------------------------------------------------- */}
+
       <ScrollingBanner />
 
       <Link
@@ -201,13 +193,18 @@ const Home = () => {
               </div>
             </h1>
             <p className="text-gray-700 text-base sm:text-lg lg:text-xl mb-4 sm:mb-6 max-w-xl leading-relaxed font-medium animate-[fadeIn_0.8s_ease-in] tracking-wide">
-              <TypewriterText text={"Healthy food, delivered with care — now serving all over Mumbai "} speed={50} />
+            <TypewriterText
+  text={"Healthy food, delivered with care — now serving all over Mumbai "}
+  speed={50}
+/>
+
             </p>
             <div className='mb-2'>
               {userDetails?.role === 'admin' ?
                 <button className="cssbuttons-io animate-pulse" onClick={() => navigate('/admin/view-all-orders')}>
                   <span className='flex items-center gap-2'>
-                    <Box className='animate-bounce' /> Manage Orders
+                    <Box className='animate-bounce' />
+                    Manage Orders
                   </span>
                 </button>
                 :
@@ -216,19 +213,30 @@ const Home = () => {
             </div>
           </div>
           <div className="w-full md:w-2/5 md:mt-0 mt-4">
-            <img src="/indian-plate.png" alt="Blog Hero Image" className="object-cover w-full rounded-2xl transition-all duration-300 h-auto hover:scale-105" />
+            <img
+              src="/indian-plate.png"
+              alt="Blog Hero Image"
+              className="object-cover w-full rounded-2xl transition-all duration-300 h-auto hover:scale-105"
+            />
           </div>
         </div>
       </section>
 
+      {/* ------varieties------ */}
       <section className="py-14 md:py-20 bg-gradient-to-b from-green-50 via-white to-green-100 mt-10 md:mt-16 mb-10 md:mb-16">
         <div className="container mx-auto">
           <h1 className="text-center mb-10 lancelot text-3xl sm:text-4xl md:text-5xl flex items-center justify-center tracking-wide">
-            Explore&nbsp; <span className="text-green-600 font-bold transition duration-700 ease-in-out">Food</span>&nbsp;Varieties
+            Explore&nbsp;
+            <span className="text-green-600 font-bold transition duration-700 ease-in-out">Food</span>
+            &nbsp;Varieties
           </h1>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10 px-2 md:px-8">
             {varieties.map(variety => (
-              <div key={variety.id} onClick={() => navigate(variety.link)} className="group p-3 md:p-4 flex flex-col items-center gap-3 cursor-pointer bg-white rounded-2xl shadow hover:shadow-lg border border-green-100 transition-all duration-300 ease-in hover:-translate-y-1">
+              <div
+                key={variety.id}
+                onClick={() => navigate(variety.link)}
+                className="group p-3 md:p-4 flex flex-col items-center gap-3 cursor-pointer bg-white rounded-2xl shadow hover:shadow-lg border border-green-100 transition-all duration-300 ease-in hover:-translate-y-1"
+              >
                 <div className="hover:scale-105 transition-all duration-300 ease-in rounded-full overflow-hidden border-4 border-green-100 group-hover:border-green-300 bg-white">
                   <img className="rounded-full object-cover w-32 h-32 md:w-36 md:h-36" src={variety.img} alt={variety.name} />
                 </div>
@@ -239,28 +247,45 @@ const Home = () => {
         </div>
       </section>
 
+      {/* -----popular dishes----- */}
       <section className='bg-[#fff9f2] py-10 md:py-20 mt-10'>
         <h1 className='text-center my-10 lancelot text-5xl sm:text-6xl lg:text-7xl flex items-center justify-center'>Popular Dishes</h1>
         <div className='mx-2 md:mx-40'>
-          <Swiper
+          <Swiper className=''
             spaceBetween={40}
             modules={[Navigation, Autoplay]}
-            autoplay={{ delay: 3500, disableOnInteraction: true }}
+            autoplay={{
+              delay: 3500,
+              disableOnInteraction: true,
+            }}
             loop={true}
-            breakpoints={{ 768: { slidesPerView: 3 }, 0: { slidesPerView: 1 } }}
-            onSwiper={setSwiperRef}
-          >
+            breakpoints={{
+              768: {
+                slidesPerView: 3
+              },
+              0: {
+                slidesPerView: 1
+              }
+            }}
+            onSwiper={setSwiperRef}>
             {products?.slice(0, 9).map((item, index) => (
               <SwiperSlide key={index}>
                 <ItemCards item={item} key={index} />
               </SwiperSlide>
             ))}
           </Swiper>
-          <div className='flex justify-center my-5'> <NavigationButton swiper={swiperRef} /> </div>
-          <div className="flex justify-center w-full"> <button onClick={() => navigate('/shop')} className="shop-all-btn w-1/2 md:w-36"> Check All </button> </div>
+          <div className='flex justify-center my-5'>
+            <NavigationButton swiper={swiperRef} />
+          </div>
+          <div className="flex justify-center w-full">
+            <button onClick={() => navigate('/shop')} className="shop-all-btn w-1/2 md:w-36">
+              Check All
+            </button>
+          </div>
         </div>
       </section>
 
+      {/* -----reviews----- */}
       <section className="py-16 md:py-24 bg-gradient-to-b from-green-100 via-white to-green-50 mt-10 md:mt-16 mb-10 md:mb-16">
         <div className="container mx-auto px-2 sm:px-4 md:px-8">
           <div className="text-center mb-10 md:mb-14">
@@ -321,51 +346,54 @@ const Home = () => {
         </div>
       </section>
 
-      {/* --- NEW Infinite Scrolling Dabbawala Partner Section --- */}
-      <section className="py-16 md:py-24 bg-orange-100 mt-10 md:mt-16 w-full overflow-hidden">
-        <div className="container mx-auto text-center px-4">
+      {/* ----- Mumbai Dabbawala Collaboration ----- */}
+      <motion.section
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        viewport={{ once: true, amount: 0.2 }}
+        className="py-16 md:py-24 bg-orange-100 mt-10 md:mt-16"
+      >
+        <div className="container mx-auto px-4 md:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold lancelot mb-4 text-gray-900">
-            Delivering With Our Trusted Partners
+            Now Delivering All Over Mumbai
           </h2>
-          <p className="text-gray-700 text-lg md:text-xl max-w-3xl mx-auto mb-12">
-            We've partnered with the legendary Mumbai Dabbawalas to bring our fresh meals right to your doorstep, on time, every time. Meet the team that makes it happen.
+          <p className="text-gray-700 text-lg md:text-xl max-w-2xl mx-auto mb-10">
+            We've partnered with the iconic Mumbai Dabbawala to ensure your freshly prepared meals reach you anywhere in the city, on time, every time.
           </p>
-          <div
-            className="w-full inline-flex flex-nowrap overflow-hidden [mask-image:_linear-gradient(to_right,transparent_0,_black_128px,_black_calc(100%-128px),transparent_100%)]"
-          >
-            <ul className="flex items-center justify-center md:justify-start [&_li]:mx-8 [&_img]:max-w-none animate-infinite-scroll">
-              {dabbawalaPartners.map((partner) => (
-                <li key={partner.id} className="flex flex-col items-center text-center w-40">
-                  <img
-                    className="w-28 h-28 rounded-full object-cover border-4 border-white shadow-md"
-                    src={partner.imageUrl}
-                    alt={partner.name}
-                  />
-                  <p className="mt-3 font-semibold text-gray-700 text-base">
-                    {partner.name}
-                  </p>
-                </li>
-              ))}
-            </ul>
-            {/* The second list is a duplicate for a seamless loop */}
-            <ul className="flex items-center justify-center md:justify-start [&_li]:mx-8 [&_img]:max-w-none animate-infinite-scroll" aria-hidden="true">
-              {dabbawalaPartners.map((partner) => (
-                <li key={`${partner.id}-duplicate`} className="flex flex-col items-center text-center w-40">
-                  <img
-                    className="w-28 h-28 rounded-full object-cover border-4 border-white shadow-md"
-                    src={partner.imageUrl}
-                    alt={partner.name}
-                  />
-                  <p className="mt-3 font-semibold text-gray-700 text-base">
-                    {partner.name}
-                  </p>
-                </li>
-              ))}
-            </ul>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-10 sm:gap-20">
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 1.2 }} // Increased tap scale for better mobile visibility
+              transition={{ duration: 0.2 }}
+              className="cursor-pointer"
+            >
+              <Image
+                src="/gotreats.png"
+                alt="GoTreats Logo"
+                className="h-28 md:h-40 object-contain" // Increased initial height
+              />
+            </motion.div>
+            <span className="text-5xl md:text-7xl font-bold text-gray-400">&times;</span>
+            <motion.div
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 1.2 }} // Increased tap scale for better mobile visibility
+              transition={{ duration: 0.2 }}
+              className="cursor-pointer"
+            >
+              <Image
+                src="dabbawaa.png"
+                alt="Mumbai Dabbawala Logo"
+                className="h-28 md:h-40 object-contain" // Increased initial height
+              />
+            </motion.div>
           </div>
+          <p className="mt-10 text-xl md:text-2xl font-semibold text-gray-800">
+            GoTreats <span className="text-orange-500 font-bold mx-2">X</span> Mumbai Dabbawala
+          </p>
         </div>
-      </section>
-      
+      </motion.section>
+
     </main>
   )
 }
