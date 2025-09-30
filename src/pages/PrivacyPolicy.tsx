@@ -9,7 +9,7 @@ const PrivacyPolicy = () => {
             </div>
             <div className="max-w-5xl mx-auto px-4 sm:px-8 md:px-16 lg:px-24 xl:px-32 py-10 text-base md:text-lg text-gray-800">
                 <section className="mb-8">
-                    <p className="mb-2 text-sm text-gray-500">Last Updated: May 10, 2025</p>
+                    <p className="mb-2 text-sm text-gray-500">Last Updated: Sept 30, 2025</p>
                     <p className="mb-4 text-justify">
                         At GoTreats, we are committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your personal information when you use our online food ordering and delivery services.
                     </p>
