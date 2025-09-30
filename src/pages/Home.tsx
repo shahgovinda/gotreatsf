@@ -150,14 +150,14 @@ const Home = () => {
   // --- DATA FOR DABBAWALA PARTNERS ---
   // IMPORTANT: Replace with your actual partner data and image paths.
   const dabbawalaPartners = [
-    { id: 1, name: "Suresh Patil", imageUrl: "/partners/suresh.jpg" },
-    { id: 2, name: "Ramesh Jadhav", imageUrl: "/partners/ramesh.jpg" },
-    { id: 3, name: "Kishor Pawar", imageUrl: "/partners/kishor.jpg" },
-    { id: 4, name: "Sunil Varma", imageUrl: "/partners/sunil.jpg" },
-    { id: 5, name: "Anil Kadam", imageUrl: "/partners/anil.jpg" },
-    { id: 6, name: "Manoj Deshmukh", imageUrl: "/partners/manoj.jpg" },
-    { id: 7, name: "Deepak Singh", imageUrl: "/partners/deepak.jpg" },
-    { id: 8, name: "Vikram Rathod", imageUrl: "/partners/vikram.jpg" },
+    { id: 1, name: "Sankar", imageUrl: "sankar.jpg" },
+    { id: 2, name: "Sankar", imageUrl: "sankar.jpg" },
+    { id: 3, name: "Sankar", imageUrl: "sankar.jpg" },
+    { id: 4, name: "Sankar", imageUrl: "sankar.jpg" },
+    { id: 5, name: "Sankar", imageUrl: "sankar.jpg" },
+    { id: 6, name: "Sankar", imageUrl: "sankar.jpg" },
+    { id: 7, name: "Sankar", imageUrl: "sankar.jpg" },
+    { id: 8, name: "Sankar", imageUrl: "sankar.jpg" },
   ];
 
   return (
