@@ -9,7 +9,7 @@ const RefundPolicy = () => {
             </div>
             <div className="max-w-5xl mx-auto px-4 sm:px-8 md:px-16 lg:px-24 xl:px-32 py-10 text-base md:text-lg text-gray-800">
                 <section className="mb-8">
-                    <p className="mb-2 text-sm text-gray-500">Effective Date: May 10, 2025</p>
+                    <p className="mb-2 text-sm text-gray-500">Last Updated: Sept 30, 2025</p>
                     <p className="mb-4 text-justify">
                         This Cancellation and Refund Policy outlines the terms and conditions regarding order cancellations and refunds for online food orders placed through GoTreats (the "Services").
                     </p>
