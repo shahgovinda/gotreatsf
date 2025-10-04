@@ -218,8 +218,8 @@ const Footer = () => {
                 <Clock className="text-orange-500 mt-1 group-hover:scale-110 transition-transform" size={20} />
                 <div className="text-gray-400 dark:text-gray-300 leading-relaxed">
                   <p className="text-white font-semibold mb-2">Delivery Timings:</p>
-                  <p>Morning: 11:00 AM - 2:00 PM</p>
-                  <p>Evening: 8:00 PM - 12:00 AM</p>
+                  <p>Morning: 9:00 AM - 2:00 PM</p>
+                  <p>Evening: 4:00 PM - 10:00 PM</p>
                 </div>
               </li>
               <li className="flex items-start gap-4 group transition-all duration-300">
