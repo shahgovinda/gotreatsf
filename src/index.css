@@ -43,14 +43,14 @@ body {
     animation-play-state: paused;
 }
 
-.hide-scrollbar {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+/* .hide-scrollbar {
+    -ms-overflow-style: none;  
+    scrollbar-width: none; 
 }
 
 .hide-scrollbar::-webkit-scrollbar {
     display: none;  /* Chrome, Safari and Opera */
-} 
+}  */
 
 .hover-text {
   position: absolute;
