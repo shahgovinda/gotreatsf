@@ -39,7 +39,6 @@ const Shop = () => {
     const items = useCartStore((state) => state.items); // Access the full cart items
     const itemQuantity = useCartStore((state) => state.itemCount);
 
-    // --- UPDATED LOGIC FOR IMAGE CAROUSEL IN CART BANNER ---
     const getCartImages = () => {
         // If your cart item objects contain the image URL directly (e.g., item.imageUrl)
         const uniqueImageUrls = new Set();
@@ -63,7 +62,6 @@ const Shop = () => {
     };
 
     const cartImages = getCartImages();
-    // --------------------------------------------------
 
     useEffect(() => {
         if (!tag) {
@@ -475,29 +473,30 @@ const Shop = () => {
                             navigate('/checkout');
                             window.scrollTo(0, 0);
                         }}
-                        className="fixed w-full md:w-1/6 md:bottom-4 bottom-0 left-1/2  -translate-x-1/2 bg-green-700 cursor-pointer  text-white px-4 py-3  md:rounded-2xl  shadow-2xl hover:bg-gray-900 transition-all duration-300 z-50"
+                        // --- FIX 1: Visibility/Position ---
+                        // Changed bottom-0 to bottom-4 for mobile/small screens to lift it above the edge
+                        // Changed bg-green-700 to bg-red-600 for high contrast/Zomato style
+                        className="fixed w-full md:w-1/6 md:bottom-4 bottom-4 left-1/2 -translate-x-1/2 bg-red-600 cursor-pointer text-white px-4 py-3 md:rounded-2xl shadow-2xl hover:bg-gray-900 transition-all duration-300 z-50"
                     >
-                        {/* --- UPDATED CART BANNER CONTENT (Focusing on image display) --- */}
+                        {/* --- Cart Button Content --- */}
                         <button type='button' className="flex md:py-2 py-3 justify-between items-center gap-2 w-full">
                             {/* Images and Item Count */}
                             <div className="flex items-center">
-                                {/* Small Images from Cart - Adjusted classes for better Zomato-style overlap */}
+                                {/* Small Images from Cart - FIX 2: Added margin for text */}
                                 {cartImages.map((url, index) => (
                                     <img
                                         key={index}
                                         src={url}
                                         alt={`Item ${index + 1} in cart`}
-                                        className="w-8 h-8 object-cover rounded-full border-2 border-green-700" // Added rounded-full for circular images
+                                        className="w-8 h-8 object-cover rounded-full border-2 border-red-600" // border color matches new background
                                         style={{ 
-                                            // Negative margin for overlap effect
                                             marginLeft: index > 0 ? '-10px' : '0', 
-                                            // Ensure correct stacking order
                                             zIndex: 3 - index, 
                                             position: 'relative' 
                                         }} 
                                     />
                                 ))}
-                                <p className={`font-medium ${cartImages.length > 0 ? 'ml-4' : ''}`}>
+                                <p className={`font-medium ${cartImages.length > 0 ? 'ml-4' : 'ml-0'}`}>
                                     {itemQuantity} items added
                                 </p>
                             </div>
@@ -505,7 +504,7 @@ const Shop = () => {
                             {/* View Cart Button */}
                             <span className="flex items-center">View Cart <ChevronRight size={18} /></span>
                         </button>
-                        {/* --- END UPDATED CART BANNER CONTENT --- */}
+                        {/* --- END Cart Button Content --- */}
                     </motion.span>
 
                 </AnimatePresence>
