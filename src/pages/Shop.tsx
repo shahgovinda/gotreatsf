@@ -39,21 +39,19 @@ const Shop = () => {
     const items = useCartStore((state) => state.items); // Access the full cart items
     const itemQuantity = useCartStore((state) => state.itemCount);
 
-    // --- UPDATED LOGIC FOR IMAGE CAROUSEL IN CART BANNER ---
-    // Now ensures the 3 latest unique items are displayed.
+    // Logic to get the 3 latest unique item images
     const getCartImages = () => {
         const uniqueImageUrls = new Set();
         const imagesToDisplay = [];
 
-        // Iterate over items in REVERSE (most recent first)
+        // Iterate over items in REVERSE to find the most recently added unique images
         for (let i = items.length - 1; i >= 0; i--) {
             const item = items[i];
-            // *** ASSUMING your cart item structure includes an 'imageUrl' property ***
             const imageUrl = item.imageUrl;
             
             if (imageUrl && !uniqueImageUrls.has(imageUrl)) {
                 uniqueImageUrls.add(imageUrl);
-                imagesToDisplay.unshift(imageUrl); // Add to the front to maintain chronological order in display
+                imagesToDisplay.unshift(imageUrl); // Add to the front to maintain chronological display order
             }
             
             // Limit to 3 images for the visual effect
@@ -65,7 +63,6 @@ const Shop = () => {
     };
 
     const cartImages = getCartImages();
-    // --------------------------------------------------
 
     useEffect(() => {
         if (!tag) {
@@ -477,15 +474,15 @@ const Shop = () => {
                             navigate('/checkout');
                             window.scrollTo(0, 0);
                         }}
-                        // FIX 1: Removed bottom-4 for full mobile coverage, using a conditional py-4 to lift content
-                        // FIX 2: Added px-4 to the motion.span to constrain horizontal padding
-                        className="fixed w-full md:w-1/6 bottom-0 left-1/2 -translate-x-1/2 bg-red-600 cursor-pointer text-white px-4 md:py-3 md:rounded-2xl shadow-2xl hover:bg-gray-900 transition-all duration-300 z-50"
+                        // FIX 1 & 2: Added px-4 to the motion span to constrain width on mobile/desktop. 
+                        // The padding is now handled by the button, giving the component a nice edge on desktop.
+                        className="fixed w-full md:w-1/6 bottom-0 left-1/2 -translate-x-1/2 bg-red-600 cursor-pointer text-white px-4 shadow-2xl hover:bg-gray-900 transition-all duration-300 z-50"
                     >
-                        {/* Cart Button Content */}
-                        <button type='button' className="flex items-center justify-between gap-2 w-full py-3">
+                        {/* FIX 1 & 2: Increased height by using py-4 on the button and used items-center for better vertical alignment */}
+                        <button type='button' className="flex items-center justify-between gap-2 w-full py-4">
                             {/* Images and Item Count */}
-                            <div className="flex items-center">
-                                {/* Small Images from Cart - FIX 2: Minor CSS adjustment for better alignment */}
+                            <div className="flex items-center relative h-7"> {/* Fixed height for perfect vertical alignment */}
+                                {/* Small Images from Cart */}
                                 {cartImages.map((url, index) => (
                                     <img
                                         key={index}
@@ -493,21 +490,21 @@ const Shop = () => {
                                         alt={`Item ${index + 1} in cart`}
                                         className="w-7 h-7 object-cover rounded-full border-2 border-red-600"
                                         style={{ 
-                                            marginLeft: index > 0 ? '-8px' : '0', // Slight reduction in overlap
+                                            // FIX 3: Fine-tuned overlap for better image alignment
+                                            marginLeft: index > 0 ? '-10px' : '0', 
                                             zIndex: 3 - index, 
-                                            position: 'relative' ,
-                                            // FIX 2: Added a vertical adjustment for perfect alignment
-                                            // transform: 'translateY(-1px)' 
+                                            position: 'relative' 
                                         }} 
                                     />
                                 ))}
-                                <p className={`font-medium text-sm ${cartImages.length > 0 ? 'ml-3' : 'ml-0'}`}>
+                                {/* FIX 1: Ensure text has clear margin */}
+                                <p className={`font-medium text-sm ${cartImages.length > 0 ? 'ml-3' : 'ml-0'} whitespace-nowrap`}>
                                     {itemQuantity} items added
                                 </p>
                             </div>
                             
                             {/* View Cart Button */}
-                            <span className="flex items-center font-medium text-sm">View Cart <ChevronRight size={18} /></span>
+                            <span className="flex items-center font-semibold text-sm whitespace-nowrap">View Cart <ChevronRight size={18} /></span>
                         </button>
                     </motion.span>
 
