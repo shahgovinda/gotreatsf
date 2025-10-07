@@ -39,15 +39,14 @@ const Shop = () => {
     const items = useCartStore((state) => state.items); // Access the full cart items
     const itemQuantity = useCartStore((state) => state.itemCount);
 
-    // --- NEW LOGIC FOR IMAGE CAROUSEL IN CART BANNER ---
+    // --- UPDATED LOGIC FOR IMAGE CAROUSEL IN CART BANNER ---
     const getCartImages = () => {
-        // Create a Set to ensure only unique images are stored
+        // If your cart item objects contain the image URL directly (e.g., item.imageUrl)
         const uniqueImageUrls = new Set();
         const imagesToDisplay = [];
 
-        // Iterate over the cart items
         for (const item of items) {
-            // Assuming each item in the cart has an 'imageUrl' property
+            // *** ASSUMING your cart item structure includes an 'imageUrl' property ***
             const imageUrl = item.imageUrl;
             
             if (imageUrl && !uniqueImageUrls.has(imageUrl)) {
@@ -55,7 +54,7 @@ const Shop = () => {
                 imagesToDisplay.push(imageUrl);
             }
             
-            // Stop after gathering 3 unique images
+            // Limit to 3 images for the visual effect
             if (imagesToDisplay.length >= 3) {
                 break;
             }
@@ -478,21 +477,29 @@ const Shop = () => {
                         }}
                         className="fixed w-full md:w-1/6 md:bottom-4 bottom-0 left-1/2  -translate-x-1/2 bg-green-700 cursor-pointer  text-white px-4 py-3  md:rounded-2xl  shadow-2xl hover:bg-gray-900 transition-all duration-300 z-50"
                     >
-                        {/* --- UPDATED CART BANNER CONTENT --- */}
+                        {/* --- UPDATED CART BANNER CONTENT (Focusing on image display) --- */}
                         <button type='button' className="flex md:py-2 py-3 justify-between items-center gap-2 w-full">
                             {/* Images and Item Count */}
-                            <div className="flex items-center gap-2">
-                                {/* Small Images from Cart */}
+                            <div className="flex items-center">
+                                {/* Small Images from Cart - Adjusted classes for better Zomato-style overlap */}
                                 {cartImages.map((url, index) => (
                                     <img
                                         key={index}
                                         src={url}
                                         alt={`Item ${index + 1} in cart`}
-                                        className="w-8 h-8 object-cover rounded-md border border-white"
-                                        style={{ marginLeft: index > 0 ? '-8px' : '0' }} // Slight overlap for a carousel effect
+                                        className="w-8 h-8 object-cover rounded-full border-2 border-green-700" // Added rounded-full for circular images
+                                        style={{ 
+                                            // Negative margin for overlap effect
+                                            marginLeft: index > 0 ? '-10px' : '0', 
+                                            // Ensure correct stacking order
+                                            zIndex: 3 - index, 
+                                            position: 'relative' 
+                                        }} 
                                     />
                                 ))}
-                                <p className="font-medium ml-2 md:ml-0">{itemQuantity} Items Added</p>
+                                <p className={`font-medium ${cartImages.length > 0 ? 'ml-4' : ''}`}>
+                                    {itemQuantity} items added
+                                </p>
                             </div>
                             
                             {/* View Cart Button */}
