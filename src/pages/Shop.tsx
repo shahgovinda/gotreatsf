@@ -36,7 +36,7 @@ const Shop = () => {
     const [highlightedItemId, setHighlightedItemId] = useState<string | null>(null);
 
     const products = useProductStore((state) => state.products);
-    const items = useCartStore((state) => state.items); // Access the full cart items
+    const items = useCartStore((state) => state.items); 
     const itemQuantity = useCartStore((state) => state.itemCount);
 
     // Logic to get the 3 latest unique item images
@@ -462,6 +462,7 @@ const Shop = () => {
                     }
 
                 </div>
+                {/* ------------------ VIEW CART BUTTON ------------------ */}
             </div>
             {itemQuantity > 0 &&
                 <AnimatePresence >
@@ -470,18 +471,21 @@ const Shop = () => {
                         initial={{ y: 200, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: 200, opacity: 0 }}
-                        onClick={() => {
-                            navigate('/checkout');
-                            window.scrollTo(0, 0);
-                        }}
-                        // FIX 1 & 2: Added px-4 to the motion span to constrain width on mobile/desktop. 
-                        // The padding is now handled by the button, giving the component a nice edge on desktop.
+                        // NOTE: Removed onClick from motion.span to fix the flickering issue.
                         className="fixed w-full md:w-1/6 bottom-0 left-1/2 -translate-x-1/2 bg-red-600 cursor-pointer text-white px-4 shadow-2xl hover:bg-gray-900 transition-all duration-300 z-50"
                     >
-                        {/* FIX 1 & 2: Increased height by using py-4 on the button and used items-center for better vertical alignment */}
-                        <button type='button' className="flex items-center justify-between gap-2 w-full py-4">
+                        {/* The button handles the click action and holds the content */}
+                        <button 
+                            type='button' 
+                            className="flex items-center justify-between gap-2 w-full py-4"
+                            // Click handler moved here
+                            onClick={() => {
+                                navigate('/checkout');
+                                window.scrollTo(0, 0);
+                            }}
+                        >
                             {/* Images and Item Count */}
-                            <div className="flex items-center relative h-7"> {/* Fixed height for perfect vertical alignment */}
+                            <div className="flex items-center relative h-7"> 
                                 {/* Small Images from Cart */}
                                 {cartImages.map((url, index) => (
                                     <img
@@ -490,14 +494,13 @@ const Shop = () => {
                                         alt={`Item ${index + 1} in cart`}
                                         className="w-7 h-7 object-cover rounded-full border-2 border-red-600"
                                         style={{ 
-                                            // FIX 3: Fine-tuned overlap for better image alignment
                                             marginLeft: index > 0 ? '-10px' : '0', 
                                             zIndex: 3 - index, 
                                             position: 'relative' 
                                         }} 
                                     />
                                 ))}
-                                {/* FIX 1: Ensure text has clear margin */}
+                                {/* Text is aligned correctly */}
                                 <p className={`font-medium text-sm ${cartImages.length > 0 ? 'ml-3' : 'ml-0'} whitespace-nowrap`}>
                                     {itemQuantity} items added
                                 </p>
