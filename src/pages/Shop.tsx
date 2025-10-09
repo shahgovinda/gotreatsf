@@ -339,14 +339,14 @@ const Shop = () => {
                     <div className='text justify-center flex items-center flex-wrap gap-2 lg:gap-10 mt-5 select-none'>
                         <div className='flex gap-2'>
                             <span
-                                // FIXED: Ensured text color is explicitly set for selected (text-white) and unselected (text-green-700)
-                                className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-full ${foodType === 'veg' ? 'bg-green-600 text-white hover:text-white' : 'bg-white text-green-700'}  hover:text-green-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
+                                // Fixed hover behavior by ensuring the unselected state always has a visible text color
+                                className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-full ${foodType === 'veg' ? 'bg-green-600 text-white' : 'bg-white text-green-700 hover:text-green-600'} inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
                                 onClick={() => toggleFoodType('veg')}>
                                 <Salad strokeWidth={1.5} />Veg
                             </span>
                             <span
-                                // FIXED: Ensured text color is explicitly set for selected (text-white) and unselected (text-orange-900)
-                                className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-full ${foodType === 'non-veg' ? 'bg-orange-800 text-white hover:text-white' : 'bg-white text-orange-900'}  hover:text-orange-700 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
+                                // Fixed hover behavior by ensuring the unselected state always has a visible text color
+                                className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-full ${foodType === 'non-veg' ? 'bg-orange-800 text-white' : 'bg-white text-orange-900 hover:text-orange-700'} inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
                                 onClick={() => toggleFoodType('non-veg')}>
                                 <Drumstick strokeWidth={1.5} />Non-Veg
                             </span>
@@ -358,8 +358,8 @@ const Shop = () => {
                         <div className='flex items-center overflow-x-auto hide-scrollbar py-2 mx-auto gap-2 lg:gap-5 select-none'>
                             {/* -------Categories------- */}
                             <span
-                                // FIXED: Added text-gray-700 for the unselected state to be visible.
-                                className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-lg ${tag == 'top-picks' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white text-gray-700'}  hover:text-orange-600 inline-flex items-center shadow-xs transition-colors duration-100 ease-in gap-2`}
+                                // FIXED: Consolidated text color into the conditional. Unselected state is now 'bg-white text-gray-700'
+                                className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-lg ${tag == 'top-picks' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white text-gray-700 hover:text-orange-600'} inline-flex items-center shadow-xs transition-colors duration-100 ease-in gap-2`}
                                 onClick={() => navigate('/shop/?tag=top-picks')}>
                                 <BadgePercent strokeWidth={1.5} />Top Picks
                             </span>
@@ -368,54 +368,54 @@ const Shop = () => {
                             {(foodType === 'all' || foodType === 'veg') && (
                                 <>
                                     <span
-                                        // FIXED: Added text-gray-700 for the unselected state to be visible.
-                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'meals' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white text-gray-700'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
+                                        // FIXED: Consolidated text color into the conditional. Unselected state is now 'bg-white text-gray-700'
+                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'meals' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white text-gray-700 hover:text-orange-600'} inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
                                         onClick={() => navigate('/shop/?tag=meals')}>
                                         <Utensils strokeWidth={1.5} /> Meals
                                     </span>
                                     <span
-                                        // FIXED: Added text-gray-700 for the unselected state to be visible.
-                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'paav-bhaaji' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white text-gray-700'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
+                                        // FIXED: Consolidated text color into the conditional. Unselected state is now 'bg-white text-gray-700'
+                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'paav-bhaaji' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white text-gray-700 hover:text-orange-600'} inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
                                         onClick={() => navigate('/shop/?tag=paav-bhaaji')}>
                                         Pav Bhaji
                                     </span>
                                     <span
-                                        // FIXED: Added text-gray-700 for the unselected state to be visible.
-                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'pasta' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white text-gray-700'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
+                                        // FIXED: Consolidated text color into the conditional. Unselected state is now 'bg-white text-gray-700'
+                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'pasta' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white text-gray-700 hover:text-orange-600'} inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
                                         onClick={() => navigate('/shop/?tag=pasta')}>
                                         Pasta
                                     </span>
                                     <span
-                                        // FIXED: Added text-gray-700 for the unselected state to be visible.
-                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'maggi' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white text-gray-700'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
+                                        // FIXED: Consolidated text color into the conditional. Unselected state is now 'bg-white text-gray-700'
+                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'maggi' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white text-gray-700 hover:text-orange-600'} inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
                                         onClick={() => navigate('/shop/?tag=maggi')}>
                                         <Soup strokeWidth={1.5} />
                                         Maggi
                                     </span>
                                     <span
-                                        // FIXED: Added text-gray-700 for the unselected state to be visible.
-                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'desserts' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white text-gray-700'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
+                                        // FIXED: Consolidated text color into the conditional. Unselected state is now 'bg-white text-gray-700'
+                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'desserts' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white text-gray-700 hover:text-orange-600'} inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
                                         onClick={() => navigate('/shop/?tag=desserts')}>
                                         <Dessert strokeWidth={1.5} />
                                         Desserts
                                     </span>
                                     <span
-                                        // FIXED: Added text-gray-700 for the unselected state to be visible.
-                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'snacks' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white text-gray-700'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
+                                        // FIXED: Consolidated text color into the conditional. Unselected state is now 'bg-white text-gray-700'
+                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'snacks' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white text-gray-700 hover:text-orange-600'} inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
                                         onClick={() => navigate('/shop/?tag=snacks')}>
                                         <Cookie strokeWidth={1.5} />
                                         Snacks
                                     </span>
                                     <span
-                                        // FIXED: Added text-gray-700 for the unselected state to be visible.
-                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'drinks' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white text-gray-700'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
+                                        // FIXED: Consolidated text color into the conditional. Unselected state is now 'bg-white text-gray-700'
+                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'drinks' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white text-gray-700 hover:text-orange-600'} inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
                                         onClick={() => navigate('/shop/?tag=drinks')}>
                                         <Beer strokeWidth={1.5} />
                                         Drinks & Juices
                                     </span>
                                     <span
-                                        // FIXED: Added text-gray-700 for the unselected state to be visible.
-                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'pickles' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white text-gray-700'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
+                                        // FIXED: Consolidated text color into the conditional. Unselected state is now 'bg-white text-gray-700'
+                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'pickles' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white text-gray-700 hover:text-orange-600'} inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
                                         onClick={() => navigate('/shop/?tag=pickles')}>
 
                                         Pickles
@@ -426,8 +426,8 @@ const Shop = () => {
                             {(foodType === 'non-veg') && (
                                 <>
                                     <span
-                                        // FIXED: Added text-gray-700 for the unselected state to be visible.
-                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-lg ${tag == 'meals' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white text-gray-700'}  hover:text-orange-600 inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
+                                        // FIXED: Consolidated text color into the conditional. Unselected state is now 'bg-white text-gray-700'
+                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-lg ${tag == 'meals' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white text-gray-700 hover:text-orange-600'} inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
                                         onClick={() => navigate('/shop/?tag=meals')}>
                                         <Utensils strokeWidth={1.5} /> Meals
                                     </span>
