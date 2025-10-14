@@ -1,6 +1,6 @@
 import { motion, AnimatePresence, Variants } from "framer-motion";
-// import { BadgePercent, Beer, Candy, ChevronRight, Cookie, Dessert, Drumstick, Mic, Salad, Search, Soup, Utensils } from 'lucide-react';
-import { BadgePercent, Beer, Candy, ChevronRight, Cookie, Dessert, Drumstick, Mic, Salad, Search, Soup, Utensils, Croissant, Beef, ChefHat, CookingPot, HandPlatter, Menu, **Plus, CirclePlus, SquarePlus** } from 'lucide-react';
+import { BadgePercent, Beer, Candy, ChevronRight, Cookie, Dessert, Drumstick, Mic, Salad, Search, Soup, Utensils } from 'lucide-react';
+
 import { useEffect, useState, useRef } from 'react';
 import ItemCards from '../components/ItemCards';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -202,8 +202,8 @@ const Shop = () => {
             return filteredProducts?.filter(item => item.category === 'Snacks');
         } else if (tag === 'drinks') {
             return filteredProducts?.filter(item => item.category === 'Drinks');
-        } else if (tag === 'addons') {
-            return filteredProducts?.filter(item => item.category === 'Add Ons');
+        } else if (tag === 'pickles') {
+            return filteredProducts?.filter(item => item.category === 'Pickles');
         }
         return filteredProducts;
     };
