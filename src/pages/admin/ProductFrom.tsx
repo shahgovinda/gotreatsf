@@ -27,7 +27,7 @@ const FOOD_CATEGORIES = [
     "Maggi",
     "Pasta",
     "Drinks",
-    "Pickles"
+    "Pickles",
     "Chocolates"
 ]
 
