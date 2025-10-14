@@ -28,6 +28,7 @@ const FOOD_CATEGORIES = [
     "Pasta",
     "Drinks",
     "Pickles"
+    "Chocolates"
 ]
 
 const defaultForm: Item = {
