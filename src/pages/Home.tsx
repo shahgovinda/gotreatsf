@@ -135,6 +135,15 @@ const Home = () => {
     { month: 10, date: 5, message: "Happy Guru Nanak Jayanti! A day to celebrate with our heartwarming meals." },
     { month: 10, date: 7, message: "Happy Chhath Puja! Enjoy our special festive offerings." },
     { month: 11, date: 25, message: "Merry Christmas! Enjoy a festive feast with our special Christmas menu." },
+     { month: 7, date: 7, message: "Happy Birthday Shubham Oza." },
+     { month: 9, date: 14, message: "Happy Birthday Srushti Prajapati." },
+     { month: 7, date: 21, message: "Happy Birthday Gaurav Vishwakarma." },
+     { month: 9, date: 6, message: "Happy Birthday Vivek Wadher." },
+     { month: 8, date: 20, message: "Happy Birthday Govinda J Shah." },
+     { month: 10, date: 15, message: "Happy Birthday Vaishnavi Patil." },
+     { month: 12, date: 28, message: "Happy Birthday Priya Shah." },
+     { month: 12, date: 10, message: "Happy Birthday Priyanka Shah." },
+    
   ];
 
   const getSpecialDayMessage = () => {
