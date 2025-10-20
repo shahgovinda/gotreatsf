@@ -225,7 +225,7 @@ const Home = () => {
           </div>
           <div className="w-full md:w-2/5 md:mt-0 mt-4">
             <img
-              src="/gobiwiththali.png"
+              src="/thalu.png"
               alt="Blog Hero Image"
               className="object-cover w-full rounded-2xl transition-all duration-300 h-auto hover:scale-105"
             />
