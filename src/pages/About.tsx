@@ -65,7 +65,12 @@ const About = () => {
           src={imageUrl}
           alt={title}
           className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-          onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/600x400/10b981/ffffff?text=Food+Service"; }}
+          onError={(e) => { 
+            // TS Fix: Cast e.target to HTMLImageElement to allow access to src/onerror
+            const target = e.target as HTMLImageElement;
+            target.onerror = null; 
+            target.src="https://placehold.co/600x400/10b981/ffffff?text=Food+Service"; 
+          }}
         />
         <div className="absolute inset-0 bg-green-900/10 backdrop-brightness-75"></div>
       </div>
@@ -123,7 +128,12 @@ const About = () => {
                 src={HERO_IMAGE_URL}
                 alt="Young chef holding a traditional Indian Thali with Roti, Sabji, Dal, Rice, Salad, and Gulab Jamun"
                 className="w-full h-full object-cover"
-                onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/400x400/84cc16/ffffff?text=Chef+Holding+Thali"; }}
+                onError={(e) => {
+                    // TS Fix: Cast e.target to HTMLImageElement to allow access to src/onerror
+                    const target = e.target as HTMLImageElement;
+                    target.onerror = null;
+                    target.src = "https://placehold.co/400x400/84cc16/ffffff?text=Chef+Holding+Thali";
+                }}
               />
             </div>
           </motion.div>
