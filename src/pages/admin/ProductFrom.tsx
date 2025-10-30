@@ -36,7 +36,6 @@ const defaultForm: Item = {
     productDescription: '',
     isNonVeg: false,
     isTiffin: false,
-    isPremiumChocolate: false, 
     category: '',
     originalPrice: 0,
     offerPrice: 0,
@@ -45,40 +44,33 @@ const defaultForm: Item = {
     isAvailable: true
 }
 
-// Helper function to safely convert potentially undefined/null/string values to a boolean
-const ensureBoolean = (value: any): boolean => !!value;
-
 const ProductFrom = ({
     isOpen,
     onOpenChange,
-    
+   
     productToEdit
 }: {
     isOpen: boolean,
     onOpenChange: () => void,
-    
+   
     productToEdit: Item | null
 }) => {
     const { productId } = useParams()
     const queryClient = useQueryClient()
     const navigate = useNavigate()
-    
-    // Initializing state
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    // const [imagePreview, setImagePreview] = useState<string | null>(null)
     const [formData, setFormData] = useState<Item>({ ...defaultForm })
 
 
-    // When productToEdit changes, update formData
+     // When productToEdit changes, update formData
     useEffect(() => {
         if (productToEdit) {
-            // ✅ FIX 1: Robustly ensure isPremiumChocolate is a boolean during load
-            setFormData({
-                ...defaultForm, 
-                ...productToEdit,
-                isPremiumChocolate: ensureBoolean(productToEdit.isPremiumChocolate)
-            }); 
+            setFormData(productToEdit);
+            // setImagePreview(productToEdit.imageUrl || null);
         } else {
             setFormData({ ...defaultForm });
+            // setImagePreview(null);
             setSelectedFile(null);
         }
     }, [productToEdit]);
@@ -96,36 +88,22 @@ const ProductFrom = ({
     }
 
     const handleChange = (name: string, value: any) => {
-        setFormData(prev => {
-            let newValue = value;
-            
-            // ✅ FIX 2: Explicitly convert Switch values (and other booleans) to proper booleans
-            if (name === 'isNonVeg' || name === 'isTiffin' || name === 'isAvailable' || name === 'isPremiumChocolate') {
-                newValue = ensureBoolean(value); 
-            } else if (typeof prev[name as keyof Item] === 'number') {
-                // Ensure number inputs remain numbers
-                newValue = Number(value);
-            }
-
-            return {
-                ...prev,
-                [name]: newValue
-            }
-        })
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }))
     }
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
             setSelectedFile(file);
+            // setImagePreview(URL.createObjectURL(file));
         }
     }
 
     const productMutation = useMutation({
         mutationFn: async (data: Item) => {
-            // Apply boolean cleanup before sending to DB, just in case
-            data.isPremiumChocolate = ensureBoolean(data.isPremiumChocolate);
-            
             if (productToEdit && productToEdit.id) {
                 let updatedData = { ...data };
                 if (selectedFile) {
@@ -145,7 +123,9 @@ const ProductFrom = ({
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['products'] });
-            onOpenChange(); 
+            // refetchProducts?.();
+            onOpenChange();
+            navigate('/view-all-products');
         }
     })
 
@@ -158,10 +138,7 @@ const ProductFrom = ({
         toast.promise(
             new Promise((resolve, reject) => {
                 productMutation.mutate(formData, {
-                    onSuccess: () => {
-                        resolve(null);
-                        navigate('/view-all-products'); 
-                    },
+                    onSuccess: () => resolve(null),
                     onError: (error) => reject(error)
                 })
             }),
@@ -200,59 +177,43 @@ const ProductFrom = ({
                             isRequired
                         />
                       <Select
-                          label='Food Category'
-                          variant='faded'
-                          selectedKeys={[formData.category]}
-                          onSelectionChange={keys => {
-                              const newCategory = Array.from(keys)[0] || '';
-                              handleChange('category', newCategory);
-                              // Optional: Auto-disable Premium flag if category changes away from Chocolates
-                              if (newCategory !== 'Chocolates') {
-                                  handleChange('isPremiumChocolate', false);
-                              }
-                          }}
-                          isRequired
-                          classNames={{
-                              popoverContent: "bg-white",
-                              listbox: "bg-white"
-                          }}
-                      >
-                          {FOOD_CATEGORIES.map((category) => (
-                              <SelectItem key={category}>{category}</SelectItem>
-                          ))}
-                      </Select>
+    label='Food Category'
+    variant='faded'
+    selectedKeys={[formData.category]}
+    onSelectionChange={keys => handleChange('category', Array.from(keys)[0] || '')}
+    isRequired
+    classNames={{
+        popoverContent: "bg-white",
+        listbox: "bg-white"
+    }}
+>
+    {FOOD_CATEGORIES.map((category) => (
+        <SelectItem key={category}>{category}</SelectItem>
+    ))}
+</Select>
 
                         <div className='flex gap-4 flex-wrap items-center'>
-                          <Switch
-                            isSelected={ensureBoolean(formData.isNonVeg)}
-                            onValueChange={val => handleChange('isNonVeg', val)}
-                          >
-                            Non-Vegetarian {formData.isNonVeg ? "✅" : "❌"}
-                          </Switch>
+  <Switch
+    isSelected={formData.isNonVeg}
+    onValueChange={val => handleChange('isNonVeg', val)}
+  >
+    Non-Vegetarian {formData.isNonVeg ? "✅" : "❌"}
+  </Switch>
 
-                          <Switch
-                            isSelected={ensureBoolean(formData.isTiffin)}
-                            onValueChange={val => handleChange('isTiffin', val)}
-                          >
-                            Tiffin Meal {formData.isTiffin ? "✅" : "❌"}
-                          </Switch>
-                            
-                          <Switch
-                              isSelected={ensureBoolean(formData.isPremiumChocolate)} 
-                              onValueChange={val => handleChange('isPremiumChocolate', val)}
-                              // Corrected logic: Disabled ONLY IF category is not 'Chocolates'
-                              isDisabled={formData.category !== 'Chocolates'}
-                          >
-                              Premium Chocolate {formData.isPremiumChocolate ? "👑" : "❌"}
-                          </Switch>
+  <Switch
+    isSelected={formData.isTiffin}
+    onValueChange={val => handleChange('isTiffin', val)}
+  >
+    Tiffin Meal {formData.isTiffin ? "✅" : "❌"}
+  </Switch>
 
-                          <Switch
-                            isSelected={ensureBoolean(formData.isAvailable)}
-                            onValueChange={val => handleChange('isAvailable', val)}
-                          >
-                            Available {formData.isAvailable ? "✅" : "❌"}
-                          </Switch>
-                        </div>
+  <Switch
+    isSelected={formData.isAvailable}
+    onValueChange={val => handleChange('isAvailable', val)}
+  >
+    Available {formData.isAvailable ? "✅" : "❌"}
+  </Switch>
+</div>
 
                         <div className='flex gap-4'>
                             <div className='w-full'>
@@ -294,15 +255,15 @@ const ProductFrom = ({
                             />
                         </div>
                     </form>
-                    <pre className="bg-gray-100 p-2 rounded-xl shadow-inner overflow-auto text-xs text-gray-700 mt-6">
+                    <pre className="bg-white p-2 rounded-xl shadow-sm overflow-auto text-xs">
                         {JSON.stringify(formData, null, 2)}
                     </pre>
                 </ModalBody>
                 <ModalFooter>
-                    <Button color="danger" variant="secondary" onClick={onClose} disabled={productMutation.isPending}>
+                    <Button color="danger" variant="secondary" onClick={onClose}>
                         Close
                     </Button>
-                    <Button variant="primary" onClick={handleSubmit} isLoading={productMutation.isPending}>
+                    <Button variant="primary" type="submit" onClick={handleSubmit} isLoading={productMutation.isPending}>
                         {productToEdit ? 'Update Product' : 'Add Product'}
                     </Button>
                 </ModalFooter>
