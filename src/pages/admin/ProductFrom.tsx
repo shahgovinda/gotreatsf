@@ -59,8 +59,7 @@ const ProductFrom = ({
     const { productId } = useParams()
     const queryClient = useQueryClient()
     const navigate = useNavigate()
-    const [selectedFile, setSelectedFile] = useState<File | null>(null)
-    // const [imagePreview, setImagePreview] = useState<string | null>(null)
+    const [selectedFile, setSelectedFile] = useState<File | null>(selectedFile)
     const [formData, setFormData] = useState<Item>({ ...defaultForm })
 
 
@@ -69,10 +68,8 @@ const ProductFrom = ({
         if (productToEdit) {
             // Use spread to ensure any missing default fields (like the new one) are added
             setFormData({...defaultForm, ...productToEdit}); 
-            // setImagePreview(productToEdit.imageUrl || null);
         } else {
             setFormData({ ...defaultForm });
-            // setImagePreview(null);
             setSelectedFile(null);
         }
     }, [productToEdit]);
@@ -100,7 +97,6 @@ const ProductFrom = ({
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
             setSelectedFile(file);
-            // setImagePreview(URL.createObjectURL(file));
         }
     }
 
@@ -125,10 +121,7 @@ const ProductFrom = ({
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['products'] });
-            // ❌ REMOVED: onClose(); 
-            // ✅ USED: onOpenChange() to close the modal
             onOpenChange(); 
-            // navigate('/view-all-products'); // Navigation is now handled in the handleSubmit promise chain
         }
     })
 
@@ -143,7 +136,6 @@ const ProductFrom = ({
                 productMutation.mutate(formData, {
                     onSuccess: () => {
                         resolve(null);
-                        // ✅ Navigating here after successful mutation
                         navigate('/view-all-products'); 
                     },
                     onError: (error) => reject(error)
@@ -160,8 +152,7 @@ const ProductFrom = ({
     return (
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="lg" placement="center" scrollBehavior='inside' backdrop='opaque'>
     <ModalContent className="bg-white rounded-xl shadow-lg">
-        {/* The 'onClose' parameter is only available here, inside the function provided to ModalContent */}
-        {(onClose) => ( 
+        {(onClose) => (
             <>
                 <ModalHeader className="flex items-center lancelot text-2xl gap-3">
                     {productToEdit ? `Update Product` : 'Add Product'}
@@ -188,7 +179,15 @@ const ProductFrom = ({
                           label='Food Category'
                           variant='faded'
                           selectedKeys={[formData.category]}
-                          onSelectionChange={keys => handleChange('category', Array.from(keys)[0] || '')}
+                          // When category changes, update the category and then re-evaluate the Premium flag
+                          onSelectionChange={keys => {
+                              const newCategory = Array.from(keys)[0] || '';
+                              handleChange('category', newCategory);
+                              // OPTIONAL: Auto-disable Premium flag if category changes away from Chocolates
+                              if (newCategory !== 'Chocolates') {
+                                  handleChange('isPremiumChocolate', false);
+                              }
+                          }}
                           isRequired
                           classNames={{
                               popoverContent: "bg-white",
@@ -218,8 +217,9 @@ const ProductFrom = ({
                           <Switch
                               isSelected={!!formData.isPremiumChocolate} 
                               onValueChange={val => handleChange('isPremiumChocolate', val)}
-                              // Use the correct category check
-                              isDisabled={formData.category !== 'Chocolates' && productToEdit?.category !== 'Chocolates'}
+                              // ✅ FIX: Only disable if the CURRENTLY selected category is NOT 'Chocolates'.
+                              // This ensures it's enabled whenever the Category is 'Chocolates'.
+                              isDisabled={formData.category !== 'Chocolates'}
                           >
                               Premium Chocolate {formData.isPremiumChocolate ? "👑" : "❌"}
                           </Switch>
@@ -280,7 +280,6 @@ const ProductFrom = ({
                     <Button color="danger" variant="secondary" onClick={onClose} disabled={productMutation.isPending}>
                         Close
                     </Button>
-                    {/* The submit button is placed outside the form but points to the handleSubmit logic */}
                     <Button variant="primary" onClick={handleSubmit} isLoading={productMutation.isPending}>
                         {productToEdit ? 'Update Product' : 'Add Product'}
                     </Button>
