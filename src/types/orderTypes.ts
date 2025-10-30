@@ -20,12 +20,14 @@ export type OrderDetails = {
     items: any[];
     totalAmount: number;
     grossTotalPrice: string;
-    gst?: number;
+    // ❌ Replaced gst?: number;
+    // ✅ Added packagingCharge (now mandatory in the Checkout flow)
+    packagingCharge: number;
     deliveryCharge: number;
     totalQuantity: number;
     note?: string;
     deliveryTime: string;
-    deliveryDate: string; // Add this line
+    deliveryDate: string;
     customer: Customer;
     address: Address;
     razorpay_payment_id?: string;
