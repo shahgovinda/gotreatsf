@@ -277,9 +277,8 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
     };
 
     // --- TAG LOGIC ---
-    // ✅ NEW, ROBUST CHECK: Using the dedicated data flag (item.isPremiumChocolate)
-    const isPremiumChocolate = item.isPremiumChocolate;
-
+    // ❌ REMOVED: isPremiumChocolate constant
+    
     return (
         <>
             {/* Desktop View */}
@@ -336,23 +335,8 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
                         </motion.div>
                     )}
                 
-                {/* ✅ NEW: Premium Chocolates Tag (Desktop) */}
-                {isPremiumChocolate && ( 
-                    <motion.div
-                        initial={{ scale: 0.9, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        // Positioned at top-left, slightly outside card
-                        className="absolute -top-2 -left-2 z-10 rounded-lg overflow-hidden" 
-                    >
-                        <div 
-                            className="flex items-center gap-1 text-white text-xs font-medium px-2 py-1 rounded-lg shadow-lg whitespace-nowrap"
-                            style={{ backgroundColor: '#5D3C1A' }} // Chocolate Brown Color
-                        >
-                            <Star size={12} fill="white" className='text-white'/>
-                            Premium Chocolates
-                        </div>
-                    </motion.div>
-                )}
+                {/* ❌ REMOVED: Premium Chocolates Tag (Desktop) */}
+                
                 {/* --- END TAGS SECTION --- */}
 
 
@@ -426,22 +410,8 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
                         </motion.div>
                     )}
                 
-                {/* ✅ NEW: Premium Chocolates Tag (Mobile) */}
-                {isPremiumChocolate && (
-                    <motion.div
-                        initial={{ scale: 0.9, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        className="absolute -top-2 left-2 z-10 rounded-md overflow-hidden" 
-                    >
-                        <div 
-                            className="flex items-center gap-1 text-white text-[10px] font-medium px-1.5 py-0.5 rounded-md shadow-md whitespace-nowrap"
-                            style={{ backgroundColor: '#5D3C1A' }} // Chocolate Brown Color
-                        >
-                            <Star size={10} fill="white" className='text-white'/>
-                            Premium Chocolates
-                        </div>
-                    </motion.div>
-                )}
+                {/* ❌ REMOVED: Premium Chocolates Tag (Mobile) */}
+                
                 {/* --- END TAGS SECTION --- */}
 
 
@@ -579,7 +549,7 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
                                                             onClick={handleIncrement}
                                                             className='h-10 w-10 flex items-center justify-center text-3xl text-green-600 bg-white rounded-full border border-green-200 hover:bg-green-50 transition'
                                                         >
-                                                            +
+                             +
                                                         </button>
                                                     </div>
                                                 ) : (
