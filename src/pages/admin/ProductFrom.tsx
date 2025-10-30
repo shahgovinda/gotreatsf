@@ -59,7 +59,10 @@ const ProductFrom = ({
     const { productId } = useParams()
     const queryClient = useQueryClient()
     const navigate = useNavigate()
-    const [selectedFile, setSelectedFile] = useState<File | null>(selectedFile)
+    
+    // ✅ FIX 1: Initialize selectedFile with null.
+    const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    
     const [formData, setFormData] = useState<Item>({ ...defaultForm })
 
 
@@ -179,7 +182,6 @@ const ProductFrom = ({
                           label='Food Category'
                           variant='faded'
                           selectedKeys={[formData.category]}
-                          // When category changes, update the category and then re-evaluate the Premium flag
                           onSelectionChange={keys => {
                               const newCategory = Array.from(keys)[0] || '';
                               handleChange('category', newCategory);
@@ -217,8 +219,8 @@ const ProductFrom = ({
                           <Switch
                               isSelected={!!formData.isPremiumChocolate} 
                               onValueChange={val => handleChange('isPremiumChocolate', val)}
-                              // ✅ FIX: Only disable if the CURRENTLY selected category is NOT 'Chocolates'.
-                              // This ensures it's enabled whenever the Category is 'Chocolates'.
+                              // ✅ FIX 2: Corrected logic to ENABLE the switch when category IS 'Chocolates'
+                              // It is disabled ONLY IF the category is not 'Chocolates'
                               isDisabled={formData.category !== 'Chocolates'}
                           >
                               Premium Chocolate {formData.isPremiumChocolate ? "👑" : "❌"}
