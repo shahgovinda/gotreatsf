@@ -11,4 +11,6 @@ export type Item = {
     rating: number;
     isAvailable: boolean;
     orderCount?: number;
-    }
+    // ✅ ADDED: The new flag to determine if the Premium tag should be shown
+    isPremiumChocolate?: boolean;
+}
