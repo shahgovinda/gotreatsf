@@ -277,7 +277,7 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
     };
 
     // --- TAG LOGIC ---
-    // ✅ FIX: Use double negation (!!) for robust boolean coercion from the data source
+    // ✅ FIX APPLIED HERE: Using the dedicated data flag and coercing it to a boolean
     const isPremiumChocolate = !!item.isPremiumChocolate;
 
     return (
