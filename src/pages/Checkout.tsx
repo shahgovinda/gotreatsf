@@ -29,7 +29,9 @@ import { useOrderPlacedModalStore } from '@/store/orderPlacedModalStore';
 import OrderSummary from '@/components/OrderSummary';
 
 const DELIVERY_PRICE = 20;
-const TAX_RATE = 0;
+// ❌ Removed TAX_RATE = 0;
+// ✅ ADDED PACKAGING_CHARGE constant
+const PACKAGING_CHARGE = 10;
 
 // Helper to ensure address is always of type Address
 function getSafeAddress(addr: any): Address {
@@ -100,7 +102,8 @@ const Checkout = () => {
       const error = validateVoucher(
         appliedVoucher,
         userDetails?.phoneNumber || '',
-        grossTotalPrice + DELIVERY_PRICE
+        // ✅ Add PACKAGING_CHARGE to the total for voucher validation
+        grossTotalPrice + DELIVERY_PRICE + PACKAGING_CHARGE
       );
       if (error) {
         setAppliedVoucher(null);
@@ -118,7 +121,9 @@ const Checkout = () => {
     } else {
       setVoucherDiscount(0);
     }
-    calculateTotalPrice(DELIVERY_PRICE, TAX_RATE);
+    // ❌ Replace TAX_RATE with 0 in calculateTotalPrice call (since it was 0 anyway, but to be clear)
+    // ✅ Pass PACKAGING_CHARGE as the third argument (as a 'tax' or 'extra charge')
+    calculateTotalPrice(DELIVERY_PRICE, PACKAGING_CHARGE);
   }, [items, grossTotalPrice, appliedVoucher, userDetails?.phoneNumber, calculateGrossTotalPrice, calculateTotalPrice]);
 
   useEffect(() => {
@@ -192,7 +197,9 @@ const Checkout = () => {
         items: items,
         grossTotalPrice: grossTotalPrice.toFixed(2),
         totalAmount: totalPrice,
-        gst: grossTotalPrice * parseFloat(TAX_RATE.toFixed(2)),
+        // ❌ Replaced gst with packagingCharge
+        // gst: grossTotalPrice * parseFloat(TAX_RATE.toFixed(2)),
+        packagingCharge: PACKAGING_CHARGE,
         deliveryCharge: DELIVERY_PRICE,
         totalQuantity: items.reduce((total, item) => total + item.quantity, 0),
         note: note,
@@ -256,6 +263,8 @@ const Checkout = () => {
           customer_Note: note || '',
           delivery_Date: preferredDeliveryDate,
           delivery_Time: preferredDeliveryTime,
+          // ✅ Added packaging charge to notes
+          packaging_Charge: PACKAGING_CHARGE,
         },
         remember_customer: true,
         theme: {
@@ -495,10 +504,12 @@ const Checkout = () => {
           </div>
 
           <div className="lg:col-span-1">
+            {/* ✅ Pass PACKAGING_CHARGE as a new prop */}
             <OrderSummary
               grossTotalPrice={grossTotalPrice}
               voucherDiscount={voucherDiscount}
               deliveryPrice={DELIVERY_PRICE}
+              packagingCharge={PACKAGING_CHARGE}
               totalPrice={totalPrice}
               appliedVoucher={appliedVoucher}
               onApplyVoucher={onOpen}
@@ -524,7 +535,8 @@ const Checkout = () => {
           const error = validateVoucher(
             voucher,
             userDetails?.phoneNumber || '',
-            grossTotalPrice + DELIVERY_PRICE
+            // ✅ Include PACKAGING_CHARGE in the total for voucher validation
+            grossTotalPrice + DELIVERY_PRICE + PACKAGING_CHARGE
           );
           if (error) {
             toast.error(error);
@@ -537,7 +549,8 @@ const Checkout = () => {
               discount = voucher.discountValue;
             }
             setVoucherDiscount(discount);
-            calculateTotalPrice(DELIVERY_PRICE, TAX_RATE);
+            // ✅ Pass PACKAGING_CHARGE as the third argument
+            calculateTotalPrice(DELIVERY_PRICE, PACKAGING_CHARGE);
             toast.success('Voucher applied!');
             onOpenVoucherAppliedModal();
           }
