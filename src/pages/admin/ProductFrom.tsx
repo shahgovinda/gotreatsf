@@ -45,7 +45,7 @@ const defaultForm: Item = {
     isAvailable: true
 }
 
-// Helper function to safely convert potentially undefined/null values to boolean
+// Helper function to safely convert potentially undefined/null/string values to a boolean
 const ensureBoolean = (value: any): boolean => !!value;
 
 const ProductFrom = ({
@@ -96,11 +96,22 @@ const ProductFrom = ({
     }
 
     const handleChange = (name: string, value: any) => {
-        setFormData(prev => ({
-            ...prev,
-            // Ensure boolean fields are saved as actual booleans, especially when coming from a Switch
-            [name]: typeof prev[name as keyof Item] === 'boolean' ? ensureBoolean(value) : value
-        }))
+        setFormData(prev => {
+            let newValue = value;
+            
+            // ✅ FIX 2: Explicitly convert Switch values (and other booleans) to proper booleans
+            if (name === 'isNonVeg' || name === 'isTiffin' || name === 'isAvailable' || name === 'isPremiumChocolate') {
+                newValue = ensureBoolean(value); 
+            } else if (typeof prev[name as keyof Item] === 'number') {
+                // Ensure number inputs remain numbers
+                newValue = Number(value);
+            }
+
+            return {
+                ...prev,
+                [name]: newValue
+            }
+        })
     }
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -195,7 +206,7 @@ const ProductFrom = ({
                           onSelectionChange={keys => {
                               const newCategory = Array.from(keys)[0] || '';
                               handleChange('category', newCategory);
-                              // OPTIONAL: Auto-disable Premium flag if category changes away from Chocolates
+                              // Optional: Auto-disable Premium flag if category changes away from Chocolates
                               if (newCategory !== 'Chocolates') {
                                   handleChange('isPremiumChocolate', false);
                               }
@@ -229,7 +240,7 @@ const ProductFrom = ({
                           <Switch
                               isSelected={ensureBoolean(formData.isPremiumChocolate)} 
                               onValueChange={val => handleChange('isPremiumChocolate', val)}
-                              // ✅ FIX 2: Corrected logic to ENABLE the switch when category IS 'Chocolates'
+                              // Corrected logic: Disabled ONLY IF category is not 'Chocolates'
                               isDisabled={formData.category !== 'Chocolates'}
                           >
                               Premium Chocolate {formData.isPremiumChocolate ? "👑" : "❌"}
