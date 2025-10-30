@@ -20,7 +20,7 @@ import { addItemRating } from '../services/productService';
 import { getDocs, collection, query, where } from 'firebase/firestore';
 import { db } from '../config/firebaseConfig';
 
-const DISMISSED_ITEMS_KEY = 'dismissed_review_items'; // Key for localStorage
+const DISMISSED_ITEMS_KEY = 'dismissed_review_items'; // Key for localStorage persistence
 
 const Orders = () => {
     const [detailOpen, setDetailOpen] = useState(false);
@@ -96,8 +96,8 @@ const Orders = () => {
                         );
                         const snap = await getDocs(q);
                         
-                        // ✅ FIX: If review found in DB, mark as rated so prompt doesn't show
                         if (!snap.empty) {
+                            // FIX: If review found in DB, mark as rated in state so prompt doesn't show
                             setRatedItems(prev => ({ ...prev, [uniqueItemKey]: true }));
                             continue; // Move to next item
                         }
@@ -144,14 +144,12 @@ const Orders = () => {
             userName: userDetails?.displayName || 'User',
         });
         
-        // ✅ CRITICAL FIX: After submitting, we use handleDismissRating to mark the item as 'handled' 
-        // in both state and localStorage. This prevents the prompt from reappearing instantly or on refresh.
+        // ✅ CRITICAL FIX: After submitting, we use handleDismissRating to permanently mark the item as 'handled' 
         handleDismissRating(ratingModal.item.id, ratingModal.orderId); 
-        toast.success("Review submitted successfully!");
+        toast.success("Review submitted successfully! (This status is now permanent)");
     };
 
     const handleSkipRating = () => {
-        // This function is now simplified to just call the handleDismissRating logic
         if (!ratingModal.item || !ratingModal.orderId) return;
         handleDismissRating(ratingModal.item.id, ratingModal.orderId);
     };
@@ -417,9 +415,6 @@ const Orders = () => {
                                                 // Check if the item has been rated/submitted (by checking the persistent state/DB logic)
                                                 const isReviewSubmitted = ratedItems[uniqueItemKey]; 
                                                 
-                                                // Check if the item was dismissed (prompt skipped)
-                                                const isDismissed = dismissedItems.includes(uniqueItemKey); 
-                                                
                                                 return (
                                                     <div key={idx} className="flex flex-col gap-1 border-b border-gray-100 pb-2">
                                                         <div className="flex justify-between items-center pl-2">
@@ -433,11 +428,12 @@ const Orders = () => {
                                                             <>
                                                                 {/* Display Status or Button */}
                                                                 {isReviewSubmitted ? (
+                                                                    // CASE 1: Review is submitted (permanent status)
                                                                     <span className='text-xs text-green-600 self-end pr-2 flex items-center gap-1'>
                                                                         <CheckCircle size={14} /> Review Submitted
                                                                     </span>
                                                                 ) : (
-                                                                    // Show the button if not submitted (even if dismissed, user can click it voluntarily)
+                                                                    // CASE 2: Review not submitted -> Show button (user can rate now, even if dismissed)
                                                                     <button
                                                                         className='text-xs font-semibold text-orange-500 hover:text-orange-600 self-end pr-2 transition-colors flex items-center gap-1'
                                                                         onClick={() => handleReviewNow(item, selectedOrder.id)} 
