@@ -5,7 +5,7 @@ import OrderSummary from '../components/OrderSummary';
 import { fetchUserOrders } from '../services/orderService';
 import { useAuthStore } from '../store/authStore';
 import { StatusBadge } from '../components/StatusBadge';
-import { ArrowLeft, ArrowRight, CheckCircle, CircleHelp, HandCoins, Home, RefreshCcw, Store, XIcon, Info, Car, Calendar } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, HandCoins, Home, RefreshCcw, Store, XIcon, Info, Car, Calendar, Star } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerBody, DrawerFooter } from "@heroui/drawer";
 import { useDisclosure } from '@/hooks/useDisclosure';
 import { useCartStore } from '../store/cartStore';
@@ -53,7 +53,6 @@ const Orders = () => {
 
     useEffect(() => {
         window.scrollTo(0, 0);
-        // We no longer need to load here, as it's done in useState initializer
     }, []);
 
     const { data: orders = [], isLoading, isError } = useQuery({
@@ -85,7 +84,7 @@ const Orders = () => {
                         // 1. Skip if item was already handled (rated/dismissed) in state
                         if (ratedItems[uniqueItemKey]) continue; 
                         
-                        // 2. ✅ FIX 2: Skip if the user has explicitly dismissed this item previously (persistent check)
+                        // 2. Skip if the user has explicitly dismissed this item previously (persistent check)
                         if (dismissedItems.includes(uniqueItemKey)) continue;
 
                         // 3. Check the database for a submitted rating
@@ -139,7 +138,7 @@ const Orders = () => {
             userName: userDetails?.displayName || 'User',
         });
         
-        // ✅ Use the persistence handler after successful submission
+        // ✅ Use the persistence handler after successful submission (marking as handled)
         handleDismissRating(ratingModal.item.id, ratingModal.orderId); 
     };
 
@@ -148,6 +147,14 @@ const Orders = () => {
         if (!ratingModal.item || !ratingModal.orderId) return;
         handleDismissRating(ratingModal.item.id, ratingModal.orderId);
     };
+    
+    // ✅ NEW HANDLER: Forces the modal open for a specific item (for manual review button)
+    const handleReviewNow = (item: any, orderId: string) => {
+        setRatingModal({ open: true, item, orderId });
+        // Close the details drawer right away for a cleaner transition
+        onClose(); 
+    };
+
 
     if (isLoading) {
         return <div className='text-center py-10'>Loading orders...</div>;
@@ -395,14 +402,37 @@ const Orders = () => {
                                     <div className="mt-4 border-b pb-4">
                                         <h3 className="font-medium text-sm text-gray-800">Order Items</h3>
                                         <div className="mt-2 flex flex-col gap-2">
-                                            {selectedOrder?.items?.map((item: any, idx: number) => (
-                                                <div key={idx} className="flex justify-between items-center pl-2">
-                                                    <span>
-                                                        {item.productName} x {item.quantity}
-                                                    </span>
-                                                    <span>₹{item.offerPrice * item.quantity}</span>
-                                                </div>
-                                            ))}
+                                            {selectedOrder?.items?.map((item: any, idx: number) => {
+                                                const uniqueItemKey = `${selectedOrder.id}_${item.id}`;
+                                                const isDelivered = selectedOrder.orderStatus === 'delivered';
+                                                const isHandled = ratedItems[uniqueItemKey] || dismissedItems.includes(uniqueItemKey);
+                                                
+                                                return (
+                                                    <div key={idx} className="flex flex-col gap-1 border-b border-gray-100 pb-2">
+                                                        <div className="flex justify-between items-center pl-2">
+                                                            <span className="font-medium text-gray-800">
+                                                                {item.productName} x {item.quantity}
+                                                            </span>
+                                                            <span>₹{item.offerPrice * item.quantity}</span>
+                                                        </div>
+
+                                                        {/* ✅ MANUAL REVIEW BUTTON */}
+                                                        {isDelivered && !isHandled && (
+                                                            <button
+                                                                className='text-xs font-semibold text-orange-500 hover:text-orange-600 self-end pr-2 transition-colors flex items-center gap-1'
+                                                                onClick={() => handleReviewNow(item, selectedOrder.id)}
+                                                            >
+                                                                <Star size={14} className="inline-block" fill="#f97316"/> Rate Item Now
+                                                            </button>
+                                                        )}
+                                                        {isDelivered && isHandled && (
+                                                            <span className='text-xs text-green-600 self-end pr-2 flex items-center gap-1'>
+                                                                <CheckCircle size={14} /> Review Handled
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     </div>
 
@@ -497,15 +527,15 @@ const Orders = () => {
                 priceChanges={priceChanges}
             />
             
-            {/* ✅ UPDATED MODAL CALL - Passes required IDs and handlers */}
+            {/* ✅ FINAL MODAL CALL WITH PERSISTENCE LOGIC */}
             <ItemRatingModal
                 isOpen={ratingModal.open}
-                itemId={ratingModal.item?.id || ''} // Pass item ID
-                orderId={ratingModal.orderId || ''} // Pass order ID
+                itemId={ratingModal.item?.id || ''} 
+                orderId={ratingModal.orderId || ''} 
                 itemName={ratingModal.item?.productName || ''}
                 onClose={handleSkipRating} 
-                onDismiss={handleDismissRating} // Added new prop
-                onSubmit={handleSubmitRating}
+                onDismiss={handleDismissRating} // Called when user clicks X/backdrop (saves to localStorage)
+                onSubmit={handleSubmitRating} // Calls handleDismissRating internally after success
             />
         </div >
     );
