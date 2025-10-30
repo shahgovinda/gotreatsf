@@ -43,7 +43,7 @@ const Orders = () => {
     // Tracks items rated/dismissed in the current session (transient)
     const [ratedItems, setRatedItems] = useState<{ [key: string]: boolean }>({}); 
     
-    // ✅ FIX 1: Initializing state with persistent data from localStorage
+    // FIX 1: Initializing state with persistent data from localStorage
     const [dismissedItems, setDismissedItems] = useState<string[]>(() => {
         const savedDismissed = localStorage.getItem(DISMISSED_ITEMS_KEY);
         return savedDismissed ? JSON.parse(savedDismissed) : [];
@@ -109,14 +109,14 @@ const Orders = () => {
         })();
     }, [orders, userDetails, ratedItems, dismissedItems, checkingRatings]); 
     
-    // ✅ NEW HANDLER: Manages saving the persistent "skip" status
+    // HANDLER: Manages saving the persistent "skip" status
     const handleDismissRating = (itemId: string, orderId: string) => {
         const uniqueItemKey = `${orderId}_${itemId}`;
 
         // 1. Mark as handled in state (stops re-prompting in current session)
         setRatedItems(prev => ({ ...prev, [uniqueItemKey]: true })); 
         
-        // 2. Mark as dismissed in persistent storage (stops re-prompting after refresh/navigation)
+        // 2. Mark as dismissed in persistent storage (stops re-propmpting after refresh/navigation)
         const newDismissed = [...dismissedItems, uniqueItemKey];
         setDismissedItems(newDismissed);
         localStorage.setItem(DISMISSED_ITEMS_KEY, JSON.stringify(newDismissed));
@@ -138,7 +138,7 @@ const Orders = () => {
             userName: userDetails?.displayName || 'User',
         });
         
-        // ✅ Use the persistence handler after successful submission (marking as handled)
+        // Use the persistence handler after successful submission
         handleDismissRating(ratingModal.item.id, ratingModal.orderId); 
     };
 
@@ -148,10 +148,10 @@ const Orders = () => {
         handleDismissRating(ratingModal.item.id, ratingModal.orderId);
     };
     
-    // ✅ NEW HANDLER: Forces the modal open for a specific item (for manual review button)
+    // NEW HANDLER: Forces the modal open for a specific item (for manual review button)
     const handleReviewNow = (item: any, orderId: string) => {
         setRatingModal({ open: true, item, orderId });
-        // Close the details drawer right away for a cleaner transition
+        // Close the details drawer for cleaner UX
         onClose(); 
     };
 
@@ -405,7 +405,9 @@ const Orders = () => {
                                             {selectedOrder?.items?.map((item: any, idx: number) => {
                                                 const uniqueItemKey = `${selectedOrder.id}_${item.id}`;
                                                 const isDelivered = selectedOrder.orderStatus === 'delivered';
-                                                const isHandled = ratedItems[uniqueItemKey] || dismissedItems.includes(uniqueItemKey);
+                                                
+                                                // Check if a review exists in the DB (or was just submitted in state)
+                                                const isReviewSubmitted = ratedItems[uniqueItemKey]; 
                                                 
                                                 return (
                                                     <div key={idx} className="flex flex-col gap-1 border-b border-gray-100 pb-2">
@@ -416,18 +418,25 @@ const Orders = () => {
                                                             <span>₹{item.offerPrice * item.quantity}</span>
                                                         </div>
 
-                                                        {/* ✅ MANUAL REVIEW BUTTON */}
-                                                        {isDelivered && !isHandled && (
+                                                        {/* ✅ MANUAL REVIEW BUTTON (Show if delivered and review hasn't been submitted) */}
+                                                        {isDelivered && !isReviewSubmitted && (
                                                             <button
                                                                 className='text-xs font-semibold text-orange-500 hover:text-orange-600 self-end pr-2 transition-colors flex items-center gap-1'
-                                                                onClick={() => handleReviewNow(item, selectedOrder.id)}
+                                                                // This button opens the modal, allowing the user to rate
+                                                                onClick={() => handleReviewNow(item, selectedOrder.id)} 
                                                             >
                                                                 <Star size={14} className="inline-block" fill="#f97316"/> Rate Item Now
                                                             </button>
                                                         )}
-                                                        {isDelivered && isHandled && (
+                                                        {isDelivered && isReviewSubmitted && (
                                                             <span className='text-xs text-green-600 self-end pr-2 flex items-center gap-1'>
-                                                                <CheckCircle size={14} /> Review Handled
+                                                                <CheckCircle size={14} /> Review Submitted
+                                                            </span>
+                                                        )}
+                                                        {/* Optional: Show status if prompt was dismissed */}
+                                                        {isDelivered && !isReviewSubmitted && dismissedItems.includes(uniqueItemKey) && (
+                                                            <span className='text-xs text-gray-500 self-end pr-2 flex items-center gap-1'>
+                                                                Prompt Dismissed
                                                             </span>
                                                         )}
                                                     </div>
@@ -527,7 +536,7 @@ const Orders = () => {
                 priceChanges={priceChanges}
             />
             
-            {/* ✅ FINAL MODAL CALL WITH PERSISTENCE LOGIC */}
+            {/* FINAL MODAL CALL WITH PERSISTENCE LOGIC */}
             <ItemRatingModal
                 isOpen={ratingModal.open}
                 itemId={ratingModal.item?.id || ''} 
