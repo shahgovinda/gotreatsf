@@ -177,10 +177,10 @@ const Profile = () => {
         toast.success('Review deleted successfully!');
     };
     
-    // ✅ FIX 1: Handler to close the review editing modal
+    // Handler to close the review editing modal
     const handleEditModalClose = () => setEditReview(null);
     
-    // ✅ FIX 2: Dummy handler to satisfy the ItemRatingModal's new interface (dismissal tracking is not needed here)
+    // Dummy handler to satisfy the ItemRatingModal's new interface (dismissal tracking is not needed here)
     const handleProfileDismiss = (itemId: string, orderId: string) => {
         setEditReview(null); 
     };
@@ -303,6 +303,7 @@ const Profile = () => {
                 title="Confirm Logout"
                 message="Are you sure you want to log out? You'll need to sign in again to access your account."
                 confirmLabel="Yes, Log Out"
+                cancelLabel="Cancel" // ✅ FIX: Added the missing prop
                 onConfirm={handleLogoutClick}
                 onCancel={() => setShowLogoutModal(false)}
             />
@@ -379,13 +380,13 @@ const Profile = () => {
                 onCancel={() => setDeleteReviewId(null)}
             />
             
-            {/* ✅ FIX: ItemRatingModal for Editing Reviews */}
+            {/* ItemRatingModal for Editing Reviews */}
             <ItemRatingModal
                 isOpen={!!editReview}
                 // --- PASS REQUIRED PROPS ---
-                itemId={editReview?.itemId || ''} // Item ID is required for type safety
-                orderId={editReview?.id || ''} // Use the Review ID as a placeholder for orderId (for type safety)
-                onDismiss={handleProfileDismiss} // Use the custom handler
+                itemId={editReview?.itemId || ''} 
+                orderId={editReview?.id || ''} 
+                onDismiss={handleProfileDismiss} 
                 // ---------------------------
                 itemName={editReview ? (reviewProducts[editReview.itemId]?.productName || 'Food Item') : ''}
                 initialRating={editReview?.rating}
