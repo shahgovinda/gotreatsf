@@ -1,4 +1,3 @@
-
 import {
     Modal,
     ModalContent,
@@ -37,6 +36,8 @@ const defaultForm: Item = {
     productDescription: '',
     isNonVeg: false,
     isTiffin: false,
+    // ✅ Initialize new field
+    isPremiumChocolate: false, 
     category: '',
     originalPrice: 0,
     offerPrice: 0,
@@ -48,12 +49,12 @@ const defaultForm: Item = {
 const ProductFrom = ({
     isOpen,
     onOpenChange,
-   
+    
     productToEdit
 }: {
     isOpen: boolean,
     onOpenChange: () => void,
-   
+    
     productToEdit: Item | null
 }) => {
     const { productId } = useParams()
@@ -61,13 +62,15 @@ const ProductFrom = ({
     const navigate = useNavigate()
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
     // const [imagePreview, setImagePreview] = useState<string | null>(null)
+    // FIX: Ensure formData initializes with all Item properties
     const [formData, setFormData] = useState<Item>({ ...defaultForm })
 
 
-     // When productToEdit changes, update formData
+    // When productToEdit changes, update formData
     useEffect(() => {
         if (productToEdit) {
-            setFormData(productToEdit);
+            // Use spread to ensure any missing default fields (like the new one) are added
+            setFormData({...defaultForm, ...productToEdit}); 
             // setImagePreview(productToEdit.imageUrl || null);
         } else {
             setFormData({ ...defaultForm });
@@ -125,8 +128,8 @@ const ProductFrom = ({
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['products'] });
             // refetchProducts?.();
-            onOpenChange();
-            navigate('/view-all-products');
+            onClose(); // Use onClose from the rendered function
+            // ❌ Removed navigate call here to prevent double navigation
         }
     })
 
@@ -139,7 +142,10 @@ const ProductFrom = ({
         toast.promise(
             new Promise((resolve, reject) => {
                 productMutation.mutate(formData, {
-                    onSuccess: () => resolve(null),
+                    onSuccess: () => {
+                        resolve(null);
+                        navigate('/view-all-products'); // ✅ Navigate here after successful mutation
+                    },
                     onError: (error) => reject(error)
                 })
             }),
@@ -178,43 +184,53 @@ const ProductFrom = ({
                             isRequired
                         />
                       <Select
-    label='Food Category'
-    variant='faded'
-    selectedKeys={[formData.category]}
-    onSelectionChange={keys => handleChange('category', Array.from(keys)[0] || '')}
-    isRequired
-    classNames={{
-        popoverContent: "bg-white",
-        listbox: "bg-white"
-    }}
->
-    {FOOD_CATEGORIES.map((category) => (
-        <SelectItem key={category}>{category}</SelectItem>
-    ))}
-</Select>
+                          label='Food Category'
+                          variant='faded'
+                          selectedKeys={[formData.category]}
+                          onSelectionChange={keys => handleChange('category', Array.from(keys)[0] || '')}
+                          isRequired
+                          classNames={{
+                              popoverContent: "bg-white",
+                              listbox: "bg-white"
+                          }}
+                      >
+                          {FOOD_CATEGORIES.map((category) => (
+                              <SelectItem key={category}>{category}</SelectItem>
+                          ))}
+                      </Select>
 
                         <div className='flex gap-4 flex-wrap items-center'>
-  <Switch
-    isSelected={formData.isNonVeg}
-    onValueChange={val => handleChange('isNonVeg', val)}
-  >
-    Non-Vegetarian {formData.isNonVeg ? "✅" : "❌"}
-  </Switch>
+                          <Switch
+                            isSelected={formData.isNonVeg}
+                            onValueChange={val => handleChange('isNonVeg', val)}
+                          >
+                            Non-Vegetarian {formData.isNonVeg ? "✅" : "❌"}
+                          </Switch>
 
-  <Switch
-    isSelected={formData.isTiffin}
-    onValueChange={val => handleChange('isTiffin', val)}
-  >
-    Tiffin Meal {formData.isTiffin ? "✅" : "❌"}
-  </Switch>
+                          <Switch
+                            isSelected={formData.isTiffin}
+                            onValueChange={val => handleChange('isTiffin', val)}
+                          >
+                            Tiffin Meal {formData.isTiffin ? "✅" : "❌"}
+                          </Switch>
+                            
+                          {/* ✅ NEW SWITCH FOR PREMIUM CHOCOLATES */}
+                          <Switch
+                              isSelected={!!formData.isPremiumChocolate} // Use !! to handle undefined/null safely
+                              onValueChange={val => handleChange('isPremiumChocolate', val)}
+                              // Only show this switch if the category is 'Chocolates' or if it's currently selected
+                              isDisabled={formData.category !== 'Chocolates' && productToEdit?.category !== 'Chocolates'}
+                          >
+                              Premium Chocolate {formData.isPremiumChocolate ? "👑" : "❌"}
+                          </Switch>
 
-  <Switch
-    isSelected={formData.isAvailable}
-    onValueChange={val => handleChange('isAvailable', val)}
-  >
-    Available {formData.isAvailable ? "✅" : "❌"}
-  </Switch>
-</div>
+                          <Switch
+                            isSelected={formData.isAvailable}
+                            onValueChange={val => handleChange('isAvailable', val)}
+                          >
+                            Available {formData.isAvailable ? "✅" : "❌"}
+                          </Switch>
+                        </div>
 
                         <div className='flex gap-4'>
                             <div className='w-full'>
@@ -256,15 +272,16 @@ const ProductFrom = ({
                             />
                         </div>
                     </form>
-                    <pre className="bg-white p-2 rounded-xl shadow-sm overflow-auto text-xs">
+                    <pre className="bg-gray-100 p-2 rounded-xl shadow-inner overflow-auto text-xs text-gray-700 mt-6">
                         {JSON.stringify(formData, null, 2)}
                     </pre>
                 </ModalBody>
                 <ModalFooter>
-                    <Button color="danger" variant="secondary" onClick={onClose}>
+                    <Button color="danger" variant="secondary" onClick={onClose} disabled={productMutation.isPending}>
                         Close
                     </Button>
-                    <Button variant="primary" type="submit" onClick={handleSubmit} isLoading={productMutation.isPending}>
+                    {/* The submit button is placed outside the form but points to the handleSubmit logic */}
+                    <Button variant="primary" onClick={handleSubmit} isLoading={productMutation.isPending}>
                         {productToEdit ? 'Update Product' : 'Add Product'}
                     </Button>
                 </ModalFooter>
