@@ -36,7 +36,6 @@ const defaultForm: Item = {
     productDescription: '',
     isNonVeg: false,
     isTiffin: false,
-    // ✅ Initialize new field
     isPremiumChocolate: false, 
     category: '',
     originalPrice: 0,
@@ -62,7 +61,6 @@ const ProductFrom = ({
     const navigate = useNavigate()
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
     // const [imagePreview, setImagePreview] = useState<string | null>(null)
-    // FIX: Ensure formData initializes with all Item properties
     const [formData, setFormData] = useState<Item>({ ...defaultForm })
 
 
@@ -127,9 +125,10 @@ const ProductFrom = ({
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['products'] });
-            // refetchProducts?.();
-            onClose(); // Use onClose from the rendered function
-            // ❌ Removed navigate call here to prevent double navigation
+            // ❌ REMOVED: onClose(); 
+            // ✅ USED: onOpenChange() to close the modal
+            onOpenChange(); 
+            // navigate('/view-all-products'); // Navigation is now handled in the handleSubmit promise chain
         }
     })
 
@@ -144,7 +143,8 @@ const ProductFrom = ({
                 productMutation.mutate(formData, {
                     onSuccess: () => {
                         resolve(null);
-                        navigate('/view-all-products'); // ✅ Navigate here after successful mutation
+                        // ✅ Navigating here after successful mutation
+                        navigate('/view-all-products'); 
                     },
                     onError: (error) => reject(error)
                 })
@@ -160,7 +160,8 @@ const ProductFrom = ({
     return (
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="lg" placement="center" scrollBehavior='inside' backdrop='opaque'>
     <ModalContent className="bg-white rounded-xl shadow-lg">
-        {(onClose) => (
+        {/* The 'onClose' parameter is only available here, inside the function provided to ModalContent */}
+        {(onClose) => ( 
             <>
                 <ModalHeader className="flex items-center lancelot text-2xl gap-3">
                     {productToEdit ? `Update Product` : 'Add Product'}
@@ -214,11 +215,10 @@ const ProductFrom = ({
                             Tiffin Meal {formData.isTiffin ? "✅" : "❌"}
                           </Switch>
                             
-                          {/* ✅ NEW SWITCH FOR PREMIUM CHOCOLATES */}
                           <Switch
-                              isSelected={!!formData.isPremiumChocolate} // Use !! to handle undefined/null safely
+                              isSelected={!!formData.isPremiumChocolate} 
                               onValueChange={val => handleChange('isPremiumChocolate', val)}
-                              // Only show this switch if the category is 'Chocolates' or if it's currently selected
+                              // Use the correct category check
                               isDisabled={formData.category !== 'Chocolates' && productToEdit?.category !== 'Chocolates'}
                           >
                               Premium Chocolate {formData.isPremiumChocolate ? "👑" : "❌"}
