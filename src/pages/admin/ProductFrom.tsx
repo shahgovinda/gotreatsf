@@ -45,6 +45,9 @@ const defaultForm: Item = {
     isAvailable: true
 }
 
+// Helper function to safely convert potentially undefined/null values to boolean
+const ensureBoolean = (value: any): boolean => !!value;
+
 const ProductFrom = ({
     isOpen,
     onOpenChange,
@@ -60,17 +63,20 @@ const ProductFrom = ({
     const queryClient = useQueryClient()
     const navigate = useNavigate()
     
-    // ✅ FIX 1: Initialize selectedFile with null.
+    // Initializing state
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
-    
     const [formData, setFormData] = useState<Item>({ ...defaultForm })
 
 
     // When productToEdit changes, update formData
     useEffect(() => {
         if (productToEdit) {
-            // Use spread to ensure any missing default fields (like the new one) are added
-            setFormData({...defaultForm, ...productToEdit}); 
+            // ✅ FIX 1: Robustly ensure isPremiumChocolate is a boolean during load
+            setFormData({
+                ...defaultForm, 
+                ...productToEdit,
+                isPremiumChocolate: ensureBoolean(productToEdit.isPremiumChocolate)
+            }); 
         } else {
             setFormData({ ...defaultForm });
             setSelectedFile(null);
@@ -92,7 +98,8 @@ const ProductFrom = ({
     const handleChange = (name: string, value: any) => {
         setFormData(prev => ({
             ...prev,
-            [name]: value
+            // Ensure boolean fields are saved as actual booleans, especially when coming from a Switch
+            [name]: typeof prev[name as keyof Item] === 'boolean' ? ensureBoolean(value) : value
         }))
     }
 
@@ -105,6 +112,9 @@ const ProductFrom = ({
 
     const productMutation = useMutation({
         mutationFn: async (data: Item) => {
+            // Apply boolean cleanup before sending to DB, just in case
+            data.isPremiumChocolate = ensureBoolean(data.isPremiumChocolate);
+            
             if (productToEdit && productToEdit.id) {
                 let updatedData = { ...data };
                 if (selectedFile) {
@@ -203,31 +213,30 @@ const ProductFrom = ({
 
                         <div className='flex gap-4 flex-wrap items-center'>
                           <Switch
-                            isSelected={formData.isNonVeg}
+                            isSelected={ensureBoolean(formData.isNonVeg)}
                             onValueChange={val => handleChange('isNonVeg', val)}
                           >
                             Non-Vegetarian {formData.isNonVeg ? "✅" : "❌"}
                           </Switch>
 
                           <Switch
-                            isSelected={formData.isTiffin}
+                            isSelected={ensureBoolean(formData.isTiffin)}
                             onValueChange={val => handleChange('isTiffin', val)}
                           >
                             Tiffin Meal {formData.isTiffin ? "✅" : "❌"}
                           </Switch>
                             
                           <Switch
-                              isSelected={!!formData.isPremiumChocolate} 
+                              isSelected={ensureBoolean(formData.isPremiumChocolate)} 
                               onValueChange={val => handleChange('isPremiumChocolate', val)}
                               // ✅ FIX 2: Corrected logic to ENABLE the switch when category IS 'Chocolates'
-                              // It is disabled ONLY IF the category is not 'Chocolates'
                               isDisabled={formData.category !== 'Chocolates'}
                           >
                               Premium Chocolate {formData.isPremiumChocolate ? "👑" : "❌"}
                           </Switch>
 
                           <Switch
-                            isSelected={formData.isAvailable}
+                            isSelected={ensureBoolean(formData.isAvailable)}
                             onValueChange={val => handleChange('isAvailable', val)}
                           >
                             Available {formData.isAvailable ? "✅" : "❌"}
