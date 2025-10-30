@@ -20,6 +20,8 @@ import { addItemRating } from '../services/productService';
 import { getDocs, collection, query, where } from 'firebase/firestore';
 import { db } from '../config/firebaseConfig';
 
+const DISMISSED_ITEMS_KEY = 'dismissed_review_items'; // Key for localStorage
+
 const Orders = () => {
     const [detailOpen, setDetailOpen] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState<any>(null);
@@ -37,10 +39,22 @@ const Orders = () => {
         item: any | null,
         orderId: string | null
     }>({ open: false, item: null, orderId: null });
-    const [ratedItems, setRatedItems] = useState<{ [key: string]: boolean }>({});
+    
+    // Tracks items rated/dismissed in the current session (transient)
+    const [ratedItems, setRatedItems] = useState<{ [key: string]: boolean }>({}); 
+    // ✅ NEW STATE: Tracks items dismissed persistently from localStorage
+    const [dismissedItems, setDismissedItems] = useState<string[]>([]); 
+    
     const [checkingRatings, setCheckingRatings] = useState(false);
 
-    useEffect(() => window.scrollTo(0, 0), []);
+    useEffect(() => {
+        window.scrollTo(0, 0);
+        // ✅ FIX 1: Load dismissed items from localStorage on initial mount
+        const savedDismissed = localStorage.getItem(DISMISSED_ITEMS_KEY);
+        if (savedDismissed) {
+            setDismissedItems(JSON.parse(savedDismissed));
+        }
+    }, []);
 
     const { data: orders = [], isLoading, isError } = useQuery({
         queryKey: ['userOrders', userDetails?.uid],
@@ -59,14 +73,23 @@ const Orders = () => {
     }, [orders, selectedOrder]);
 
     useEffect(() => {
+        // ✅ ADDED dismissedItems to dependency array and main check
         if (!orders || orders.length === 0 || checkingRatings) return;
+        
         setCheckingRatings(true);
         (async () => {
             for (const order of orders) {
                 if (order.orderStatus === 'delivered' && order.items) {
                     for (const item of order.items) {
-                        const key = `${order.id}_${item.id}`;
-                        if (ratedItems[key]) continue;
+                        const uniqueItemKey = `${order.id}_${item.id}`; 
+
+                        // 1. Skip if item was already rated/submitted in the current session
+                        if (ratedItems[uniqueItemKey]) continue; 
+                        
+                        // ✅ FIX 2: Skip if the user has explicitly dismissed this item previously (persistent check)
+                        if (dismissedItems.includes(uniqueItemKey)) continue;
+
+                        // 2. Check the database for a submitted rating
                         const q = query(
                             collection(db, 'ratings'),
                             where('itemId', '==', item.id),
@@ -74,20 +97,41 @@ const Orders = () => {
                             where('userId', '==', userDetails?.uid || '')
                         );
                         const snap = await getDocs(q);
+                        
                         if (snap.empty) {
+                            // Item delivered, not rated, and not dismissed -> Show modal
                             setRatingModal({ open: true, item, orderId: order.id });
                             setCheckingRatings(false);
-                            return;
+                            return; // Stop checking and show the modal
                         }
                     }
                 }
             }
             setCheckingRatings(false);
         })();
-    }, [orders, userDetails, ratedItems]);
+    // ✅ Final dependency array with persistence states
+    }, [orders, userDetails, ratedItems, dismissedItems, checkingRatings]); 
+    
+    // ✅ NEW HANDLER: Manages saving the persistent "skip" status
+    const handleDismissRating = (itemId: string, orderId: string) => {
+        const uniqueItemKey = `${orderId}_${itemId}`;
+
+        // 1. Mark as handled in state (stops re-prompting in current session)
+        setRatedItems(prev => ({ ...prev, [uniqueItemKey]: true })); 
+        
+        // 2. Mark as dismissed in persistent storage (stops re-prompting after refresh/navigation)
+        const newDismissed = [...dismissedItems, uniqueItemKey];
+        setDismissedItems(newDismissed);
+        localStorage.setItem(DISMISSED_ITEMS_KEY, JSON.stringify(newDismissed));
+
+        // 3. Close the modal
+        setRatingModal({ open: false, item: null, orderId: null });
+    };
+
 
     const handleSubmitRating = async (rating: number, review: string) => {
         if (!ratingModal.item || !ratingModal.orderId) return;
+        
         await addItemRating({
             itemId: ratingModal.item.id,
             userId: userDetails?.uid,
@@ -96,14 +140,15 @@ const Orders = () => {
             review,
             userName: userDetails?.displayName || 'User',
         });
-        setRatedItems(prev => ({ ...prev, [`${ratingModal.orderId}_${ratingModal.item.id}`]: true }));
-        setRatingModal({ open: false, item: null, orderId: null });
+        
+        // ✅ Use the persistence handler after successful submission
+        handleDismissRating(ratingModal.item.id, ratingModal.orderId); 
     };
 
     const handleSkipRating = () => {
+        // This function is now simplified to just call the handleDismissRating logic
         if (!ratingModal.item || !ratingModal.orderId) return;
-        setRatedItems(prev => ({ ...prev, [`${ratingModal.orderId}_${ratingModal.item.id}`]: true }));
-        setRatingModal({ open: false, item: null, orderId: null });
+        handleDismissRating(ratingModal.item.id, ratingModal.orderId);
     };
 
     if (isLoading) {
@@ -453,10 +498,15 @@ const Orders = () => {
                 onConfirm={() => confirmReorder(itemsToReorder)}
                 priceChanges={priceChanges}
             />
+            
+            {/* ✅ UPDATED MODAL CALL - Passes required IDs and handlers */}
             <ItemRatingModal
                 isOpen={ratingModal.open}
+                itemId={ratingModal.item?.id || ''} // Pass item ID
+                orderId={ratingModal.orderId || ''} // Pass order ID
                 itemName={ratingModal.item?.productName || ''}
-                onClose={handleSkipRating}
+                onClose={handleSkipRating} 
+                onDismiss={handleDismissRating} // Added new prop
                 onSubmit={handleSubmitRating}
             />
         </div >
@@ -464,4 +514,3 @@ const Orders = () => {
 };
 
 export default Orders;
-
