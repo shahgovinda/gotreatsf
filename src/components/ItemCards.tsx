@@ -277,8 +277,8 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
     };
 
     // --- TAG LOGIC ---
-    // ✅ NEW, ROBUST CHECK: Using the dedicated data flag (item.isPremiumChocolate)
-    const isPremiumChocolate = item.isPremiumChocolate;
+    // ✅ FIX: Use double negation (!!) for robust boolean coercion from the data source
+    const isPremiumChocolate = !!item.isPremiumChocolate;
 
     return (
         <>
