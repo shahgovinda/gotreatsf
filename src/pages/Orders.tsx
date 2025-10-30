@@ -42,18 +42,18 @@ const Orders = () => {
     
     // Tracks items rated/dismissed in the current session (transient)
     const [ratedItems, setRatedItems] = useState<{ [key: string]: boolean }>({}); 
-    // ✅ NEW STATE: Tracks items dismissed persistently from localStorage
-    const [dismissedItems, setDismissedItems] = useState<string[]>([]); 
+    
+    // ✅ FIX 1: Initializing state with persistent data from localStorage
+    const [dismissedItems, setDismissedItems] = useState<string[]>(() => {
+        const savedDismissed = localStorage.getItem(DISMISSED_ITEMS_KEY);
+        return savedDismissed ? JSON.parse(savedDismissed) : [];
+    }); 
     
     const [checkingRatings, setCheckingRatings] = useState(false);
 
     useEffect(() => {
         window.scrollTo(0, 0);
-        // ✅ FIX 1: Load dismissed items from localStorage on initial mount
-        const savedDismissed = localStorage.getItem(DISMISSED_ITEMS_KEY);
-        if (savedDismissed) {
-            setDismissedItems(JSON.parse(savedDismissed));
-        }
+        // We no longer need to load here, as it's done in useState initializer
     }, []);
 
     const { data: orders = [], isLoading, isError } = useQuery({
@@ -73,7 +73,6 @@ const Orders = () => {
     }, [orders, selectedOrder]);
 
     useEffect(() => {
-        // ✅ ADDED dismissedItems to dependency array and main check
         if (!orders || orders.length === 0 || checkingRatings) return;
         
         setCheckingRatings(true);
@@ -83,13 +82,13 @@ const Orders = () => {
                     for (const item of order.items) {
                         const uniqueItemKey = `${order.id}_${item.id}`; 
 
-                        // 1. Skip if item was already rated/submitted in the current session
+                        // 1. Skip if item was already handled (rated/dismissed) in state
                         if (ratedItems[uniqueItemKey]) continue; 
                         
-                        // ✅ FIX 2: Skip if the user has explicitly dismissed this item previously (persistent check)
+                        // 2. ✅ FIX 2: Skip if the user has explicitly dismissed this item previously (persistent check)
                         if (dismissedItems.includes(uniqueItemKey)) continue;
 
-                        // 2. Check the database for a submitted rating
+                        // 3. Check the database for a submitted rating
                         const q = query(
                             collection(db, 'ratings'),
                             where('itemId', '==', item.id),
@@ -109,7 +108,6 @@ const Orders = () => {
             }
             setCheckingRatings(false);
         })();
-    // ✅ Final dependency array with persistence states
     }, [orders, userDetails, ratedItems, dismissedItems, checkingRatings]); 
     
     // ✅ NEW HANDLER: Manages saving the persistent "skip" status
