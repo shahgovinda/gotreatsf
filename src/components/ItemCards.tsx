@@ -276,6 +276,10 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
         tap: { scale: 0.9, rotate: -5, transition: { duration: 0.1 } }
     };
 
+    // --- TAG LOGIC ---
+    // ✅ NEW, ROBUST CHECK: Using the dedicated data flag (item.isPremiumChocolate)
+    const isPremiumChocolate = item.isPremiumChocolate;
+
     return (
         <>
             {/* Desktop View */}
@@ -315,19 +319,43 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
                         <Share2 size={20} className="text-blue-500" />
                     </motion.button>
                 </div>
-                {/* Most Ordered Tag for Desktop */}
+                
+                {/* --- TAGS SECTION (Desktop) --- */}
+                
+                {/* Most Ordered Tag */}
                 {(item.productName.toLowerCase().includes('combo') ||
                     item.productName.toLowerCase().includes('poori bhaji')) && (
                         <motion.div
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            className="absolute -top-2 -right-2 z-10"
+                            className="absolute -top-2 -right-2 z-10" 
                         >
                             <div className="tag-container bg-gradient-to-r from-orange-600 to-orange-500 text-white text-xs font-medium px-2 py-1 rounded-lg shadow-lg transform rotate-3 whitespace-nowrap">
                                 <span className="glowing-text">Most Ordered</span> ⭐
                             </div>
                         </motion.div>
                     )}
+                
+                {/* ✅ NEW: Premium Chocolates Tag (Desktop) */}
+                {isPremiumChocolate && ( 
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        // Positioned at top-left, slightly outside card
+                        className="absolute -top-2 -left-2 z-10 rounded-lg overflow-hidden" 
+                    >
+                        <div 
+                            className="flex items-center gap-1 text-white text-xs font-medium px-2 py-1 rounded-lg shadow-lg whitespace-nowrap"
+                            style={{ backgroundColor: '#5D3C1A' }} // Chocolate Brown Color
+                        >
+                            <Star size={12} fill="white" className='text-white'/>
+                            Premium Chocolates
+                        </div>
+                    </motion.div>
+                )}
+                {/* --- END TAGS SECTION --- */}
+
+
                 <div className="relative mb-5 size-64">
                     {!imgLoaded && (
                         <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center rounded-3xl" >
@@ -381,7 +409,10 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
 
             {/* Mobile View */}
             <div className='flex md:hidden justify-between mx-2 p-4 gap-1 rounded-xl shadow-xs cursor-pointer bg-white transition-color duration-500 w-full relative' >
-                {/* Most Ordered Tag for Mobile */}
+                
+                {/* --- TAGS SECTION (Mobile) --- */}
+                
+                {/* Most Ordered Tag */}
                 {(item.productName.toLowerCase().includes('combo') ||
                     item.productName.toLowerCase().includes('poori bhaji')) && (
                         <motion.div
@@ -394,6 +425,26 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
                             </div>
                         </motion.div>
                     )}
+                
+                {/* ✅ NEW: Premium Chocolates Tag (Mobile) */}
+                {isPremiumChocolate && (
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="absolute -top-2 left-2 z-10 rounded-md overflow-hidden" 
+                    >
+                        <div 
+                            className="flex items-center gap-1 text-white text-[10px] font-medium px-1.5 py-0.5 rounded-md shadow-md whitespace-nowrap"
+                            style={{ backgroundColor: '#5D3C1A' }} // Chocolate Brown Color
+                        >
+                            <Star size={10} fill="white" className='text-white'/>
+                            Premium Chocolates
+                        </div>
+                    </motion.div>
+                )}
+                {/* --- END TAGS SECTION --- */}
+
+
                 <div className="absolute top-3 right-3 flex gap-2 z-20">
                     <motion.button
                         onClick={toggleLike}
