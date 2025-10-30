@@ -109,7 +109,7 @@ const Orders = () => {
         })();
     }, [orders, userDetails, ratedItems, dismissedItems, checkingRatings]); 
     
-    // HANDLER: Manages saving the persistent "skip" status
+    // HANDLER: Manages saving the persistent "skip" status (used by both skip and submit)
     const handleDismissRating = (itemId: string, orderId: string) => {
         const uniqueItemKey = `${orderId}_${itemId}`;
 
@@ -406,8 +406,11 @@ const Orders = () => {
                                                 const uniqueItemKey = `${selectedOrder.id}_${item.id}`;
                                                 const isDelivered = selectedOrder.orderStatus === 'delivered';
                                                 
-                                                // Check if a review exists in the DB (or was just submitted in state)
+                                                // Check if the item has been permanently submitted (by checking the persistent state/DB logic)
                                                 const isReviewSubmitted = ratedItems[uniqueItemKey]; 
+                                                
+                                                // Check if the item was dismissed (prompt skipped)
+                                                const isDismissed = dismissedItems.includes(uniqueItemKey); 
                                                 
                                                 return (
                                                     <div key={idx} className="flex flex-col gap-1 border-b border-gray-100 pb-2">
@@ -418,26 +421,29 @@ const Orders = () => {
                                                             <span>₹{item.offerPrice * item.quantity}</span>
                                                         </div>
 
-                                                        {/* ✅ MANUAL REVIEW BUTTON (Show if delivered and review hasn't been submitted) */}
-                                                        {isDelivered && !isReviewSubmitted && (
-                                                            <button
-                                                                className='text-xs font-semibold text-orange-500 hover:text-orange-600 self-end pr-2 transition-colors flex items-center gap-1'
-                                                                // This button opens the modal, allowing the user to rate
-                                                                onClick={() => handleReviewNow(item, selectedOrder.id)} 
-                                                            >
-                                                                <Star size={14} className="inline-block" fill="#f97316"/> Rate Item Now
-                                                            </button>
-                                                        )}
-                                                        {isDelivered && isReviewSubmitted && (
-                                                            <span className='text-xs text-green-600 self-end pr-2 flex items-center gap-1'>
-                                                                <CheckCircle size={14} /> Review Submitted
-                                                            </span>
-                                                        )}
-                                                        {/* Optional: Show status if prompt was dismissed */}
-                                                        {isDelivered && !isReviewSubmitted && dismissedItems.includes(uniqueItemKey) && (
-                                                            <span className='text-xs text-gray-500 self-end pr-2 flex items-center gap-1'>
-                                                                Prompt Dismissed
-                                                            </span>
+                                                        {isDelivered && (
+                                                            <>
+                                                                {/* MANUAL REVIEW BUTTON (Visible if not submitted) */}
+                                                                {!isReviewSubmitted && (
+                                                                    <button
+                                                                        className='text-xs font-semibold text-orange-500 hover:text-orange-600 self-end pr-2 transition-colors flex items-center gap-1'
+                                                                        onClick={() => handleReviewNow(item, selectedOrder.id)} 
+                                                                    >
+                                                                        <Star size={14} className="inline-block" fill="#f97316"/> Rate Item Now
+                                                                    </button>
+                                                                )}
+                                                                
+                                                                {/* Status when review is done or dismissed */}
+                                                                {isReviewSubmitted ? (
+                                                                    <span className='text-xs text-green-600 self-end pr-2 flex items-center gap-1'>
+                                                                        <CheckCircle size={14} /> Review Submitted
+                                                                    </span>
+                                                                ) : isDismissed ? (
+                                                                    <span className='text-xs text-gray-500 self-end pr-2 flex items-center gap-1'>
+                                                                        Prompt Dismissed
+                                                                    </span>
+                                                                ) : null}
+                                                            </>
                                                         )}
                                                     </div>
                                                 );
