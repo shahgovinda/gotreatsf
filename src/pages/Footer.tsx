@@ -116,10 +116,12 @@ const Footer = () => {
                   className="block"
                 >
                   <img
-                    src="https://cdn.brandfetch.io/idEql8nEWn/theme/dark/symbol.svg?c=1dxbfHSJFAPEGdCLU4o5B"
-                    alt="Zomato"
-                    className="w-7 h-7 transition-all duration-300 hover:scale-125 lg:grayscale lg:group-hover:grayscale-0"
-                  />
+                    // ❌ OLD: src="https://cdn.brandfetch.io/idEql8nEWn/theme/dark/symbol.svg?c=1dxbfHSJFAPEGdCLU4o5B"
+                    // ✅ NEW: Use a local or publicly hosted, stable Zomato logo asset
+                    src="/zomato.svg" // <-- Assuming you place the Zomato icon here
+                    alt="Zomato"
+                    className="w-7 h-7 transition-all duration-300 hover:scale-125 lg:grayscale lg:group-hover:grayscale-0"
+                  />
                 </a>
                 <span className="absolute -top-12 left-1/2 -translate-x-1/2 z-20 origin-left scale-0 px-3 rounded-lg border border-gray-300 bg-white py-1.5 text-sm font-semibold text-black shadow-md transition-all duration-300 ease-in-out group-hover:scale-100 lg:group-hover:scale-100 lg:hidden block">
                   Zomato
