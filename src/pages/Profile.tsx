@@ -177,15 +177,13 @@ const Profile = () => {
         toast.success('Review deleted successfully!');
     };
     
-    // --- New Handler for ItemRatingModal Dismissal in Profile Context ---
+    // ✅ FIX 1: Handler to close the review editing modal
     const handleEditModalClose = () => setEditReview(null);
     
-    // NOTE: This function is required by the ItemRatingModal interface now.
-    // It doesn't need to save persistence, as the Order page handles that.
+    // ✅ FIX 2: Dummy handler to satisfy the ItemRatingModal's new interface (dismissal tracking is not needed here)
     const handleProfileDismiss = (itemId: string, orderId: string) => {
         setEditReview(null); 
     };
-    // -------------------------------------------------------------------
 
 
     if (!userDetails) {
@@ -305,7 +303,6 @@ const Profile = () => {
                 title="Confirm Logout"
                 message="Are you sure you want to log out? You'll need to sign in again to access your account."
                 confirmLabel="Yes, Log Out"
-                cancelLabel="Cancel"
                 onConfirm={handleLogoutClick}
                 onCancel={() => setShowLogoutModal(false)}
             />
@@ -385,15 +382,15 @@ const Profile = () => {
             {/* ✅ FIX: ItemRatingModal for Editing Reviews */}
             <ItemRatingModal
                 isOpen={!!editReview}
-                // --- PASS REQUIRED DUMMY/PLACEHOLDER PROPS ---
-                itemId={editReview?.itemId || ''} // Pass the item ID being edited
+                // --- PASS REQUIRED PROPS ---
+                itemId={editReview?.itemId || ''} // Item ID is required for type safety
                 orderId={editReview?.id || ''} // Use the Review ID as a placeholder for orderId (for type safety)
-                onDismiss={handleProfileDismiss} // Use the dummy dismiss handler
-                // ---------------------------------------------
+                onDismiss={handleProfileDismiss} // Use the custom handler
+                // ---------------------------
                 itemName={editReview ? (reviewProducts[editReview.itemId]?.productName || 'Food Item') : ''}
                 initialRating={editReview?.rating}
                 initialReview={editReview?.review}
-                onClose={handleEditModalClose} // Use the specific close handler
+                onClose={handleEditModalClose} 
                 onSubmit={async (rating, review) => {
                     if (!editReview) return;
                     await updateUserRating(editReview.id, { rating, review });
