@@ -15,7 +15,7 @@ export const products = [
         rating: 5,
         isAvailable: true,
         // ✅ THIS IS WHERE YOU MARK IT PREMIUM:
-        isPremiumChocolate: true, 
+       
     },
     // ... other items
 ];
