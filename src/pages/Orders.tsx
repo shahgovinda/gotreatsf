@@ -40,7 +40,7 @@ const Orders = () => {
         orderId: string | null
     }>({ open: false, item: null, orderId: null });
     
-    // Tracks items rated/dismissed in the current session (transient)
+    // Tracks items rated/submitted in the current session (transient)
     const [ratedItems, setRatedItems] = useState<{ [key: string]: boolean }>({}); 
     
     // FIX 1: Initializing state with persistent data from localStorage
@@ -96,6 +96,12 @@ const Orders = () => {
                         );
                         const snap = await getDocs(q);
                         
+                        // ✅ FIX: If review found in DB, mark as rated so prompt doesn't show
+                        if (!snap.empty) {
+                            setRatedItems(prev => ({ ...prev, [uniqueItemKey]: true }));
+                            continue; // Move to next item
+                        }
+                        
                         if (snap.empty) {
                             // Item delivered, not rated, and not dismissed -> Show modal
                             setRatingModal({ open: true, item, orderId: order.id });
@@ -138,8 +144,10 @@ const Orders = () => {
             userName: userDetails?.displayName || 'User',
         });
         
-        // Use the persistence handler after successful submission
+        // ✅ CRITICAL FIX: After submitting, we use handleDismissRating to mark the item as 'handled' 
+        // in both state and localStorage. This prevents the prompt from reappearing instantly or on refresh.
         handleDismissRating(ratingModal.item.id, ratingModal.orderId); 
+        toast.success("Review submitted successfully!");
     };
 
     const handleSkipRating = () => {
@@ -406,7 +414,7 @@ const Orders = () => {
                                                 const uniqueItemKey = `${selectedOrder.id}_${item.id}`;
                                                 const isDelivered = selectedOrder.orderStatus === 'delivered';
                                                 
-                                                // Check if the item has been permanently submitted (by checking the persistent state/DB logic)
+                                                // Check if the item has been rated/submitted (by checking the persistent state/DB logic)
                                                 const isReviewSubmitted = ratedItems[uniqueItemKey]; 
                                                 
                                                 // Check if the item was dismissed (prompt skipped)
@@ -423,8 +431,13 @@ const Orders = () => {
 
                                                         {isDelivered && (
                                                             <>
-                                                                {/* MANUAL REVIEW BUTTON (Visible if not submitted) */}
-                                                                {!isReviewSubmitted && (
+                                                                {/* Display Status or Button */}
+                                                                {isReviewSubmitted ? (
+                                                                    <span className='text-xs text-green-600 self-end pr-2 flex items-center gap-1'>
+                                                                        <CheckCircle size={14} /> Review Submitted
+                                                                    </span>
+                                                                ) : (
+                                                                    // Show the button if not submitted (even if dismissed, user can click it voluntarily)
                                                                     <button
                                                                         className='text-xs font-semibold text-orange-500 hover:text-orange-600 self-end pr-2 transition-colors flex items-center gap-1'
                                                                         onClick={() => handleReviewNow(item, selectedOrder.id)} 
@@ -432,17 +445,6 @@ const Orders = () => {
                                                                         <Star size={14} className="inline-block" fill="#f97316"/> Rate Item Now
                                                                     </button>
                                                                 )}
-                                                                
-                                                                {/* Status when review is done or dismissed */}
-                                                                {isReviewSubmitted ? (
-                                                                    <span className='text-xs text-green-600 self-end pr-2 flex items-center gap-1'>
-                                                                        <CheckCircle size={14} /> Review Submitted
-                                                                    </span>
-                                                                ) : isDismissed ? (
-                                                                    <span className='text-xs text-gray-500 self-end pr-2 flex items-center gap-1'>
-                                                                        Prompt Dismissed
-                                                                    </span>
-                                                                ) : null}
                                                             </>
                                                         )}
                                                     </div>
