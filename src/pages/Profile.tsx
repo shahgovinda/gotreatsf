@@ -176,6 +176,17 @@ const Profile = () => {
         fetchUserReviews();
         toast.success('Review deleted successfully!');
     };
+    
+    // --- New Handler for ItemRatingModal Dismissal in Profile Context ---
+    const handleEditModalClose = () => setEditReview(null);
+    
+    // NOTE: This function is required by the ItemRatingModal interface now.
+    // It doesn't need to save persistence, as the Order page handles that.
+    const handleProfileDismiss = (itemId: string, orderId: string) => {
+        setEditReview(null); 
+    };
+    // -------------------------------------------------------------------
+
 
     if (!userDetails) {
         return <div>Loading...</div>;
@@ -370,12 +381,19 @@ const Profile = () => {
                 onConfirm={handleDeleteReview}
                 onCancel={() => setDeleteReviewId(null)}
             />
+            
+            {/* ✅ FIX: ItemRatingModal for Editing Reviews */}
             <ItemRatingModal
                 isOpen={!!editReview}
+                // --- PASS REQUIRED DUMMY/PLACEHOLDER PROPS ---
+                itemId={editReview?.itemId || ''} // Pass the item ID being edited
+                orderId={editReview?.id || ''} // Use the Review ID as a placeholder for orderId (for type safety)
+                onDismiss={handleProfileDismiss} // Use the dummy dismiss handler
+                // ---------------------------------------------
                 itemName={editReview ? (reviewProducts[editReview.itemId]?.productName || 'Food Item') : ''}
                 initialRating={editReview?.rating}
                 initialReview={editReview?.review}
-                onClose={() => setEditReview(null)}
+                onClose={handleEditModalClose} // Use the specific close handler
                 onSubmit={async (rating, review) => {
                     if (!editReview) return;
                     await updateUserRating(editReview.id, { rating, review });
