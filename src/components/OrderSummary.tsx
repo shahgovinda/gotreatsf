@@ -9,6 +9,7 @@ interface OrderSummaryProps {
     grossTotalPrice: number;
     voucherDiscount: number;
     deliveryPrice: number;
+    packagingCharge: number; // ✅ ADDED: The new packaging charge prop
     totalPrice: number;
     appliedVoucher: Voucher | null;
     onApplyVoucher: () => void;
@@ -23,6 +24,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     grossTotalPrice,
     voucherDiscount,
     deliveryPrice,
+    packagingCharge, // ✅ DESTRUCTURED: The new packaging charge prop
     totalPrice,
     appliedVoucher,
     onApplyVoucher,
@@ -69,6 +71,11 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                     <span>Subtotal</span>
                     <span className="font-medium">₹{grossTotalPrice.toFixed(2)}</span>
                 </div>
+                {/* ✅ ADDED: Packaging Charge display */}
+                <div className="flex justify-between">
+                    <span>Packaging Charge</span>
+                    <span className="font-medium">₹{packagingCharge.toFixed(2)}</span>
+                </div>
                 <div className="flex justify-between">
                     <span>Delivery Fee</span>
                     <span className="font-medium">₹{deliveryPrice.toFixed(2)}</span>
@@ -102,9 +109,9 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
             <div className="mt-6">
                 <div className="text-xs font-bold tracking-widest text-gray-400 mb-2 ml-1">SAVINGS CORNER</div>
                 <button
-                        onClick={onApplyVoucher}
+                    onClick={onApplyVoucher}
                     className="w-full flex items-center justify-between bg-white rounded-2xl shadow-sm px-4 py-3 transition hover:shadow-md active:scale-[0.98]"
-                    >
+                >
                     <div className="flex items-center gap-3">
                         <span className="bg-orange-500 rounded-full p-2 flex items-center justify-center">
                             <Tag size={20} className="text-white" />
@@ -113,7 +120,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                     </div>
                     <ChevronRight size={22} className="text-gray-400" />
                 </button>
-                </div>
+            </div>
 
             {/* Total */}
             <div className="border-t border-gray-200 mt-4 pt-4">
