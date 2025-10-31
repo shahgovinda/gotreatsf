@@ -78,7 +78,6 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
 
     // Helper function to safely display currency fields
     const safeCurrency = (value) => {
-        // Ensures the value is treated as a number and falls back to '0.00' if null/undefined
         const num = parseFloat(value);
         return isNaN(num) ? '0.00' : num.toFixed(2);
     };
@@ -137,7 +136,6 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                             <strong>Total Items:</strong> {order.totalQuantity}
                         </p>
                         <p>
-                            {/* ✅ FIX: Safe access to totalAmount */}
                             <strong>Total Price:</strong> ₹{safeCurrency(order.totalAmount)}
                         </p>
                         <p className='animate-pulse capitalize'>
@@ -242,7 +240,7 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                     <div>
                                         <h3 className="font-semibold lancelot text-purple-700 mb-2 flex gap-2 item-center"><Banknote size={19} /> Payment Details</h3>
                                         <p className='flex justify-between pr-10'><strong>Total Items:</strong> {order.totalQuantity}</p>
-                                        {/* ✅ FIX: Use safeCurrency helper */}
+                                        {/* ✅ FIX: Safe access to totalAmount */}
                                         <p className='flex justify-between pr-10'><strong>Total Price:</strong> ₹{safeCurrency(order.totalAmount)}</p>
                                         <p className='text-green-600 flex justify-between pr-10'><strong>Payment ID:</strong> {order.razorpay_payment_id || 'CASH ON DELIVERY'}</p>
                                         <p className='text-green-600 flex justify-between pr-10'><strong>Payment Status:</strong> {order.paymentStatus}</p>
@@ -263,18 +261,21 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                         <h3 className="font-bold lancelot text-purple-700 mb-2 flex gap-2 item-center"><Box size={19} /> Order Details</h3>
                                         <p className='flex justify-between pr-10'><strong>Total Items:</strong> {order.totalQuantity}</p>
                                         <p className='flex justify-between pr-10'><strong>Order Status:</strong> {order.orderStatus}</p>
+                                        
                                         {/* ✅ FIX: Safe access for grossTotalPrice */}
                                         <p className='flex justify-between font-bold pr-10'><strong>Gross Total: </strong> ₹{safeCurrency(order.grossTotalPrice)}</p>
+                                        
                                         {/* ✅ FIX: Safe access for Discount/Voucher */}
                                         <p className='flex justify-between font-bold pr-10'><strong>Discount: </strong> -₹{safeCurrency(order.voucherDiscount)}</p>
+                                        
                                         <p className='flex justify-between pr-10'><strong>Voucher Code: </strong> '{order.voucherCode || 'No Voucher'}'</p>
                                         <p className='flex justify-between pr-10'><strong>Delivery: </strong> ₹{safeCurrency(order.deliveryCharge)}</p>
                                         
-                                        {/* ✅ FIX: Handle Packaging Charge/GST safely */}
+                                        {/* ✅ FIX: Handle Packaging Charge/GST safely (Removed .toFixed() calls for missing fields) */}
                                         {order.packagingCharge !== undefined && order.packagingCharge !== null ? (
                                             <p className='flex justify-between pr-10'><strong>Packaging Charge: </strong> ₹{safeCurrency(order.packagingCharge)}</p>
                                         ) : (
-                                            // Fallback for older orders that still have the GST field, accessing it safely
+                                            // Fallback: Display old GST field safely if it exists (for old orders)
                                             order.gst !== undefined && order.gst !== null && (
                                                 <p className='flex justify-between pr-10'><strong>GST (Legacy): </strong> ₹{safeCurrency(order.gst)}</p>
                                             )
@@ -283,7 +284,7 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                         <p className='flex justify-between pr-10'><strong>Order Created At:</strong> {formatOrderDateTime(order.createdAt)}</p>
                                     </div>
                                     <div>
-                                        <h3 className="font-bold lancelot text-purple-700 mb-2 flex gap-2 item-center"><CookingPot size={19} /> Instruction</h3>
+                                        <h3 className="font-bold lancelot text-purple-700 mb-2 flex gap-2 item-center">< CookingPot size={19} /> Instruction</h3>
                                         <p className='text-gray-600'>" {order.note} "</p>
                                     </div>
                                 </div>
@@ -292,7 +293,7 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                     }
                 </AnimatePresence>
             </div>
-            {/* MOBILE DRAWER DETAILS */}
+            {/* MOBILE DRAWER DETAILS (Used when 'View' button is clicked on mobile) */}
             <Drawer isOpen={isOpen} onOpenChange={onOpenChange}>
                 <DrawerContent className= "bg-white">
                     {(onClose) => (
@@ -302,7 +303,7 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                 <p> Order #{order?.id.slice(-6)}</p>
                             </DrawerHeader>
                             <DrawerBody className="h-full overflow-auto mt-18 p-4">
-                                {/* Details inside the mobile drawer */}
+                                {/* CUSTOMER AND ADDRESS DETAILS */}
                                 <div className="space-y-4">
                                     <div className='border-b pb-4'>
                                         <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><User size={19} /> Customer Details</h3>
@@ -316,9 +317,28 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                         <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><MapPin size={19} /> Address</h3>
                                         <p>{order.address}</p>
                                     </div>
-
+                                    
+                                    {/* ✅ MOBILE BILLING DETAILS (Ensuring consistency) */}
                                     <div className='border-b pb-4'>
-                                        <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><Box size={19} /> Items & Quantities</h3>
+                                        <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><Banknote size={19} /> Billing Summary</h3>
+                                        <p className='flex justify-between'><strong>Gross Total:</strong> ₹{safeCurrency(order.grossTotalPrice)}</p>
+                                        <p className='flex justify-between'><strong>Discount:</strong> -₹{safeCurrency(order.voucherDiscount)}</p>
+                                        
+                                        {order.packagingCharge !== undefined && order.packagingCharge !== null && (
+                                            <p className='flex justify-between'><strong>Packaging Charge:</strong> ₹{safeCurrency(order.packagingCharge)}</p>
+                                        )}
+                                        {order.gst !== undefined && order.gst !== null && (
+                                            <p className='flex justify-between'><strong>GST (Legacy):</strong> ₹{safeCurrency(order.gst)}</p>
+                                        )}
+                                        <p className='flex justify-between'><strong>Delivery Charge:</strong> ₹{safeCurrency(order.deliveryCharge)}</p>
+                                        
+                                        <p className='text-green-600 flex font-bold justify-between pt-2'><strong>Total Paid:</strong> ₹{safeCurrency(order.totalAmount)}</p>
+                                        <p className='text-sm flex justify-between'><strong>Payment Status:</strong> {order.paymentStatus}</p>
+                                    </div>
+
+                                    {/* ITEMS AND QUANTITIES */}
+                                    <div className='border-b pb-4'>
+                                        <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><ShoppingBasket size={19} /> Items & Quantities</h3>
                                         <ul className="list-disc pl-5 space-y-1">
                                             {order.items.map((item, index) => (
                                                 <li key={index} className='flex justify-between'>
@@ -327,26 +347,8 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                             ))}
                                         </ul>
                                     </div>
-                                    
-                                    <div className='border-b pb-4'>
-                                        <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><Banknote size={19} /> Billing</h3>
-                                        <p className='flex justify-between'><strong>Gross Total:</strong> ₹{safeCurrency(order.grossTotalPrice)}</p>
-                                        <p className='flex justify-between'><strong>Discount:</strong> -₹{safeCurrency(order.voucherDiscount)}</p>
-                                        
-                                        {order.packagingCharge !== undefined && order.packagingCharge !== null && (
-                                            <p className='flex justify-between'><strong>Packaging:</strong> ₹{safeCurrency(order.packagingCharge)}</p>
-                                        )}
-                                        <p className='flex justify-between'><strong>Delivery:</strong> ₹{safeCurrency(order.deliveryCharge)}</p>
-                                        
-                                        {/* Fallback for older orders that still have the GST field */}
-                                        {order.gst !== undefined && order.gst !== null && (
-                                            <p className='flex justify-between'><strong>GST (Legacy):</strong> ₹{safeCurrency(order.gst)}</p>
-                                        )}
-                                        
-                                        <p className='text-green-600 flex font-bold justify-between pt-2'><strong>Total Paid:</strong> ₹{safeCurrency(order.totalAmount)}</p>
-                                        <p className='text-sm flex justify-between'><strong>Payment Status:</strong> {order.paymentStatus}</p>
-                                    </div>
-                                    
+
+                                    {/* INSTRUCTION */}
                                     <div>
                                         <h3 className="font-bold lancelot text-xl mb-2 flex gap-2"><CookingPot size={19} /> Instruction</h3>
                                         <p className='text-gray-600'>"{order.note || 'No special instructions.'}"</p>
