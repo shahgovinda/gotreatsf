@@ -115,11 +115,13 @@ const ViewCustomers = () => {
 
 			<div className='flex justify-end items-center mb-4'>
 				<Button
-					variant='shadow'
+					// ✅ FIX: Change variant to solid/default and set color to 'success' (green)
+					variant='solid'
+					color='success' 
 					size='sm' radius='full'
 					onPress={handleDownloadExcel}
-					className='mb-4'
-					startContent={<ArrowDownToLine size={15} />}
+					className='mb-4 text-white font-bold' // ✅ Ensure text is white and bold
+					startContent={<ArrowDownToLine size={15} className='text-white' />} // ✅ Ensure icon is white
 				>
 					Customers Excel
 				</Button>
@@ -133,12 +135,12 @@ const ViewCustomers = () => {
 						<thead className="bg-orange-500 text-white rounded-t-lg">
 							<tr>
 								<th className="px-6 py-3 border-r">#</th>
-								<th className="px-6 py-3  border-r">ID</th>
-								<th className="px-6 py-3  border-r ">Name</th>
-								<th className="px-6 py-3  border-r">Number</th>
-								<th className="px-6 py-3  border-r">Email</th>
-								<th className="px-6 py-3  border-r">Address</th>
-								<th className="px-6 py-3  border-r">Orders Count</th>
+								<th className="px-6 py-3 border-r">ID</th>
+								<th className="px-6 py-3 border-r ">Name</th>
+								<th className="px-6 py-3 border-r">Number</th>
+								<th className="px-6 py-3 border-r">Email</th>
+								<th className="px-6 py-3 border-r">Address</th>
+								<th className="px-6 py-3 border-r">Orders Count</th>
 							</tr>
 						</thead>
 						<tbody className=' overflow-y-auto'>
@@ -158,7 +160,7 @@ const ViewCustomers = () => {
 											</Tooltip>
 										</td>
 
-										{/* customer Code  */}
+										{/* customer Code */}
 										<td className="px-6  text-center border-r">
 											<div className='flex items-center gap-2 justify-center'>
 												{customer?.role === 'admin' && <UserRoundCog size={18} />}
@@ -218,4 +220,4 @@ const ViewCustomers = () => {
 	)
 }
 
-export default ViewCustomers
+export default ViewCustomers;
