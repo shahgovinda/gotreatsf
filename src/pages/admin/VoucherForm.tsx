@@ -144,12 +144,13 @@ const VoucherForm = ({
                         <ModalBody>
                             <form className='flex flex-col gap-6' onSubmit={handleSubmit}>
                                 {/* Voucher Name */}
-                                <div>
+                                <div className='flex flex-col gap-1'>
+                                    <label className='text-sm font-semibold text-gray-700'>Voucher Name*</label> {/* ✅ Manually defined label */}
                                     <Input
                                         variant='faded'
-                                        label="Voucher Name"
-                                        placeholder="Get 30% OFF"
-                                        labelPlacement='outside' // ✅ Moves label above placeholder
+                                        // ❌ REMOVED: label="Voucher Name"
+                                        // ❌ REMOVED: labelPlacement='outside'
+                                        placeholder="e.g., GET 30% OFF on all meals"
                                         autoFocus
                                         isRequired
                                         isClearable
@@ -159,12 +160,13 @@ const VoucherForm = ({
                                 </div>
                                 
                                 {/* Voucher Code */}
-                                <div>
+                                <div className='flex flex-col gap-1'>
+                                    <label className='text-sm font-semibold text-gray-700'>Voucher Code*</label> {/* ✅ Manually defined label */}
                                     <Input
                                         variant='faded'
-                                        label="Voucher Code"
-                                        placeholder="TASTY30"
-                                        labelPlacement='outside' // ✅ Moves label above placeholder
+                                        // ❌ REMOVED: label="Voucher Code"
+                                        // ❌ REMOVED: labelPlacement='outside'
+                                        placeholder="e.g., TASTY30"
                                         startContent={<TicketPercent size={20} color='gray' strokeWidth={1.6} />}
                                         isRequired
                                         isClearable
@@ -173,16 +175,16 @@ const VoucherForm = ({
                                     />
                                 </div>
                                 
-                                {/* Discount Type and Value (Grouped in one row) */}
+                                <p className='text-sm font-semibold text-gray-700'>Discount Type</p> {/* ✅ Moved outside */}
                                 <div className='flex gap-4 items-end'>
                                     <div className="flex flex-col w-1/2">
-                                        <p className='text-sm font-medium'>Discount Type</p>
+                                        
                                         <RadioGroup
                                             color='primary'
                                             isRequired
                                             value={form.discountType}
                                             onValueChange={handleDiscountTypeChange}
-                                            orientation="horizontal" // ✅ Added orientation for horizontal layout
+                                            orientation="horizontal" 
                                             className='mt-2'
                                         >
                                             <Radio value="percentage">Percentage</Radio>
@@ -190,12 +192,13 @@ const VoucherForm = ({
                                         </RadioGroup>
                                     </div>
                                     <div className="w-1/2">
+                                        <label className='text-sm font-medium text-gray-700 block'>Discount Value*</label> {/* ✅ Manually defined label */}
                                         <NumberInput
-                                            className=''
+                                            className='mt-1'
                                             variant='faded'
-                                            label="Discount Value"
-                                            placeholder="Value"
-                                            labelPlacement='outside' // ✅ Moves label above placeholder
+                                            // ❌ REMOVED: label="Discount Value"
+                                            // ❌ REMOVED: labelPlacement='outside'
+                                            placeholder="0"
                                             startContent={form.discountType === 'percentage' ? <Percent size={20} color='gray' strokeWidth={1.6} /> : <IndianRupee size={20} color='gray' strokeWidth={1.6} />}
                                             isRequired
                                             value={form.discountValue}
@@ -206,24 +209,26 @@ const VoucherForm = ({
                                 
                                 {/* Min Order Value / Max Uses */}
                                 <div className='flex gap-4'>
-                                    <div className="inline-flex flex-col w-full">
+                                    <div className="inline-flex flex-col w-full gap-1"> {/* ✅ Added gap-1 */}
+                                        <label className='text-sm font-medium text-gray-700'>Minimum Order Value*</label> {/* ✅ Manually defined label */}
                                         <NumberInput
                                             variant='faded'
-                                            label="Minimum Order Value"
-                                            placeholder="Minimum Order Value"
-                                            labelPlacement='outside' // ✅ Moves label above placeholder
+                                            // ❌ REMOVED: label="Minimum Order Value"
+                                            // ❌ REMOVED: labelPlacement='outside'
+                                            placeholder="100"
                                             startContent={<IndianRupee size={20} color='gray' strokeWidth={1.6} />}
                                             isRequired
                                             value={form.minOrderValue}
                                             onValueChange={val => setForm(f => ({ ...f, minOrderValue: Number(val) }))}
                                         />
                                     </div>
-                                    <div className="inline-flex flex-col w-full">
+                                    <div className="inline-flex flex-col w-full gap-1"> {/* ✅ Added gap-1 */}
+                                        <label className='text-sm font-medium text-gray-700'>Maximum Uses*</label> {/* ✅ Manually defined label */}
                                         <NumberInput
                                             variant='faded'
-                                            label="Maximum Uses"
-                                            placeholder="Limits uses"
-                                            labelPlacement='outside' // ✅ Moves label above placeholder
+                                            // ❌ REMOVED: label="Maximum Uses"
+                                            // ❌ REMOVED: labelPlacement='outside'
+                                            placeholder="1"
                                             isRequired
                                             value={form.maxUses}
                                             onValueChange={val => setForm(f => ({ ...f, maxUses: Number(val) }))}
@@ -232,12 +237,13 @@ const VoucherForm = ({
                                 </div>
                                 
                                 {/* Date Range Picker */}
-                                <div className='flex gap-4'>
+                                <div className='flex gap-4 flex-col'>
+                                    <label className='text-sm font-semibold text-gray-700'>Start and Expiry Date*</label> {/* ✅ Manually defined label */}
                                     <DateRangePicker
                                         className="bg-white"
-                                        label="Start and Expiry Date"
-                                        variant='faded'
-                                        labelPlacement='outside' // ✅ Moves label above placeholder
+                                        // ❌ REMOVED: label="Start and Expiry Date"
+                                        // ❌ REMOVED: labelPlacement='outside'
+                                        // ✅ NOTE: Placeholder is now displayed using the value={dateRange} prop
                                         minValue={today(getLocalTimeZone())}
                                         value={dateRange}
                                         onChange={setDateRange}
@@ -246,14 +252,15 @@ const VoucherForm = ({
                                 
                                 {/* Scope and Single Use Switch */}
                                 <div className='flex justify-between items-center gap-4'>
-                                    <div className="flex flex-col w-1/2">
+                                    <div className="flex flex-col w-1/2 gap-1"> {/* ✅ Added gap-1 */}
+                                        <label className='text-sm font-medium text-gray-700'>Voucher Scope*</label> {/* ✅ Manually defined label */}
                                         <Select
-                                            className=""
+                                            className="bg-white"
                                             variant='faded'
-                                            placeholder='Select Scope'
+                                            placeholder='Select Scope of Voucher'
                                             radius='lg'
-                                            labelPlacement='outside' // ✅ Moves label above placeholder
-                                            label="Voucher Scope"
+                                            // ❌ REMOVED: label="Voucher Scope"
+                                            // ❌ REMOVED: labelPlacement='outside'
                                             selectedKeys={[form.scope]}
                                             onSelectionChange={keys => handleScopeChange(Array.from(keys)[0] as VoucherScope)}
                                         >
@@ -261,8 +268,8 @@ const VoucherForm = ({
                                             <SelectItem key="specific" startContent={<UsersRound size={20} strokeWidth={1.6} />}>Specific Users</SelectItem>
                                         </Select>
                                     </div>
-                                    <div className="flex items-center gap-2 w-1/2 justify-end pt-6">
-                                        <label className="text-sm font-medium text-gray-700">Single Use</label>
+                                    <div className="flex items-center gap-2 w-1/2 justify-end pt-5">
+                                        <label className="text-sm font-medium text-gray-700">Single Use Per Customer</label>
                                         <Switch
                                             size="sm"
                                             isSelected={form.singleUsePerCustomer}
@@ -275,25 +282,28 @@ const VoucherForm = ({
                                 {(form.scope === 'specific') && (
                                     <div className='flex flex-col gap-2'>
                                         <div className='flex items-end gap-4'>
-                                            <Input
-                                                variant='faded'
-                                                label="Add Allowed User"
-                                                placeholder="Enter Registered Phone Number"
-                                                labelPlacement='outside' // ✅ Moves label above placeholder
-                                                isRequired
-                                                isClearable
-                                                value={allowedUserInput}
-                                                onValueChange={setAllowedUserInput}
-                                                onKeyDown={e => {
-                                                    if (e.key === 'Enter') {
-                                                        e.preventDefault();
-                                                        handleAddAllowedUser();
-                                                    }
-                                                }}
-                                            />
+                                            <div className='w-full flex flex-col gap-1'> {/* Added gap-1 for label spacing */}
+                                                <label className='text-sm font-medium text-gray-700'>Add Allowed User (Phone)*</label> {/* ✅ Manually defined label */}
+                                                <Input
+                                                    variant='faded'
+                                                    // ❌ REMOVED: label="Allowed Users"
+                                                    // ❌ REMOVED: labelPlacement='outside'
+                                                    placeholder="Enter Registered Phone Number"
+                                                    isRequired
+                                                    isClearable
+                                                    value={allowedUserInput}
+                                                    onValueChange={setAllowedUserInput}
+                                                    onKeyDown={e => {
+                                                        if (e.key === 'Enter') {
+                                                            e.preventDefault();
+                                                            handleAddAllowedUser();
+                                                        }
+                                                    }}
+                                                />
+                                            </div>
                                             <button
                                                 type="button"
-                                                className='px-4 py-2 rounded-xl border-2 bg-primary text-white flex items-center justify-center'
+                                                className='px-4 py-2 rounded-xl border-2 bg-primary text-white flex items-center justify-center h-[54px] transition-colors'
                                                 onClick={handleAddAllowedUser}
                                             >
                                                 <UserRoundPlus size={20} strokeWidth={1.6} />
