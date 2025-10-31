@@ -240,7 +240,6 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                     <div>
                                         <h3 className="font-semibold lancelot text-purple-700 mb-2 flex gap-2 item-center"><Banknote size={19} /> Payment Details</h3>
                                         <p className='flex justify-between pr-10'><strong>Total Items:</strong> {order.totalQuantity}</p>
-                                        {/* ✅ FIX: Safe access to totalAmount */}
                                         <p className='flex justify-between pr-10'><strong>Total Price:</strong> ₹{safeCurrency(order.totalAmount)}</p>
                                         <p className='text-green-600 flex justify-between pr-10'><strong>Payment ID:</strong> {order.razorpay_payment_id || 'CASH ON DELIVERY'}</p>
                                         <p className='text-green-600 flex justify-between pr-10'><strong>Payment Status:</strong> {order.paymentStatus}</p>
@@ -262,20 +261,20 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                         <p className='flex justify-between pr-10'><strong>Total Items:</strong> {order.totalQuantity}</p>
                                         <p className='flex justify-between pr-10'><strong>Order Status:</strong> {order.orderStatus}</p>
                                         
-                                        {/* ✅ FIX: Safe access for grossTotalPrice */}
+                                        {/* FIX: Safe access for grossTotalPrice */}
                                         <p className='flex justify-between font-bold pr-10'><strong>Gross Total: </strong> ₹{safeCurrency(order.grossTotalPrice)}</p>
                                         
-                                        {/* ✅ FIX: Safe access for Discount/Voucher */}
+                                        {/* FIX: Safe access for Discount/Voucher */}
                                         <p className='flex justify-between font-bold pr-10'><strong>Discount: </strong> -₹{safeCurrency(order.voucherDiscount)}</p>
                                         
                                         <p className='flex justify-between pr-10'><strong>Voucher Code: </strong> '{order.voucherCode || 'No Voucher'}'</p>
                                         <p className='flex justify-between pr-10'><strong>Delivery: </strong> ₹{safeCurrency(order.deliveryCharge)}</p>
                                         
-                                        {/* ✅ FIX: Handle Packaging Charge/GST safely (Removed .toFixed() calls for missing fields) */}
+                                        {/* CRITICAL FIX: Handle Packaging Charge/GST safely */}
                                         {order.packagingCharge !== undefined && order.packagingCharge !== null ? (
                                             <p className='flex justify-between pr-10'><strong>Packaging Charge: </strong> ₹{safeCurrency(order.packagingCharge)}</p>
                                         ) : (
-                                            // Fallback: Display old GST field safely if it exists (for old orders)
+                                            // Fallback for older orders that still have the GST field, accessing it safely
                                             order.gst !== undefined && order.gst !== null && (
                                                 <p className='flex justify-between pr-10'><strong>GST (Legacy): </strong> ₹{safeCurrency(order.gst)}</p>
                                             )
@@ -317,21 +316,25 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                         <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><MapPin size={19} /> Address</h3>
                                         <p>{order.address}</p>
                                     </div>
-                                    
+
                                     {/* ✅ MOBILE BILLING DETAILS (Ensuring consistency) */}
                                     <div className='border-b pb-4'>
                                         <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><Banknote size={19} /> Billing Summary</h3>
                                         <p className='flex justify-between'><strong>Gross Total:</strong> ₹{safeCurrency(order.grossTotalPrice)}</p>
                                         <p className='flex justify-between'><strong>Discount:</strong> -₹{safeCurrency(order.voucherDiscount)}</p>
                                         
+                                        {/* Packaging Charge */}
                                         {order.packagingCharge !== undefined && order.packagingCharge !== null && (
                                             <p className='flex justify-between'><strong>Packaging Charge:</strong> ₹{safeCurrency(order.packagingCharge)}</p>
                                         )}
+                                        {/* GST (Legacy) - Show safely if exists */}
                                         {order.gst !== undefined && order.gst !== null && (
                                             <p className='flex justify-between'><strong>GST (Legacy):</strong> ₹{safeCurrency(order.gst)}</p>
                                         )}
+
                                         <p className='flex justify-between'><strong>Delivery Charge:</strong> ₹{safeCurrency(order.deliveryCharge)}</p>
                                         
+                                        {/* Total Paid / Payment Status */}
                                         <p className='text-green-600 flex font-bold justify-between pt-2'><strong>Total Paid:</strong> ₹{safeCurrency(order.totalAmount)}</p>
                                         <p className='text-sm flex justify-between'><strong>Payment Status:</strong> {order.paymentStatus}</p>
                                     </div>
@@ -342,10 +345,19 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                         <ul className="list-disc pl-5 space-y-1">
                                             {order.items.map((item, index) => (
                                                 <li key={index} className='flex justify-between'>
-                                                    <strong className='comfortaa font-bold text-purple-700 '>{item.productName} X {item.quantity}</strong>  ₹{safeCurrency(item.offerPrice * item.quantity)}
+                                                    <strong className='comfortaa font-bold text-purple-700 '>{item.productName} X {item.quantity}</strong>  ₹{safeCurrency(item.offerPrice)}
                                                 </li>
                                             ))}
                                         </ul>
+                                    </div>
+                                    
+                                    {/* ORDER/DELIVERY INFO */}
+                                    <div className='border-b pb-4'>
+                                        <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><Clock size={19} /> Order Info</h3>
+                                        <p className='flex justify-between'><strong>Order Placed:</strong> {formatOrderDateTime(order.createdAt)}</p>
+                                        <p className='flex justify-between'><strong>Delivery Date:</strong> {order.deliveryDate}</p>
+                                        <p className='flex justify-between'><strong>Delivery Time:</strong> {order.deliveryTime}</p>
+                                        <p className='flex justify-between'><strong>Voucher Code:</strong> {order.voucherCode || 'No Voucher'}</p>
                                     </div>
 
                                     {/* INSTRUCTION */}
