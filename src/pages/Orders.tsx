@@ -449,28 +449,36 @@ const Orders = () => {
                                         </div>
                                     </div>
 
-                                    {/* ✅ FIX: PRICE BREAKDOWN SECTION (Removed GST reference) */}
+                                    {/* ✅ FIX: PRICE BREAKDOWN SECTION (CRASH PROTECTION) */}
                                     <div className="pb-2 border-b text-gray-700 text-sm">
                                         <div className="flex justify-between py-1">
                                             <span>Item Total</span>
-                                            {/* Note: grossTotalPrice should be a string or safely converted */}
+                                            {/* Accessing grossTotalPrice safely */}
                                             <span>₹{selectedOrder?.grossTotalPrice || '0.00'}</span>
                                         </div>
 
+                                        {/* Voucher Discount */}
                                         {selectedOrder?.voucherDiscount !== undefined && selectedOrder?.voucherDiscount !== null && (
                                             <div className="flex justify-between py-1">
                                                 <span>Voucher Discount</span>
-                                                <span>-₹{selectedOrder.voucherDiscount}</span>
+                                                {/* Safely display discount */}
+                                                <span>-₹{selectedOrder.voucherDiscount || '0.00'}</span>
                                             </div>
                                         )}
 
-                                        {/* Added Packaging Charge safe access */}
-                                        {/* Assumed packagingCharge exists on selectedOrder object if it's set */}
-                                        {selectedOrder?.packagingCharge !== undefined && selectedOrder?.packagingCharge !== null && selectedOrder.packagingCharge > 0 && (
+                                        {/* Packaging Charge (Replaced GST) */}
+                                        {/* This handles both older orders (where it's undefined) and newer orders */}
+                                        {(selectedOrder?.packagingCharge !== undefined && selectedOrder.packagingCharge !== null && selectedOrder.packagingCharge > 0) ? (
                                             <div className="flex justify-between py-1">
                                                 <span>Packaging Charge</span>
-                                                {/* Ensure safe display of packaging charge */}
+                                                {/* Ensure safe display and use toFixed(2) if the value is a number */}
                                                 <span>₹{selectedOrder.packagingCharge.toFixed(2) || '0.00'}</span>
+                                            </div>
+                                        ) : selectedOrder?.gst !== undefined && selectedOrder.gst !== null && (
+                                            // Fallback: Display old GST field safely if it exists (for old orders)
+                                            <div className="flex justify-between py-1">
+                                                <span>GST (Legacy)</span>
+                                                <span>₹{selectedOrder.gst.toFixed(2) || '0.00'}</span>
                                             </div>
                                         )}
 
@@ -506,7 +514,8 @@ const Orders = () => {
                                                 <div className="mt-4 flex items-center gap-2 text-green-600 text-sm">
                                                     <CheckCircle size={16} />
                                                     <p>
-                                                        {`Paid on ${new Date(selectedOrder.createdAt).toLocaleString()}`}
+                                                        {/* Safely handle date conversion */}
+                                                        {`Paid on ${new Date(selectedOrder?.createdAt).toLocaleString()}`}
                                                     </p>
                                                 </div>
                                             ) : selectedOrder.paymentStatus === 'pending' ? (
