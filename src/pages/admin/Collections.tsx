@@ -116,7 +116,8 @@ function Collections() {
                     variant='solid' size='sm'
                     color='success' radius='lg'
                     onPress={handlePrevMonth}
-                    startContent={<ChevronLeft size={16} />}
+                    startContent={<ChevronLeft size={16} className='text-white' />} // ✅ Added text-white
+                    className='text-white font-bold' // ✅ Added text-white font-bold
                 >
                     Previous Month
                 </Button>
@@ -128,7 +129,8 @@ function Collections() {
                     onPress={handleNextMonth}
                     color='success' radius='lg'
                     disabled={isSameMonth(currentMonth, new Date())}
-                    endContent={<ChevronRight size={16} />}
+                    endContent={<ChevronRight size={16} className='text-white' />} // ✅ Added text-white
+                    className='text-white font-bold' // ✅ Added text-white font-bold
                 >
                     Next Month
                 </Button>
