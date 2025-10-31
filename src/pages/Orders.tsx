@@ -453,21 +453,24 @@ const Orders = () => {
                                     <div className="pb-2 border-b text-gray-700 text-sm">
                                         <div className="flex justify-between py-1">
                                             <span>Item Total</span>
+                                            {/* Note: grossTotalPrice should be a string or safely converted */}
                                             <span>₹{selectedOrder?.grossTotalPrice || '0.00'}</span>
                                         </div>
 
-                                        {selectedOrder?.voucherDiscount && (
+                                        {selectedOrder?.voucherDiscount !== undefined && selectedOrder?.voucherDiscount !== null && (
                                             <div className="flex justify-between py-1">
                                                 <span>Voucher Discount</span>
-                                                <span>-₹{selectedOrder?.voucherDiscount}</span>
+                                                <span>-₹{selectedOrder.voucherDiscount}</span>
                                             </div>
                                         )}
 
-                                        {/* Added Packaging Charge/Delivery Charge safe access */}
-                                        {selectedOrder?.packagingCharge && (
+                                        {/* Added Packaging Charge safe access */}
+                                        {/* Assumed packagingCharge exists on selectedOrder object if it's set */}
+                                        {selectedOrder?.packagingCharge !== undefined && selectedOrder?.packagingCharge !== null && selectedOrder.packagingCharge > 0 && (
                                             <div className="flex justify-between py-1">
                                                 <span>Packaging Charge</span>
-                                                <span>₹{selectedOrder?.packagingCharge || '0.00'}</span>
+                                                {/* Ensure safe display of packaging charge */}
+                                                <span>₹{selectedOrder.packagingCharge.toFixed(2) || '0.00'}</span>
                                             </div>
                                         )}
 
