@@ -76,6 +76,14 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
             });
     }
 
+    // Helper function to safely display currency fields
+    const safeCurrency = (value) => {
+        // Ensures the value is treated as a number and falls back to '0.00' if null/undefined
+        const num = parseFloat(value);
+        return isNaN(num) ? '0.00' : num.toFixed(2);
+    };
+
+
     return (
         <motion.div
             key={order.id}
@@ -129,7 +137,8 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                             <strong>Total Items:</strong> {order.totalQuantity}
                         </p>
                         <p>
-                            <strong>Total Price:</strong> ₹{order.totalAmount}
+                            {/* ✅ FIX: Safe access to totalAmount */}
+                            <strong>Total Price:</strong> ₹{safeCurrency(order.totalAmount)}
                         </p>
                         <p className='animate-pulse capitalize'>
                             <strong>Payment Status:</strong> {order.paymentStatus}
@@ -233,7 +242,8 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                     <div>
                                         <h3 className="font-semibold lancelot text-purple-700 mb-2 flex gap-2 item-center"><Banknote size={19} /> Payment Details</h3>
                                         <p className='flex justify-between pr-10'><strong>Total Items:</strong> {order.totalQuantity}</p>
-                                        <p className='flex justify-between pr-10'><strong>Total Price:</strong> ₹{order.totalAmount}</p>
+                                        {/* ✅ FIX: Use safeCurrency helper */}
+                                        <p className='flex justify-between pr-10'><strong>Total Price:</strong> ₹{safeCurrency(order.totalAmount)}</p>
                                         <p className='text-green-600 flex justify-between pr-10'><strong>Payment ID:</strong> {order.razorpay_payment_id || 'CASH ON DELIVERY'}</p>
                                         <p className='text-green-600 flex justify-between pr-10'><strong>Payment Status:</strong> {order.paymentStatus}</p>
                                         <p className='flex justify-between pr-10'><strong>Delivery Date:</strong> {order.deliveryDate}</p>
@@ -244,7 +254,7 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                         <ul className="list-disc pl-5 space-y-1">
                                             {order.items.map((item, index) => (
                                                 <li key={index} className='flex justify-between pr-10'>
-                                                    <strong>{item.productName}</strong>  Quantity: {item.quantity}, Price: {item.offerPrice}
+                                                    <strong>{item.productName}</strong>  Quantity: {item.quantity}, Price: {safeCurrency(item.offerPrice)}
                                                 </li>
                                             ))}
                                         </ul>
@@ -253,15 +263,27 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                         <h3 className="font-bold lancelot text-purple-700 mb-2 flex gap-2 item-center"><Box size={19} /> Order Details</h3>
                                         <p className='flex justify-between pr-10'><strong>Total Items:</strong> {order.totalQuantity}</p>
                                         <p className='flex justify-between pr-10'><strong>Order Status:</strong> {order.orderStatus}</p>
-                                        <p className='flex justify-between pr-10'><strong>Gross Total: </strong> ₹{order.grossTotalPrice}</p>
-                                        <p className='flex justify-between pr-10'><strong>Discount: </strong> -₹{order.voucherDiscount ? order.voucherDiscount : 0}</p>
-                                        <p className='flex justify-between pr-10'><strong>Voucher Code: </strong> '{order.voucherCode ? order.voucherCode : 'No Voucher'}'</p>
-                                        <p className='flex justify-between pr-10'><strong>Delivery: </strong> ₹{order.deliveryCharge}</p>
-                                        <p className='flex justify-between pr-10'><strong>GST: </strong> ₹{order.gst}</p>
+                                        {/* ✅ FIX: Safe access for grossTotalPrice */}
+                                        <p className='flex justify-between font-bold pr-10'><strong>Gross Total: </strong> ₹{safeCurrency(order.grossTotalPrice)}</p>
+                                        {/* ✅ FIX: Safe access for Discount/Voucher */}
+                                        <p className='flex justify-between font-bold pr-10'><strong>Discount: </strong> -₹{safeCurrency(order.voucherDiscount)}</p>
+                                        <p className='flex justify-between pr-10'><strong>Voucher Code: </strong> '{order.voucherCode || 'No Voucher'}'</p>
+                                        <p className='flex justify-between pr-10'><strong>Delivery: </strong> ₹{safeCurrency(order.deliveryCharge)}</p>
+                                        
+                                        {/* ✅ FIX: Handle Packaging Charge/GST safely */}
+                                        {order.packagingCharge !== undefined && order.packagingCharge !== null ? (
+                                            <p className='flex justify-between pr-10'><strong>Packaging Charge: </strong> ₹{safeCurrency(order.packagingCharge)}</p>
+                                        ) : (
+                                            // Fallback for older orders that still have the GST field, accessing it safely
+                                            order.gst !== undefined && order.gst !== null && (
+                                                <p className='flex justify-between pr-10'><strong>GST (Legacy): </strong> ₹{safeCurrency(order.gst)}</p>
+                                            )
+                                        )}
+                                        
                                         <p className='flex justify-between pr-10'><strong>Order Created At:</strong> {formatOrderDateTime(order.createdAt)}</p>
                                     </div>
                                     <div>
-                                        <h3 className="font-bold lancelot text-purple-700 mb-2 flex gap-2 item-center">< CookingPot size={19} /> Instruction</h3>
+                                        <h3 className="font-bold lancelot text-purple-700 mb-2 flex gap-2 item-center"><CookingPot size={19} /> Instruction</h3>
                                         <p className='text-gray-600'>" {order.note} "</p>
                                     </div>
                                 </div>
@@ -270,131 +292,69 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                     }
                 </AnimatePresence>
             </div>
+            {/* MOBILE DRAWER DETAILS */}
             <Drawer isOpen={isOpen} onOpenChange={onOpenChange}>
                 <DrawerContent className= "bg-white">
                     {(onClose) => (
                         <>
-                            <DrawerHeader className="flex items-center gap-1 bg-white  border-b fixed  top-0 w-full z-[100] shadow-sm">
+                            <DrawerHeader className="flex items-center gap-1 bg-white  border-b fixed top-0 w-full z-[100] shadow-sm">
                                 <IconButton><ArrowLeft size={20} onClick={onClose} /></IconButton>
-                                <p> Order #{order?.id}</p>
+                                <p> Order #{order?.id.slice(-6)}</p>
                             </DrawerHeader>
-                            <DrawerBody className="h-full overflow-auto mt-18">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                                    <div>
-                                        <h3 className="font-semibold lancelot text-2xl mb-2">Customer Details</h3>
-                                        <p className='flex justify-between '><strong>Name:</strong> {order.customer.name}</p>
-                                        <p className='flex justify-between text-sm'><strong>Customer ID:</strong> {order.customer.uid}</p>
-                                        <p className='flex items-center justify-between gap-2 '><strong>Phone:</strong> {order.customer.phoneNumber}</p>
-                                        <p className='flex justify-between '><strong>Email:</strong> {order.customer.email}</p>
+                            <DrawerBody className="h-full overflow-auto mt-18 p-4">
+                                {/* Details inside the mobile drawer */}
+                                <div className="space-y-4">
+                                    <div className='border-b pb-4'>
+                                        <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><User size={19} /> Customer Details</h3>
+                                        <p><strong>Name:</strong> {order.customer.name}</p>
+                                        <p className='text-sm'><strong>Customer ID:</strong> {order.customer.uid}</p>
+                                        <p className='flex items-center gap-2'><strong>Phone:</strong> {order.customer.phoneNumber} <Copy size={16} onClick={() => copyToClipboard(order.customer.phoneNumber)} className="cursor-pointer text-blue-500" /></p>
+                                        <p><strong>Email:</strong> {order.customer.email}</p>
                                     </div>
-                                    <hr className='md:hidden border border-gray-400 my-1' />
-                                    <div>
-                                        <h3 className="font-semibold lancelot text-2xl mb-2">Address</h3>
+                                    
+                                    <div className='border-b pb-4'>
+                                        <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><MapPin size={19} /> Address</h3>
                                         <p>{order.address}</p>
                                     </div>
-                                    <hr className='md:hidden border border-gray-400 my-1' />
-                                    <div className="">
-                                        <h3 className="font-semibold lancelot text-2xl mb-2">Items</h3>
-                                        <ul className="list-disc px-5 space-y-1">
+
+                                    <div className='border-b pb-4'>
+                                        <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><Box size={19} /> Items & Quantities</h3>
+                                        <ul className="list-disc pl-5 space-y-1">
                                             {order.items.map((item, index) => (
-                                                <li key={index} className='flex justify-between '>
-                                                    <strong className='comfortaa font-bold text-purple-700 '>{item.productName} X {item.quantity}</strong>  ₹{item.offerPrice * item.quantity}
+                                                <li key={index} className='flex justify-between'>
+                                                    <strong className='comfortaa font-bold text-purple-700 '>{item.productName} X {item.quantity}</strong>  ₹{safeCurrency(item.offerPrice * item.quantity)}
                                                 </li>
                                             ))}
                                         </ul>
                                     </div>
-                                    <hr className='md:hidden border border-gray-400 my-1' />
-                                    <div>
-                                        <h3 className="font-semibold lancelot text-2xl mb-2">Payment Details</h3>
-                                        <p className='flex justify-between '><strong>Total Items:</strong> {order.totalQuantity}</p>
-                                        <p className='flex justify-between '><strong>GST:</strong> ₹{order.gst.toFixed(2)}</p>
-                                        <p className='flex justify-between '><strong>Delivery Charge:</strong> ₹{order.deliveryCharge}</p>
-                                        <p className='text-green-600 flex font-bold justify-between'><strong>Total Price:</strong> ₹{order.totalAmount}</p>
-                                        <p className='text-green-600 flex justify-between'><strong>Payment ID:</strong> {order.razorpay_payment_id || 'CASH ON DELIVERY'}</p>
-                                        <p className='text-green-600 flex justify-between'><strong>Payment Status:</strong> {order.paymentStatus}</p>
-                                        <p><strong>Delivery Date:</strong> {order.deliveryDate}</p>
-                                        <p><strong>Delivery Time:</strong> {order.deliveryTime}</p>
+                                    
+                                    <div className='border-b pb-4'>
+                                        <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><Banknote size={19} /> Billing</h3>
+                                        <p className='flex justify-between'><strong>Gross Total:</strong> ₹{safeCurrency(order.grossTotalPrice)}</p>
+                                        <p className='flex justify-between'><strong>Discount:</strong> -₹{safeCurrency(order.voucherDiscount)}</p>
+                                        
+                                        {order.packagingCharge !== undefined && order.packagingCharge !== null && (
+                                            <p className='flex justify-between'><strong>Packaging:</strong> ₹{safeCurrency(order.packagingCharge)}</p>
+                                        )}
+                                        <p className='flex justify-between'><strong>Delivery:</strong> ₹{safeCurrency(order.deliveryCharge)}</p>
+                                        
+                                        {/* Fallback for older orders that still have the GST field */}
+                                        {order.gst !== undefined && order.gst !== null && (
+                                            <p className='flex justify-between'><strong>GST (Legacy):</strong> ₹{safeCurrency(order.gst)}</p>
+                                        )}
+                                        
+                                        <p className='text-green-600 flex font-bold justify-between pt-2'><strong>Total Paid:</strong> ₹{safeCurrency(order.totalAmount)}</p>
+                                        <p className='text-sm flex justify-between'><strong>Payment Status:</strong> {order.paymentStatus}</p>
                                     </div>
-                                    <hr className='md:hidden border border-gray-400 my-1' />
+                                    
                                     <div>
-                                        <h3 className="font-bold lancelot text-2xl mb-2">Order Details</h3>
-                                        <p className='flex justify-between '><strong>Total Items:</strong> {order.totalQuantity}</p>
-                                        <p className='flex justify-between '><strong>Order Status:</strong> {order.orderStatus}</p>
-                                        <p className='flex justify-between font-bold '><strong>Gross Total: </strong> ₹{order.grossTotalPrice}</p>
-                                        <p className='flex justify-between  font-bold'><strong>Discount: </strong> -₹{order.voucherDiscount}</p>
-                                        <p className='flex justify-between '><strong>Voucher Code: </strong> '{order.voucherCode}'</p>
-                                        <p className='flex justify-between '><strong>Delivery: </strong> ₹{order.deliveryCharge}</p>
-                                        <p className='flex justify-between '><strong>GST: </strong> ₹{order.gst}</p>
-                                        <p className='flex justify-between '><strong>Order Created At:</strong> {formatOrderDateTime(order.createdAt)}</p>
-                                    </div>
-                                    <hr className='md:hidden border border-gray-400 my-1' />
-                                    <div>
-                                        <h3 className="font-bold lancelot text-2xl mb-2">Cooking Instruction</h3>
-                                        <p className='text-gray-600'>" {order.note} "</p>
+                                        <h3 className="font-bold lancelot text-xl mb-2 flex gap-2"><CookingPot size={19} /> Instruction</h3>
+                                        <p className='text-gray-600'>"{order.note || 'No special instructions.'}"</p>
                                     </div>
                                 </div>
                             </DrawerBody>
                             <DrawerFooter className='border-t-2 border-gray-200'>
-                                <Select
-                                    placeholder="Select Status"
-                                    selectedKeys={new Set([order.orderStatus])}
-                                    variant="bordered"
-                                    radius="full"
-                                    className={`border-4 p-px rounded-full ${getBorderColor(order.orderStatus)}`}
-                                    onSelectionChange={(newStatus) => {
-                                        const status = Array.from(newStatus)[0];
-                                        onUpdateStatus(order.id, status);
-                                    }}
-                                >
-                                    <SelectItem
-                                        key="received"
-                                        startContent={<Download size={15} />}
-                                        color="warning"
-                                        className="bg-orange-200"
-                                    >
-                                        Received
-                                    </SelectItem>
-                                    <SelectItem
-                                        key="preparing"
-                                        startContent={<Loader className="animate-spin" size={15} />}
-                                        color="warning"
-                                        className="bg-yellow-200"
-                                    >
-                                        Preparing
-                                    </SelectItem>
-                                    <SelectItem
-                                        key="out for delivery"
-                                        startContent={<Truck size={15} />}
-                                        className="hover:bg-blue-500 bg-blue-200"
-                                    >
-                                        Out for Delivery
-                                    </SelectItem>
-                                    <SelectItem
-                                        key="delivered"
-                                        startContent={<Circle size={15} />}
-                                        color="success"
-                                        className="bg-green-300"
-                                    >
-                                        Delivered
-                                    </SelectItem>
-                                    <SelectItem
-                                        key="cancelled"
-                                        startContent={<X size={15} />}
-                                        color="danger"
-                                        className="bg-red-200"
-                                    >
-                                        Cancelled
-                                    </SelectItem>
-                                    <SelectItem
-                                        key="failed"
-                                        startContent={<TriangleAlert size={15} />}
-                                        color="danger"
-                                        className="bg-red-200"
-                                    >
-                                        Failed
-                                    </SelectItem>
-                                </Select>
-                                <Button variant="secondary" size='sm' onClick={onClose}>
+                                <Button variant="secondary" className='w-full' onClick={onClose}>
                                     Close
                                 </Button>
                             </DrawerFooter>
