@@ -5,7 +5,7 @@ import OrderSummary from '../components/OrderSummary';
 import { fetchUserOrders } from '../services/orderService';
 import { useAuthStore } from '../store/authStore';
 import { StatusBadge } from '../components/StatusBadge';
-import { ArrowLeft, ArrowRight, CheckCircle, CircleHelp, HandCoins, Home, RefreshCcw, Store, XIcon, Info, Car, Calendar } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, HandCoins, Home, RefreshCcw, Store, XIcon, Info, Car, Calendar, Star } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerBody, DrawerFooter } from "@heroui/drawer";
 import { useDisclosure } from '@/hooks/useDisclosure';
 import { useCartStore } from '../store/cartStore';
@@ -20,7 +20,7 @@ import { addItemRating } from '../services/productService';
 import { getDocs, collection, query, where } from 'firebase/firestore';
 import { db } from '../config/firebaseConfig';
 
-const DISMISSED_ITEMS_KEY = 'dismissed_review_items'; // Key for localStorage
+const DISMISSED_ITEMS_KEY = 'dismissed_review_items'; // Key for localStorage persistence
 
 const Orders = () => {
     const [detailOpen, setDetailOpen] = useState(false);
@@ -40,10 +40,10 @@ const Orders = () => {
         orderId: string | null
     }>({ open: false, item: null, orderId: null });
     
-    // Tracks items rated/dismissed in the current session (transient)
+    // Tracks items rated/submitted in the current session (transient)
     const [ratedItems, setRatedItems] = useState<{ [key: string]: boolean }>({}); 
     
-    // ✅ FIX 1: Initializing state with persistent data from localStorage
+    // FIX 1: Initializing state with persistent data from localStorage
     const [dismissedItems, setDismissedItems] = useState<string[]>(() => {
         const savedDismissed = localStorage.getItem(DISMISSED_ITEMS_KEY);
         return savedDismissed ? JSON.parse(savedDismissed) : [];
@@ -53,7 +53,6 @@ const Orders = () => {
 
     useEffect(() => {
         window.scrollTo(0, 0);
-        // We no longer need to load here, as it's done in useState initializer
     }, []);
 
     const { data: orders = [], isLoading, isError } = useQuery({
@@ -85,7 +84,7 @@ const Orders = () => {
                         // 1. Skip if item was already handled (rated/dismissed) in state
                         if (ratedItems[uniqueItemKey]) continue; 
                         
-                        // 2. ✅ FIX 2: Skip if the user has explicitly dismissed this item previously (persistent check)
+                        // 2. Skip if the user has explicitly dismissed this item previously (persistent check)
                         if (dismissedItems.includes(uniqueItemKey)) continue;
 
                         // 3. Check the database for a submitted rating
@@ -96,6 +95,12 @@ const Orders = () => {
                             where('userId', '==', userDetails?.uid || '')
                         );
                         const snap = await getDocs(q);
+                        
+                        if (!snap.empty) {
+                            // FIX: If review found in DB, mark as rated in state so prompt doesn't show
+                            setRatedItems(prev => ({ ...prev, [uniqueItemKey]: true }));
+                            continue; // Move to next item
+                        }
                         
                         if (snap.empty) {
                             // Item delivered, not rated, and not dismissed -> Show modal
@@ -110,14 +115,14 @@ const Orders = () => {
         })();
     }, [orders, userDetails, ratedItems, dismissedItems, checkingRatings]); 
     
-    // ✅ NEW HANDLER: Manages saving the persistent "skip" status
+    // HANDLER: Manages saving the persistent "skip" status (used by both skip and submit)
     const handleDismissRating = (itemId: string, orderId: string) => {
         const uniqueItemKey = `${orderId}_${itemId}`;
 
         // 1. Mark as handled in state (stops re-prompting in current session)
         setRatedItems(prev => ({ ...prev, [uniqueItemKey]: true })); 
         
-        // 2. Mark as dismissed in persistent storage (stops re-prompting after refresh/navigation)
+        // 2. Mark as dismissed in persistent storage (stops re-propmpting after refresh/navigation)
         const newDismissed = [...dismissedItems, uniqueItemKey];
         setDismissedItems(newDismissed);
         localStorage.setItem(DISMISSED_ITEMS_KEY, JSON.stringify(newDismissed));
@@ -139,15 +144,23 @@ const Orders = () => {
             userName: userDetails?.displayName || 'User',
         });
         
-        // ✅ Use the persistence handler after successful submission
+        // ✅ CRITICAL FIX: Use the persistence handler after successful submission
         handleDismissRating(ratingModal.item.id, ratingModal.orderId); 
+        toast.success("Review submitted successfully! (This status is now permanent)");
     };
 
     const handleSkipRating = () => {
-        // This function is now simplified to just call the handleDismissRating logic
         if (!ratingModal.item || !ratingModal.orderId) return;
         handleDismissRating(ratingModal.item.id, ratingModal.orderId);
     };
+    
+    // NEW HANDLER: Forces the modal open for a specific item (for manual review button)
+    const handleReviewNow = (item: any, orderId: string) => {
+        setRatingModal({ open: true, item, orderId });
+        // Close the details drawer for cleaner UX
+        onClose(); 
+    };
+
 
     if (isLoading) {
         return <div className='text-center py-10'>Loading orders...</div>;
@@ -395,17 +408,48 @@ const Orders = () => {
                                     <div className="mt-4 border-b pb-4">
                                         <h3 className="font-medium text-sm text-gray-800">Order Items</h3>
                                         <div className="mt-2 flex flex-col gap-2">
-                                            {selectedOrder?.items?.map((item: any, idx: number) => (
-                                                <div key={idx} className="flex justify-between items-center pl-2">
-                                                    <span>
-                                                        {item.productName} x {item.quantity}
-                                                    </span>
-                                                    <span>₹{item.offerPrice * item.quantity}</span>
-                                                </div>
-                                            ))}
+                                            {selectedOrder?.items?.map((item: any, idx: number) => {
+                                                const uniqueItemKey = `${selectedOrder.id}_${item.id}`;
+                                                const isDelivered = selectedOrder.orderStatus === 'delivered';
+                                                
+                                                // Check if the item has been rated/submitted (by checking the persistent state/DB logic)
+                                                const isReviewSubmitted = ratedItems[uniqueItemKey]; 
+                                                
+                                                return (
+                                                    <div key={idx} className="flex flex-col gap-1 border-b border-gray-100 pb-2">
+                                                        <div className="flex justify-between items-center pl-2">
+                                                            <span className="font-medium text-gray-800">
+                                                                {item.productName} x {item.quantity}
+                                                            </span>
+                                                            <span>₹{item.offerPrice * item.quantity}</span>
+                                                        </div>
+
+                                                        {isDelivered && (
+                                                            <>
+                                                                {/* Display Status or Button */}
+                                                                {isReviewSubmitted ? (
+                                                                    // CASE 1: Review is submitted (permanent status)
+                                                                    <span className='text-xs text-green-600 self-end pr-2 flex items-center gap-1'>
+                                                                        <CheckCircle size={14} /> Review Submitted
+                                                                    </span>
+                                                                ) : (
+                                                                    // CASE 2: Review not submitted -> Show button (user can rate now, even if dismissed)
+                                                                    <button
+                                                                        className='text-xs font-semibold text-orange-500 hover:text-orange-600 self-end pr-2 transition-colors flex items-center gap-1'
+                                                                        onClick={() => handleReviewNow(item, selectedOrder.id)} 
+                                                                    >
+                                                                        <Star size={14} className="inline-block" fill="#f97316"/> Rate Item Now
+                                                                    </button>
+                                                                )}
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     </div>
 
+                                    {/* ❌ FIX 3: Removed the old broken GST/Tax display line here */}
                                     <div className="pb-2 border-b text-gray-700 text-sm">
                                         <div className="flex justify-between py-1">
                                             <span>Item Total</span>
@@ -419,11 +463,13 @@ const Orders = () => {
                                             </div>
                                         )}
 
+                                        {/* ✅ Ensure Packaging Charge is handled correctly if it exists */}
+                                        {/* Assuming your OrderDetails includes packagingCharge now, add it here if needed, or Delivery Charge covers it */}
                                         <div className="flex justify-between py-1">
                                             <span>Delivery Charges</span>
                                             <span>₹{selectedOrder?.deliveryCharge || '0.00'}</span>
                                         </div>
-
+                                        
                                     </div>
 
                                     <div className="flex justify-between text-gray-800 font-semibold text-lg mt-4">
@@ -497,15 +543,15 @@ const Orders = () => {
                 priceChanges={priceChanges}
             />
             
-            {/* ✅ UPDATED MODAL CALL - Passes required IDs and handlers */}
+            {/* FINAL MODAL CALL WITH PERSISTENCE LOGIC */}
             <ItemRatingModal
                 isOpen={ratingModal.open}
-                itemId={ratingModal.item?.id || ''} // Pass item ID
-                orderId={ratingModal.orderId || ''} // Pass order ID
+                itemId={ratingModal.item?.id || ''} 
+                orderId={ratingModal.orderId || ''} 
                 itemName={ratingModal.item?.productName || ''}
                 onClose={handleSkipRating} 
-                onDismiss={handleDismissRating} // Added new prop
-                onSubmit={handleSubmitRating}
+                onDismiss={handleDismissRating} // Called when user clicks X/backdrop (saves to localStorage)
+                onSubmit={handleSubmitRating} // Calls handleDismissRating internally after success
             />
         </div >
     );
