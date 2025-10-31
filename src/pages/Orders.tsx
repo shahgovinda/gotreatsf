@@ -40,10 +40,10 @@ const Orders = () => {
         orderId: string | null
     }>({ open: false, item: null, orderId: null });
     
-    // Tracks items rated/submitted in the current session (transient)
+    // Tracks items rated/dismissed in the current session (transient)
     const [ratedItems, setRatedItems] = useState<{ [key: string]: boolean }>({}); 
     
-    // Initializing state with persistent data from localStorage
+    // FIX 1: Initializing state with persistent data from localStorage
     const [dismissedItems, setDismissedItems] = useState<string[]>(() => {
         const savedDismissed = localStorage.getItem(DISMISSED_ITEMS_KEY);
         return savedDismissed ? JSON.parse(savedDismissed) : [];
@@ -462,7 +462,7 @@ const Orders = () => {
                                                 <span>-₹{selectedOrder?.voucherDiscount}</span>
                                             </div>
                                         )}
-                                        
+
                                         {/* Added Packaging Charge/Delivery Charge safe access */}
                                         {selectedOrder?.packagingCharge && (
                                             <div className="flex justify-between py-1">
@@ -476,7 +476,6 @@ const Orders = () => {
                                             <span>₹{selectedOrder?.deliveryCharge || '0.00'}</span>
                                         </div>
                                     </div>
-                                    {/* ❌ OLD GST LINES REMOVED HERE */}
 
                                     <div className="flex justify-between text-gray-800 font-semibold text-lg mt-4">
                                         <span>{selectedOrder.paymentStatus === 'pending' && selectedOrder?.orderStatus !== 'delivered' ? "Amount To Pay : " : "Total Paid : "}</span>
