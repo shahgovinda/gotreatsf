@@ -115,13 +115,13 @@ const ViewCustomers = () => {
 
 			<div className='flex justify-end items-center mb-4'>
 				<Button
-					// ✅ FIX: Change variant to solid/default and set color to 'success' (green)
+					// ✅ FIX: Added bg-green-500 and hover:bg-green-600 for visibility
 					variant='solid'
 					color='success' 
 					size='sm' radius='full'
 					onPress={handleDownloadExcel}
-					className='mb-4 text-white font-bold' // ✅ Ensure text is white and bold
-					startContent={<ArrowDownToLine size={15} className='text-white' />} // ✅ Ensure icon is white
+					className='mb-4 text-white font-bold bg-green-500 hover:bg-green-600 transition-colors' 
+					startContent={<ArrowDownToLine size={15} className='text-white' />} 
 				>
 					Customers Excel
 				</Button>
