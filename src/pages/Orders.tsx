@@ -43,7 +43,7 @@ const Orders = () => {
     // Tracks items rated/submitted in the current session (transient)
     const [ratedItems, setRatedItems] = useState<{ [key: string]: boolean }>({}); 
     
-    // FIX 1: Initializing state with persistent data from localStorage
+    // Initializing state with persistent data from localStorage
     const [dismissedItems, setDismissedItems] = useState<string[]>(() => {
         const savedDismissed = localStorage.getItem(DISMISSED_ITEMS_KEY);
         return savedDismissed ? JSON.parse(savedDismissed) : [];
@@ -97,7 +97,7 @@ const Orders = () => {
                         const snap = await getDocs(q);
                         
                         if (!snap.empty) {
-                            // FIX: If review found in DB, mark as rated in state so prompt doesn't show
+                            // If review found in DB, mark as rated in state so prompt doesn't show
                             setRatedItems(prev => ({ ...prev, [uniqueItemKey]: true }));
                             continue; // Move to next item
                         }
@@ -144,7 +144,7 @@ const Orders = () => {
             userName: userDetails?.displayName || 'User',
         });
         
-        // ✅ CRITICAL FIX: Use the persistence handler after successful submission
+        // Use the persistence handler after successful submission
         handleDismissRating(ratingModal.item.id, ratingModal.orderId); 
         toast.success("Review submitted successfully! (This status is now permanent)");
     };
@@ -449,7 +449,7 @@ const Orders = () => {
                                         </div>
                                     </div>
 
-                                    {/* ❌ FIX 3: Removed the old broken GST/Tax display line here */}
+                                    {/* ✅ FIX: PRICE BREAKDOWN SECTION (Removed GST reference) */}
                                     <div className="pb-2 border-b text-gray-700 text-sm">
                                         <div className="flex justify-between py-1">
                                             <span>Item Total</span>
@@ -462,15 +462,21 @@ const Orders = () => {
                                                 <span>-₹{selectedOrder?.voucherDiscount}</span>
                                             </div>
                                         )}
+                                        
+                                        {/* Added Packaging Charge/Delivery Charge safe access */}
+                                        {selectedOrder?.packagingCharge && (
+                                            <div className="flex justify-between py-1">
+                                                <span>Packaging Charge</span>
+                                                <span>₹{selectedOrder?.packagingCharge || '0.00'}</span>
+                                            </div>
+                                        )}
 
-                                        {/* ✅ Ensure Packaging Charge is handled correctly if it exists */}
-                                        {/* Assuming your OrderDetails includes packagingCharge now, add it here if needed, or Delivery Charge covers it */}
                                         <div className="flex justify-between py-1">
                                             <span>Delivery Charges</span>
                                             <span>₹{selectedOrder?.deliveryCharge || '0.00'}</span>
                                         </div>
-                                        
                                     </div>
+                                    {/* ❌ OLD GST LINES REMOVED HERE */}
 
                                     <div className="flex justify-between text-gray-800 font-semibold text-lg mt-4">
                                         <span>{selectedOrder.paymentStatus === 'pending' && selectedOrder?.orderStatus !== 'delivered' ? "Amount To Pay : " : "Total Paid : "}</span>
