@@ -250,7 +250,7 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                         <ul className="list-disc pl-5 space-y-1">
                                             {order.items.map((item, index) => (
                                                 <li key={index} className='flex justify-between pr-10'>
-                                                    <strong>{item.productName}</strong>  Quantity: {item.quantity}, Price: {safeCurrency(item.offerPrice)}
+                                                    <strong>{item.productName}</strong>  Quantity: {item.quantity}, Price: {safeCurrency(item.offerPrice * item.quantity)}
                                                 </li>
                                             ))}
                                         </ul>
@@ -316,7 +316,7 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                         <p>{order.address}</p>
                                     </div>
                                     
-                                    {/* ✅ DELIVERY INFO (Added missing fields) */}
+                                    {/* ✅ DELIVERY INFO (Ensuring consistency) */}
                                     <div className='border-b pb-4'>
                                         <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><Clock size={19} /> Order Info</h3>
                                         <p className='flex justify-between'><strong>Order Placed:</strong> {formatOrderDateTime(order.createdAt)}</p>
