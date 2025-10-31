@@ -1,4 +1,3 @@
-
 import { db } from '@/config/firebaseConfig';
 import { getAllCustomersFromDb } from '@/services/authService';
 import { Popover, PopoverContent, PopoverTrigger, Snippet, Tooltip, Button } from '@heroui/react';
@@ -10,6 +9,7 @@ import { saveAs } from 'file-saver';
 import toast from 'react-hot-toast';
 import { useQuery } from '@tanstack/react-query';
 import { fetchAllOrders } from '@/services/orderService';
+
 function Payments() {
 
 	const { data: orders = [], isLoading, isError } = useQuery({
@@ -76,8 +76,10 @@ function Payments() {
 					variant='shadow'
 					size='sm' radius='full'
 					onPress={handleDownloadExcel}
-					className='mb-4'
-					startContent={<ArrowDownToLine size={15} />}
+					// ✅ FIX: Added text-white and font-bold to className
+					className='mb-4 text-white font-bold bg-green-500 hover:bg-green-600 transition-colors' 
+					// ✅ FIX: Ensured icon color is white
+					startContent={<ArrowDownToLine size={15} className='text-white' />} 
 				>
 					Download Payments
 				</Button>
@@ -108,7 +110,7 @@ function Payments() {
 
 
 								return (
-									<tr key={order.id} className={` border-b text-sm   `}>
+									<tr key={order.id} className={` border-b text-sm  `}>
 										<td className="px-6  text-center border-r">
 											{index + 1}
 										</td>
@@ -118,7 +120,7 @@ function Payments() {
 											</Tooltip>
 										</td>
 
-										{/* customer Code  */}
+										{/* customer Code */}
 										<td className="px-6  text-center border-r">
 											<div className='flex items-center gap-2 justify-center'>
 												{order.customer?.name}
@@ -161,4 +163,4 @@ function Payments() {
 	)
 }
 
-export default Payments
+export default Payments;
