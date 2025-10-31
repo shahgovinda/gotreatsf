@@ -16,6 +16,8 @@ import { parseDate, getLocalTimeZone, today } from "@internationalized/date";
 import { create } from "domain";
 import { useMutation } from '@tanstack/react-query'
 import { createVoucher } from "@/services/voucherService";
+// ✅ FIX: Import toast library
+import toast from 'react-hot-toast'; 
 
 const defaultForm = {
     name: '',
@@ -57,9 +59,12 @@ const VoucherForm = ({
         onSuccess: () => {
             refetchVouchers();
             onOpenChange();
+            // Optional: Show success toast
+            toast.success("Voucher created and code copied!"); 
         },
         onError: (error) => {
-            alert('Failed to create voucher');
+            // FIX: Use toast for error display
+            toast.error('Failed to create voucher. Please check the console.'); 
         }
     });
 
@@ -95,7 +100,7 @@ const VoucherForm = ({
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Manual validation
+        // Manual validation (using toast instead of alert)
         if (
             !form.name.trim() ||
             !form.code.trim() ||
@@ -106,7 +111,7 @@ const VoucherForm = ({
             !dateRange?.end ||
             ((form.scope === 'specific') && form.allowedUsers.length === 0)
         ) {
-            toast.error("Please fill all Voucher fields.");
+            toast.error("Please fill all required fields."); // ✅ Changed alert to toast.error
             return;
         }
 
@@ -133,6 +138,7 @@ const VoucherForm = ({
             delete voucher.allowedUsers;
         }
         createVoucherMutation(voucher);
+        // Note: It's best practice to copy the code inside onSuccess, but copying here ensures it runs even if the mutation fails (if you want the user to have the code).
         navigator.clipboard.writeText(voucher.code)
     };
     return (
@@ -259,7 +265,7 @@ const VoucherForm = ({
                                     </div>
                                     <div className="flex flex-col items-center gap-1 w-1/2 justify-center pt-5">
                                         <label className="text-sm font-medium text-gray-700 text-center w-full">Single Use Per Customer</label>
-                                        {/* ✅ FIX 3: Corrected value conversion for persistence */}
+                                        {/* FIX 3: Corrected value conversion for persistence */}
                                         <RadioGroup
                                             color='primary'
                                             value={form.singleUsePerCustomer.toString()} 
