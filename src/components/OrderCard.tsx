@@ -121,11 +121,10 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                     </div>
                     <hr className=" md:hidden border border-gray-400 my-2" />
                     <div>
-                        {/* --- ADDED DELIVERY DATE HERE --- */}
+                        {/* Delivery Date/Time on the main card (Mobile) */}
                         <p className="inline-flex items-center gap-2">
                             <Clock size={16} /> {order.deliveryDate} | {order.deliveryTime}
                         </p>
-                        {/* ---------------------------------- */}
                         <p className="inline-flex items-center gap-2">
                             <Home size={16} /> {order.address}
                         </p>
@@ -274,7 +273,7 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                         {order.packagingCharge !== undefined && order.packagingCharge !== null ? (
                                             <p className='flex justify-between pr-10'><strong>Packaging Charge: </strong> ₹{safeCurrency(order.packagingCharge)}</p>
                                         ) : (
-                                            // Fallback for older orders that still have the GST field, accessing it safely
+                                            // Fallback: Display old GST field safely if it exists (for old orders)
                                             order.gst !== undefined && order.gst !== null && (
                                                 <p className='flex justify-between pr-10'><strong>GST (Legacy): </strong> ₹{safeCurrency(order.gst)}</p>
                                             )
@@ -316,7 +315,16 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                         <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><MapPin size={19} /> Address</h3>
                                         <p>{order.address}</p>
                                     </div>
-
+                                    
+                                    {/* ✅ DELIVERY INFO (Added missing fields) */}
+                                    <div className='border-b pb-4'>
+                                        <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><Clock size={19} /> Order Info</h3>
+                                        <p className='flex justify-between'><strong>Order Placed:</strong> {formatOrderDateTime(order.createdAt)}</p>
+                                        <p className='flex justify-between'><strong>Delivery Date:</strong> {order.deliveryDate}</p>
+                                        <p className='flex justify-between'><strong>Delivery Time:</strong> {order.deliveryTime}</p>
+                                        <p className='flex justify-between'><strong>Voucher Code:</strong> {order.voucherCode || 'No Voucher'}</p>
+                                    </div>
+                                    
                                     {/* ✅ MOBILE BILLING DETAILS (Ensuring consistency) */}
                                     <div className='border-b pb-4'>
                                         <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><Banknote size={19} /> Billing Summary</h3>
@@ -345,21 +353,15 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                         <ul className="list-disc pl-5 space-y-1">
                                             {order.items.map((item, index) => (
                                                 <li key={index} className='flex justify-between'>
-                                                    <strong className='comfortaa font-bold text-purple-700 '>{item.productName} X {item.quantity}</strong>  ₹{safeCurrency(item.offerPrice)}
+                                                    <strong className='comfortaa font-bold text-purple-700 '>{item.productName} X {item.quantity}</strong>  
+                                                    
+                                                    {/* ✅ FIX 2: Show Total Price (Unit Price * Quantity) */}
+                                                    ₹{safeCurrency(item.offerPrice * item.quantity)}
                                                 </li>
                                             ))}
                                         </ul>
                                     </div>
                                     
-                                    {/* ORDER/DELIVERY INFO */}
-                                    <div className='border-b pb-4'>
-                                        <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><Clock size={19} /> Order Info</h3>
-                                        <p className='flex justify-between'><strong>Order Placed:</strong> {formatOrderDateTime(order.createdAt)}</p>
-                                        <p className='flex justify-between'><strong>Delivery Date:</strong> {order.deliveryDate}</p>
-                                        <p className='flex justify-between'><strong>Delivery Time:</strong> {order.deliveryTime}</p>
-                                        <p className='flex justify-between'><strong>Voucher Code:</strong> {order.voucherCode || 'No Voucher'}</p>
-                                    </div>
-
                                     {/* INSTRUCTION */}
                                     <div>
                                         <h3 className="font-bold lancelot text-xl mb-2 flex gap-2"><CookingPot size={19} /> Instruction</h3>
