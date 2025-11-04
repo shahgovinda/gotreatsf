@@ -1,11 +1,12 @@
-import { useEffect, useState, useRef } from 'react'; // ✅ FIX: Removed extra 's' after useRef
+import { useEffect, useState, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Button, { IconButton } from '../components/Button';
 import OrderSummary from '../components/OrderSummary';
 import { fetchUserOrders } from '../services/orderService';
 import { useAuthStore } from '../store/authStore';
 import { StatusBadge } from '../components/StatusBadge';
-import { ArrowLeft, ArrowRight, CheckCircle, HandCoins, Home, RefreshCcw, Store, XIcon, Info, Car, Calendar } from 'lucide-react';
+// ✅ FIX: Added Star to the lucide-react imports
+import { ArrowLeft, ArrowRight, CheckCircle, CircleHelp, HandCoins, Home, RefreshCcw, Store, XIcon, Info, Car, Calendar, Star } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerBody, DrawerFooter } from "@heroui/drawer";
 import { useDisclosure } from '@/hooks/useDisclosure';
 import { useCartStore } from '../store/cartStore';
@@ -72,7 +73,7 @@ const Orders = () => {
     });
 
     // ------------------------------------------------------------------
-    // ✅ AUDIO NOTIFICATION LOGIC (Triggered by Polling)
+    // AUDIO NOTIFICATION LOGIC (Triggered by Polling)
     // ------------------------------------------------------------------
     useEffect(() => {
         if (!orders || orders.length === 0 || !audioRef.current) return;
@@ -87,7 +88,6 @@ const Orders = () => {
             const previousStatus = lastOrderStatuses[order.id];
 
             // Detect if status changed AND it's NOT the initial 'received' status
-            // We want sound for preparing, out for delivery, delivered, cancelled, or failed.
             if (previousStatus && previousStatus !== currentStatus) {
                 if (previousStatus === 'received' && currentStatus !== 'received') {
                     // Status changed from initial 'received' to anything else
@@ -105,10 +105,9 @@ const Orders = () => {
         }
 
         // Update the state with the current statuses for the next check
-        // We ensure we only set the status if it's the first time OR if it has changed.
         setLastOrderStatuses(currentStatuses);
 
-    }, [orders, lastOrderStatuses]); // Depends on new data (orders) and previous statuses
+    }, [orders, lastOrderStatuses]);
     // ------------------------------------------------------------------
 
 
@@ -212,7 +211,7 @@ const Orders = () => {
     };
 
     // ------------------------------------------------------------------
-    // ✅ AUDIO UNBLOCKER LOGIC: Attach this to the highest level interactive element
+    // AUDIO UNBLOCKER LOGIC: Attach this to the highest level interactive element
     // ------------------------------------------------------------------
     const handleAudioUnblock = () => {
         if (audioRef.current) {
