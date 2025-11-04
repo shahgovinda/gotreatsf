@@ -418,6 +418,10 @@ const Orders = () => {
                                                 <span>-₹{selectedOrder?.voucherDiscount}</span>
                                             </div>
                                         )}
+<div className="flex justify-between py-1">
+    <span>Packaging Charge</span>
+    <span>₹{selectedOrder?.packagingCharge || '0.00'}</span>
+</div>
 
                                         <div className="flex justify-between py-1">
                                             <span>Delivery Charges</span>
