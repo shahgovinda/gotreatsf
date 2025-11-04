@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef }s from 'react';
+import { useEffect, useState, useRef } from 'react'; // ✅ FIX: Removed extra 's' after useRef
 import { useQuery } from '@tanstack/react-query';
 import Button, { IconButton } from '../components/Button';
 import OrderSummary from '../components/OrderSummary';
@@ -213,7 +213,6 @@ const Orders = () => {
 
     // ------------------------------------------------------------------
     // ✅ AUDIO UNBLOCKER LOGIC: Attach this to the highest level interactive element
-    // This allows audio playback after the user interacts once.
     // ------------------------------------------------------------------
     const handleAudioUnblock = () => {
         if (audioRef.current) {
