@@ -1,11 +1,11 @@
-import { useEffect, useState, useRef } from 'react'; // ✅ Imported useRef
+import { useEffect, useState, useRef }s from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Button, { IconButton } from '../components/Button';
 import OrderSummary from '../components/OrderSummary';
 import { fetchUserOrders } from '../services/orderService';
 import { useAuthStore } from '../store/authStore';
 import { StatusBadge } from '../components/StatusBadge';
-import { ArrowLeft, ArrowRight, CheckCircle, HandCoins, Home, RefreshCcw, Store, XIcon, Info, Car, Calendar, Star } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, HandCoins, Home, RefreshCcw, Store, XIcon, Info, Car, Calendar } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerBody, DrawerFooter } from "@heroui/drawer";
 import { useDisclosure } from '@/hooks/useDisclosure';
 import { useCartStore } from '../store/cartStore';
@@ -21,7 +21,7 @@ import { getDocs, collection, query, where } from 'firebase/firestore';
 import { db } from '../config/firebaseConfig';
 
 const DISMISSED_ITEMS_KEY = 'dismissed_review_items'; // Key for localStorage persistence
-const AUDIO_FILE_PATH = '/audio/order_success.mp3'; // ✅ Audio file path
+const AUDIO_FILE_PATH = '/audio/order_success.mp3'; // Audio file path (ensure it is correct)
 
 const Orders = () => {
     const [detailOpen, setDetailOpen] = useState(false);
@@ -52,10 +52,10 @@ const Orders = () => {
     
     const [checkingRatings, setCheckingRatings] = useState(false);
     
-    // ✅ NEW STATE: To hold the status of each order from the previous fetch
+    // NEW STATE: To hold the status of each order from the previous fetch
     const [lastOrderStatuses, setLastOrderStatuses] = useState<Record<string, string>>({}); 
     
-    // ✅ NEW REF: To hold the audio element
+    // NEW REF: To hold the audio element
     const audioRef = useRef<HTMLAudioElement | null>(null);
 
     useEffect(() => {
@@ -72,7 +72,7 @@ const Orders = () => {
     });
 
     // ------------------------------------------------------------------
-    // ✅ AUDIO NOTIFICATION LOGIC
+    // ✅ AUDIO NOTIFICATION LOGIC (Triggered by Polling)
     // ------------------------------------------------------------------
     useEffect(() => {
         if (!orders || orders.length === 0 || !audioRef.current) return;
@@ -86,12 +86,14 @@ const Orders = () => {
 
             const previousStatus = lastOrderStatuses[order.id];
 
-            // Detect if status changed AND it's a critical customer-facing update
+            // Detect if status changed AND it's NOT the initial 'received' status
+            // We want sound for preparing, out for delivery, delivered, cancelled, or failed.
             if (previousStatus && previousStatus !== currentStatus) {
-                if (currentStatus === 'preparing' || 
-                    currentStatus === 'out for delivery' || 
-                    currentStatus === 'delivered') {
-                    
+                if (previousStatus === 'received' && currentStatus !== 'received') {
+                    // Status changed from initial 'received' to anything else
+                    statusChanged = true;
+                } else if (previousStatus !== 'received' && currentStatus !== previousStatus) {
+                    // Status changed from any non-received status (e.g., preparing to delivered)
                     statusChanged = true;
                 }
             }
@@ -103,6 +105,7 @@ const Orders = () => {
         }
 
         // Update the state with the current statuses for the next check
+        // We ensure we only set the status if it's the first time OR if it has changed.
         setLastOrderStatuses(currentStatuses);
 
     }, [orders, lastOrderStatuses]); // Depends on new data (orders) and previous statuses
@@ -208,13 +211,35 @@ const Orders = () => {
         onClose(); 
     };
 
+    // ------------------------------------------------------------------
+    // ✅ AUDIO UNBLOCKER LOGIC: Attach this to the highest level interactive element
+    // This allows audio playback after the user interacts once.
+    // ------------------------------------------------------------------
+    const handleAudioUnblock = () => {
+        if (audioRef.current) {
+            audioRef.current.muted = true;
+            audioRef.current.volume = 0;
+            audioRef.current.play()
+                .then(() => {
+                    audioRef.current!.pause();
+                    audioRef.current!.currentTime = 0;
+                    audioRef.current!.volume = 1.0;
+                    audioRef.current!.muted = false;
+                })
+                .catch(e => {
+                    // Ignore, usually means playback was blocked/not needed
+                });
+        }
+    };
+    // ------------------------------------------------------------------
+
 
     if (isLoading) {
-        return <div className='text-center py-10'>Loading orders...</div>;
+        return <div>Loading orders...</div>;
     }
 
     if (isError) {
-        return <div className='text-center py-10 text-red-500'>Failed to load orders. Please try again later.</div>;
+        return <div>Error loading orders.</div>;
     }
 
     const sortedOrders = [...orders].sort(
@@ -316,7 +341,7 @@ const Orders = () => {
     };
 
     return (
-        <div className='bg-white min-h-screen'>
+        <div className='bg-white min-h-screen' onClick={handleAudioUnblock} onTouchStart={handleAudioUnblock}> {/* ✅ Attaching Unblocker */}
             <div className='w-full sm:max-w-3xl sm:px-5 sm:mx-auto px-2'>
                 <div className='flex flex-col sm:flex-row sm:justify-between sm:items-center items-start'>
                     <h1 className='text-2xl sm:text-4xl font-semibold lancelot py-5 sm:py-10 text-gray-700'>Past Orders</h1>
