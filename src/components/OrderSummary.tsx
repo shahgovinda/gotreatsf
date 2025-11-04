@@ -3,13 +3,13 @@ import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import Button from './Button';
 import { Voucher } from '@/types/voucherTypes';
-import { useCartStore } from '../store/cartStore'; 
+import { useCartStore } from '../store/cartStore'; // Ensure useCartStore is imported
 
 interface OrderSummaryProps {
     grossTotalPrice: number;
     voucherDiscount: number;
     deliveryPrice: number;
-    packagingCharge: number; // The new packaging charge prop
+    packagingCharge: number; // ✅ ADDED: The new packaging charge prop
     totalPrice: number;
     appliedVoucher: Voucher | null;
     onApplyVoucher: () => void;
@@ -24,17 +24,21 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
     grossTotalPrice,
     voucherDiscount,
     deliveryPrice,
-    packagingCharge, 
+    packagingCharge, // ✅ DESTRUCTURED: The new packaging charge prop
     totalPrice,
     appliedVoucher,
     onApplyVoucher,
     onRemoveVoucher,
     paymentMode,
+    onPaymentModeChange,
     onHandlePayment,
     isLoading
 }) => {
+    // Fetch items (for list rendering) AND calculate total count correctly
     const { items } = useCartStore();
-    const totalItemCount = items.length;
+
+    // ✅ FIX: Calculate total count by summing quantities of all items
+    const totalItemCount = items.reduce((total, item) => total + item.quantity, 0);
 
     return (
         <motion.div
@@ -46,7 +50,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
             <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-semibold">Bill Summary</h2>
                 <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                    {totalItemCount} items 
+                    {/* ✅ FIX APPLIED HERE: Show total item quantity */}
+                    {totalItemCount} items
                 </span>
             </div>
 
@@ -57,8 +62,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                         <div className="flex-1">
                             <span className="text-base">{item.productName} x{item.quantity}</span>
                         </div>
-                        {/* Ensure price displays correctly as total price per item type */}
-                        <span className="text-base font-medium">₹{Number(item.offerPrice * item.quantity).toFixed(2)}</span>
+                        <span className="text-base font-medium">₹{(item.offerPrice * item.quantity).toFixed(2)}</span>
                     </div>
                 ))}
             </div>
@@ -72,18 +76,15 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                     <span>Subtotal</span>
                     <span className="font-medium">₹{grossTotalPrice.toFixed(2)}</span>
                 </div>
-                
-                {/* ✅ FIX: Packaging Charge Display */}
+                {/* ADDED: Packaging Charge display */}
                 <div className="flex justify-between">
                     <span>Packaging Charge</span>
                     <span className="font-medium">₹{packagingCharge.toFixed(2)}</span>
                 </div>
-                
                 <div className="flex justify-between">
                     <span>Delivery Fee</span>
                     <span className="font-medium">₹{deliveryPrice.toFixed(2)}</span>
                 </div>
-                
                 {voucherDiscount > 0 && (
                     <div className="flex justify-between text-green-600">
                         <span>Voucher Discount</span>
@@ -167,3 +168,4 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 };
 
 export default OrderSummary;
+
