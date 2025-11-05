@@ -92,7 +92,8 @@ type Review = {
     createdAt: string;
 };
 
-const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean }) => {
+// ✅ ADDED NEW PROP: disableReviewClick
+const ItemCards = ({ item, highlighted, disableReviewClick }: { item: Item, highlighted?: boolean, disableReviewClick?: boolean }) => {
     // Add styles to the document head
     React.useEffect(() => {
         const styleSheet = document.createElement("style");
@@ -277,13 +278,39 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
     };
 
     // --- TAG LOGIC ---
-    // ❌ REMOVED: isPremiumChocolate constant
+    // This part is preserved for the Shop page where interaction is intended
+    const ReviewClickableElement = (
+        <button
+            className='comfortaa text-sm text-green-700 font-bold flex items-center gap-1 mb-2 hover:underline focus:outline-none'
+            onClick={() => setShowAllReviews(true)}
+            disabled={reviewCount === 0}
+            style={{ cursor: reviewCount > 0 ? 'pointer' : 'default', background: 'none', border: 'none', padding: 0 }}
+        >
+            <Star fill='green' size={13} />
+            {avgRating !== null ? `${avgRating} (${reviewCount} review${reviewCount !== 1 ? 's' : ''})` : 'No ratings yet'}
+        </button>
+    );
+
+    // This is the static element used when interaction is disabled
+    const ReviewStaticElement = (
+        <span 
+            className='comfortaa text-sm text-green-700 font-bold flex items-center gap-1 mb-2' 
+            style={{ cursor: 'default' }}
+        >
+            <Star fill='green' size={13} />
+            {avgRating !== null ? `${avgRating} (${reviewCount} review${reviewCount !== 1 ? 's' : ''})` : 'No ratings yet'}
+        </span>
+    );
+    // -----------------
     
     return (
         <>
             {/* Desktop View */}
             <div
                 id={`shop-item-${item.id}`}
+                // NOTE: We assume 'highlighted' is only passed true on the Home page, 
+                // but we need the prop (disableReviewClick) passed from Home.tsx for control.
+                // We will rely on the parent (Home.tsx) to pass the 'disableReviewClick' prop.
                 className={`md:flex flex-col justify-between hidden group w-64 lg:w-76 bg-white p-6 rounded-3xl shadow-xs cursor-pointer hover:bg-green-50 transition-color duration-500 border-orange-50 relative ${highlighted ? 'ring-4 ring-yellow-400 animate-pulse' : ''}`}
             >
                 {/* Like and Share Icons */}
@@ -319,8 +346,7 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
                     </motion.button>
                 </div>
                 
-                {/* --- TAGS SECTION (Desktop) --- */}
-                
+                {/* --- TAGS SECTION --- */}
                 {/* Most Ordered Tag */}
                 {(item.productName.toLowerCase().includes('combo') ||
                     item.productName.toLowerCase().includes('poori bhaji')) && (
@@ -334,9 +360,6 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
                             </div>
                         </motion.div>
                     )}
-                
-                {/* ❌ REMOVED: Premium Chocolates Tag (Desktop) */}
-                
                 {/* --- END TAGS SECTION --- */}
 
 
@@ -350,15 +373,9 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
                 </div>
                 {item.isNonVeg ? nonVeg : veg}
                 <h4 className='lancelot text-2xl lg:text-3xl font-medium'>{item.productName}</h4>
-                <button
-                    className='comfortaa text-sm text-green-700 font-bold flex items-center gap-1 mb-2 hover:underline focus:outline-none'
-                    onClick={() => setShowAllReviews(true)}
-                    disabled={reviewCount === 0}
-                    style={{ cursor: reviewCount > 0 ? 'pointer' : 'default', background: 'none', border: 'none', padding: 0 }}
-                >
-                    <Star fill='green' size={13} />
-                    {avgRating !== null ? `${avgRating} (${reviewCount} review${reviewCount !== 1 ? 's' : ''})` : 'No ratings yet'}
-                </button>
+                
+                {/* ✅ DESKTOP FIX: Conditional Rendering for Review Click */}
+                {disableReviewClick ? ReviewStaticElement : ReviewClickableElement}
 
                 <p className='text-gray-500 text-sm lg:text:base leading-5 line-clamp-2'>{item.productDescription}</p>
                 <div className='flex justify-between items-center mt-5'>
@@ -410,8 +427,6 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
                         </motion.div>
                     )}
                 
-                {/* ❌ REMOVED: Premium Chocolates Tag (Mobile) */}
-                
                 {/* --- END TAGS SECTION --- */}
 
 
@@ -451,15 +466,10 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
                         <p className='comfortaa text-lg line-through '> ₹{item.originalPrice} </p>
                         <span className='px-[3px] py-[1px] flex items-center text-lg shadow-3xl bg-yellow-500 '>₹{item.offerPrice}</span>
                     </div>
-                    <button
-                        className='comfortaa text-sm text-green-700 font-bold flex items-center gap-1 mb-3 hover:underline focus:outline-none'
-                        onClick={() => setShowAllReviews(true)}
-                        disabled={reviewCount === 0}
-                        style={{ cursor: reviewCount > 0 ? 'pointer' : 'default', background: 'none', border: 'none', padding: 0 }}
-                    >
-                        <Star fill='green' size={13} />
-                        {avgRating !== null ? `${avgRating} (${reviewCount} review${reviewCount !== 1 ? 's' : ''})` : 'No ratings yet'}
-                    </button>
+                    
+                    {/* ✅ MOBILE FIX: Conditional Rendering for Review Click */}
+                    {disableReviewClick ? ReviewStaticElement : ReviewClickableElement}
+
                     <p className=' text-gray-500 text-sm line-clamp-2 tracking-tight'>{item.productDescription}</p>
                 </div>
                 <div className='flex flex-col justify-between items-end w-2/5'>
@@ -503,6 +513,7 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
             </div>
 
             <Drawer isOpen={isOpen} placement='bottom' size='lg' hideCloseButton onOpenChange={onOpenChange}>
+                {/* ... Drawer Content remains the same ... */}
                 <DrawerContent className='rounded-t-3xl bg-white'>
                     {(onClose) => {
                         return (
@@ -549,7 +560,7 @@ const ItemCards = ({ item, highlighted }: { item: Item, highlighted?: boolean })
                                                             onClick={handleIncrement}
                                                             className='h-10 w-10 flex items-center justify-center text-3xl text-green-600 bg-white rounded-full border border-green-200 hover:bg-green-50 transition'
                                                         >
-                             +
+                                                            +
                                                         </button>
                                                     </div>
                                                 ) : (
