@@ -106,46 +106,46 @@ const Home = () => {
 
   // --- NEW LOGIC FOR MULTIPLE SPECIAL DAYS ---
  const specialDays = [
-    { month: 0, date: 14, message: "Happy Makar Sankranti and Pongal! Enjoy festive flavors and discounts today." },
-    { month: 0, date: 26, message: "Happy Republic Day! Celebrate with our special patriotic meal combos." },
-    { month: 1, date: 19, message: "Happy Shivaji Jayanti! Enjoy delicious Maharashtrian dishes." },
-    { month: 1, date: 26, message: "Happy Maha Shivaratri! Order special fasting meals and treats." },
-    { month: 2, date: 14, message: "Happy Holi! Celebrate the festival of colors with our sweet and savory specials." },
-    { month: 2, date: 30, message: "Happy Gudi Padwa! Celebrate the new year with our festive meals." },
-    { month: 3, date: 6, message: "Happy Ram Navami! Enjoy our special fasting menu." },
-    { month: 3, date: 10, message: "Happy Mahavir Jayanti! Explore our special Jain-friendly meal options." },
-    { month: 3, date: 18, message: "Happy Good Friday! Find comfort in our special dishes today." },
-    { month: 4, date: 1, message: "Happy Maharashtra Day and Labour Day! A day to celebrate hard work with great food." },
-    { month: 4, date: 12, message: "Happy Buddha Purnima! Enjoy our peaceful and delicious vegetarian specials." },
-    { month: 4, date: 7, message: "Happy Eid al-Fitr! Celebrate with our special festive feasts." },
-    { month: 5, date: 7, message: "Happy Eid al-Adha (Bakrid)! Celebrate with our special festive feasts." },
-    { month: 6, date: 6, message: "Happy Muharram! A day of remembrance, marked with our comforting meals." },
-    { month: 7, date: 6, message: "Hiroshima Day! Hiroshima still echoes pain." },
-    { month: 7, date: 9, message: "Happy Raksha Bandhan! Enjoy a special discount on all meals today." },
-    { month: 7, date: 15, message: "Happy Independence Day! Celebrate the spirit of freedom with our special offers." },
-    { month: 7, date: 16, message: "Happy Janmashtami! Enjoy our special festive treats and meals." },
-    { month: 7, date: 20, message: "A very Happy Birthday to the founder of GoTreats! Celebrating a special day with a special offer for you!" },
-    { month: 7, date: 24, message: "Happy Ganesh Chaturthi! Celebrate with our special Ukadiche Modak and festive dishes." },
-    { month: 6, date: 7, message: "Happy Birthday Shubham Oza." },
-    { month: 6, date: 21, message: "Happy Birthday Gaurav Vishwakarma." },
-    { month: 7, date: 20, message: "Happy Birthday Govinda J Shah." },
-    { month: 8, date: 5, message: "Happy Milad-un-Nabi (Eid-e-Milad)! Enjoy our special festive offers." },
-    { month: 8, date: 29, message: "Happy Navratri! Get our special fasting menu for nine days of celebration." },
-    { month: 9, date: 2, message: "Happy Gandhi Jayanti and Dussahra! Celebrate with our delicious festive combos." },
-    { month: 9, date: 20, message: "Happy Diwali! Enjoy the festival of lights with our amazing sweets and meal boxes." },
-    { month: 9, date: 21, message: "Happy Govardhan Puja! Celebrate with our festive meals." },
-    { month: 9, date: 22, message: "Happy Bhai Dooj! Celebrate the bond with our special sibling combos." },
-    { month: 8, date: 14, message: "Happy Birthday Srushti Prajapati." },
-    { month: 8, date: 6, message: "Happy Birthday Vivek Wadher." },
-    { month: 9, date: 14, message: "Happy Birthday Srushti Prajapati." },
-    { month: 9, date: 6, message: "Happy Birthday Vivek Wadher." },
-    { month: 9, date: 15, message: "Happy Birthday Vaishnavi Patil." },
-    { month: 10, date: 5, message: "Happy Guru Nanak Jayanti! A day to celebrate with our heartwarming meals." },
-    { month: 9, date: 25, message: "Happy Chhath Puja! Enjoy our special festive offerings." },
-    { month: 10, date: 15, message: "Happy Birthday Vaishnavi Patil." },
-    { month: 11, date: 25, message: "Merry Christmas! Enjoy a festive feast with our special Christmas menu." },
-    { month: 11, date: 28, message: "Happy Birthday Priya Shah." }, // Changed month from 12 to 11 (December)
-    { month: 11, date: 10, message: "Happy Birthday Priyanka Shah." } // Changed month from 12 to 11 (December)
+    { month: 0, date: 14, message: "Happy Makar Sankranti and Pongal! Enjoy festive flavors and discounts today." },
+    { month: 0, date: 26, message: "Happy Republic Day! Celebrate with our special patriotic meal combos." },
+    { month: 1, date: 19, message: "Happy Shivaji Jayanti! Enjoy delicious Maharashtrian dishes." },
+    { month: 1, date: 26, message: "Happy Maha Shivaratri! Order special fasting meals and treats." },
+    { month: 2, date: 14, message: "Happy Holi! Celebrate the festival of colors with our sweet and savory specials." },
+    { month: 2, date: 30, message: "Happy Gudi Padwa! Celebrate the new year with our festive meals." },
+    { month: 3, date: 6, message: "Happy Ram Navami! Enjoy our special fasting menu." },
+    { month: 3, date: 10, message: "Happy Mahavir Jayanti! Explore our special Jain-friendly meal options." },
+    { month: 3, date: 18, message: "Happy Good Friday! Find comfort in our special dishes today." },
+    { month: 4, date: 1, message: "Happy Maharashtra Day and Labour Day! A day to celebrate hard work with great food." },
+    { month: 4, date: 12, message: "Happy Buddha Purnima! Enjoy our peaceful and delicious vegetarian specials." },
+    { month: 4, date: 7, message: "Happy Eid al-Fitr! Celebrate with our special festive feasts." },
+    { month: 5, date: 7, message: "Happy Eid al-Adha (Bakrid)! Celebrate with our special festive feasts." },
+    { month: 6, date: 6, message: "Happy Muharram! A day of remembrance, marked with our comforting meals." },
+    { month: 7, date: 6, message: "Hiroshima Day! Hiroshima still echoes pain." },
+    { month: 7, date: 9, message: "Happy Raksha Bandhan! Enjoy a special discount on all meals today." },
+    { month: 7, date: 15, message: "Happy Independence Day! Celebrate the spirit of freedom with our special offers." },
+    { month: 7, date: 16, message: "Happy Janmashtami! Enjoy our special festive treats and meals." },
+    { month: 7, date: 20, message: "A very Happy Birthday to the founder of GoTreats! Celebrating a special day with a special offer for you!" },
+    { month: 7, date: 24, message: "Happy Ganesh Chaturthi! Celebrate with our special Ukadiche Modak and festive dishes." },
+    { month: 6, date: 7, message: "Happy Birthday Shubham Oza." },
+    { month: 6, date: 21, message: "Happy Birthday Gaurav Vishwakarma." },
+    { month: 7, date: 20, message: "Happy Birthday Govinda J Shah." },
+    { month: 8, date: 5, message: "Happy Milad-un-Nabi (Eid-e-Milad)! Enjoy our special festive offers." },
+    { month: 8, date: 29, message: "Happy Navratri! Get our special fasting menu for nine days of celebration." },
+    { month: 9, date: 2, message: "Happy Gandhi Jayanti and Dussahra! Celebrate with our delicious festive combos." },
+    { month: 9, date: 20, message: "Happy Diwali! Enjoy the festival of lights with our amazing sweets and meal boxes." },
+    { month: 9, date: 21, message: "Happy Govardhan Puja! Celebrate with our festive meals." },
+    { month: 9, date: 22, message: "Happy Bhai Dooj! Celebrate the bond with our special sibling combos." },
+    { month: 8, date: 14, message: "Happy Birthday Srushti Prajapati." },
+    { month: 8, date: 6, message: "Happy Birthday Vivek Wadher." },
+    { month: 9, date: 14, message: "Happy Birthday Srushti Prajapati." },
+    { month: 9, date: 6, message: "Happy Birthday Vivek Wadher." },
+    { month: 9, date: 15, message: "Happy Birthday Vaishnavi Patil." },
+    { month: 10, date: 5, message: "Happy Guru Nanak Jayanti! A day to celebrate with our heartwarming meals." },
+    { month: 9, date: 25, message: "Happy Chhath Puja! Enjoy our special festive offerings." },
+    { month: 10, date: 15, message: "Happy Birthday Vaishnavi Patil." },
+    { month: 11, date: 25, message: "Merry Christmas! Enjoy a festive feast with our special Christmas menu." },
+    { month: 11, date: 28, message: "Happy Birthday Priya Shah." }, // Changed month from 12 to 11 (December)
+    { month: 11, date: 10, message: "Happy Birthday Priyanka Shah." } // Changed month from 12 to 11 (December)
 ];
 
   const getSpecialDayMessage = () => {
@@ -202,6 +202,7 @@ const Home = () => {
                   <span className="word">Snacks</span>
                 </div>
               </div>
+              {/* CSS for the typing animation is expected in index.css */}
             </h1>
             <p className="text-gray-700 text-base sm:text-lg lg:text-xl mb-4 sm:mb-6 max-w-xl leading-relaxed font-medium animate-[fadeIn_0.8s_ease-in] tracking-wide">
             <TypewriterText
@@ -281,7 +282,8 @@ const Home = () => {
             onSwiper={setSwiperRef}>
             {products?.slice(0, 9).map((item, index) => (
               <SwiperSlide key={index}>
-                <ItemCards item={item} key={index} />
+                {/* ✅ FIX 1: Pass the disableReviewClick prop as true */}
+                <ItemCards item={item} key={index} disableReviewClick={true} /> 
               </SwiperSlide>
             ))}
           </Swiper>
