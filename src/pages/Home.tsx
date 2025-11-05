@@ -299,65 +299,123 @@ const Home = () => {
       </section>
 
       {/* -----reviews----- */}
-      <section className="py-16 md:py-24 bg-gradient-to-b from-green-100 via-white to-green-50 mt-10 md:mt-16 mb-10 md:mb-16">
-        <div className="container mx-auto px-2 sm:px-4 md:px-8">
-          <div className="text-center mb-10 md:mb-14">
-            <h2 className="text-3xl md:text-4xl font-bold lancelot mb-2 md:mb-4 text-gray-900">
-              What Our <span className="text-orange-500 animate-glow">Customers</span> Say
-            </h2>
-            <p className="text-gray-500 text-base md:text-lg font-medium">Real feedback from our valued customers</p>
-          </div>
-          <div className="relative max-w-[90%] mx-auto">
-            <button
-              onClick={() => handleReviewScroll('left')}
-              className="absolute left-[-40px] top-1/2 -translate-y-1/2 z-10 bg-white p-3 rounded-full shadow-lg hover:bg-gray-50 hover:shadow-xl transition-all border border-gray-100"
-            >
-              <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
-            </button>
-            <button
-              onClick={() => handleReviewScroll('right')}
-              className="absolute right-[-40px] top-1/2 -translate-y-1/2 z-10 bg-white p-3 rounded-full shadow-lg hover:bg-gray-50 hover:shadow-xl transition-all border border-gray-100"
-            >
-              <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
-            </button>
-            <div className="relative overflow-hidden py-8">
-              <div className="scroll-container animate-scroll flex gap-6">
-                {!isLoading && getVisibleReviewCards().map((review, index) => (
-                  <motion.div
-                    key={index}
-                    className="flex-none w-[280px]"
-                    whileHover={{ scale: 1.02 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <div className="bg-white rounded-xl shadow-md hover:shadow-lg p-6 transition-all duration-300 border border-gray-100">
-                      <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 border-2 border-orange-200">
-                          <img
-                            src={review.avatarUrl}
-                            alt={review.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="min-w-0">
-                          <h3 className="font-semibold text-lg truncate">{review.name}</h3>
-                          <p className="text-gray-600 text-sm">{review.work}</p>
-                        </div>
-                      </div>
-                      <p className="text-gray-700 italic text-sm mt-4 line-clamp-3">
-                        "{review.review}"
-                      </p>
-                      <div className="mt-4 text-sm text-gray-500 flex items-center">
-                        <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 12.414a2 2 0 00-2.828 0l-4.243 4.243" /></svg>
-                        {review.place}
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+     {/* -----reviews----- */}
+<section className="py-16 md:py-24 bg-gradient-to-b from-green-100 via-white to-green-50 mt-10 md:mt-16 mb-10 md:mb-16">
+  <div className="container mx-auto px-2 sm:px-4 md:px-8">
+    <div className="text-center mb-10 md:mb-14">
+      <h2 className="text-3xl md:text-4xl font-bold lancelot mb-2 md:mb-4 text-gray-900">
+        What Our <span className="text-orange-500 animate-glow">Customers</span> Say
+      </h2>
+      <p className="text-gray-500 text-base md:text-lg font-medium">
+        Real feedback from our valued customers
+      </p>
+    </div>
+
+    <div className="relative max-w-[90%] mx-auto">
+      {/* ✅ Navigation arrows (visible only on md+ devices) */}
+      <button
+        onClick={() => handleReviewScroll('left')}
+        className="hidden md:flex absolute left-[-40px] top-1/2 -translate-y-1/2 z-10 bg-white p-3 rounded-full shadow-lg hover:bg-gray-50 hover:shadow-xl transition-all border border-gray-100"
+      >
+        <svg
+          className="w-6 h-6 text-gray-700"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      <button
+        onClick={() => handleReviewScroll('right')}
+        className="hidden md:flex absolute right-[-40px] top-1/2 -translate-y-1/2 z-10 bg-white p-3 rounded-full shadow-lg hover:bg-gray-50 hover:shadow-xl transition-all border border-gray-100"
+      >
+        <svg
+          className="w-6 h-6 text-gray-700"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+
+      {/* ✅ Scrollable container with touch + mouse drag */}
+      <div className="relative overflow-x-auto overflow-y-hidden py-8 scrollbar-hide">
+        <div
+          className="scroll-container flex gap-6 px-2 cursor-grab active:cursor-grabbing select-none"
+          onMouseDown={(e) => {
+            const container = e.currentTarget;
+            let startX = e.pageX - container.offsetLeft;
+            let scrollLeft = container.scrollLeft;
+
+            const handleMouseMove = (event: MouseEvent) => {
+              const x = event.pageX - container.offsetLeft;
+              const walk = (x - startX) * 1.5;
+              container.scrollLeft = scrollLeft - walk;
+            };
+
+            const handleMouseUp = () => {
+              window.removeEventListener('mousemove', handleMouseMove);
+              window.removeEventListener('mouseup', handleMouseUp);
+            };
+
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+          }}
+        >
+          {!isLoading &&
+            getVisibleReviewCards().map((review, index) => (
+              <motion.div
+                key={index}
+                className="flex-none w-[280px] sm:w-[320px]"
+                whileHover={{ scale: 1.03 }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="bg-white rounded-xl shadow-md hover:shadow-lg p-6 transition-all duration-300 border border-gray-100">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 border-2 border-orange-200">
+                      <img
+                        src={review.avatarUrl}
+                        alt={review.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="font-semibold text-lg truncate">{review.name}</h3>
+                      <p className="text-gray-600 text-sm">{review.work}</p>
+                    </div>
+                  </div>
+                  <p className="text-gray-700 italic text-sm mt-4 line-clamp-3">
+                    "{review.review}"
+                  </p>
+                  <div className="mt-4 text-sm text-gray-500 flex items-center">
+                    <svg
+                      className="w-4 h-4 mr-1 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M17.657 16.657L13.414 12.414a2 2 0 00-2.828 0l-4.243 4.243"
+                      />
+                    </svg>
+                    {review.place}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 
     </main>
   )
