@@ -1,14 +1,10 @@
 import {
   ArrowLeft,
   Banknote,
-  BanknoteIcon,
   Box,
-  Circle,
   Clock,
   CookingPot,
   Copy,
-  Download,
-  Eye,
   HandCoins,
   Home,
   Info,
@@ -17,6 +13,7 @@ import {
   ShoppingBasket,
   TriangleAlert,
   Truck,
+  BanknoteIcon,
   User,
   X,
 } from "lucide-react";
@@ -34,12 +31,17 @@ import {
 } from "@heroui/react";
 import toast from "react-hot-toast";
 import { AnimatePresence, motion } from "framer-motion";
-import Button, { IconButton } from "./Button";
+import Button from "./Button";
 import { StatusBadge } from "./StatusBadge";
 
 const OrderCard = ({ order, onUpdateStatus, i }) => {
   const [expanded, setExpanded] = useState(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+  const handleStatusChange = (newStatus) => {
+    const status = Array.from(newStatus)[0];
+    onUpdateStatus(order.id, status);
+  };
 
   const formatOrderDateTime = (dateString) => {
     const date = new Date(dateString);
@@ -60,8 +62,11 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
       case "delivered":
         return "border-green-700";
       case "cancelled":
-      case "failed":
         return "border-red-500";
+      case "pending":
+        return "border-gray-400";
+      case "failed":
+        return "border-red-400";
       default:
         return "border-gray-300";
     }
@@ -80,8 +85,10 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
       case "cancelled":
       case "failed":
         return "bg-red-500";
-      default:
+      case "pending":
         return "bg-gray-400";
+      default:
+        return "bg-gray-300";
     }
   };
 
@@ -90,14 +97,12 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
     return isNaN(num) ? "0.00" : num.toFixed(2);
   };
 
-  function copyToClipboard(phoneNumber) {
+  const copyToClipboard = (phoneNumber) => {
     navigator.clipboard
       .writeText(phoneNumber)
       .then(() => toast.success("Phone number copied!"))
-      .catch(() => toast.error("Failed to copy."));
-  }
-
-  const photoURL = order?.customer?.photoURL;
+      .catch(() => toast.error("Failed to copy phone number."));
+  };
 
   return (
     <motion.div
@@ -112,68 +117,62 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
     >
       {/* Header */}
       <div
-        className={`p-3 flex justify-between md:items-center transition-colors duration-300 ${getBackgroundColor(
+        className={`p-3 flex justify-between md:items-center ${getBackgroundColor(
           order.orderStatus
         )}`}
       >
         <h2 className="font-semibold text-white text-lg">
           # {order.id.slice(-6)}
         </h2>
-        <h2 className="font-semibold text-white text-lg animate-pulse">
+        <h2 className="font-semibold text-white text-lg flex items-center gap-1">
           {order.razorpay_payment_id ? (
-            <p className="flex gap-1">
+            <>
               <BanknoteIcon /> Paid
-            </p>
+            </>
           ) : (
-            <p className="flex gap-1">
+            <>
               <HandCoins /> COD
-            </p>
+            </>
           )}
         </h2>
         <h2 className="hidden md:block font-semibold text-white text-lg capitalize">
           {order.orderStatus}
         </h2>
-        <h2 className="text-white text-lg">{formatOrderDateTime(order.createdAt)}</h2>
+        <h2 className="text-white text-lg">
+          {formatOrderDateTime(order.createdAt)}
+        </h2>
       </div>
 
       {/* Body */}
       <div className="p-4 bg-white">
-        <div className="grid grid-cols-1 md:grid-cols-5 items-center gap-2 md:gap-0 md:justify-items-center">
-          {/* Customer Info */}
-          <div className="flex flex-col items-center md:items-start gap-2">
-            <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-gray-300">
-              {photoURL ? (
-                <img
-                  src={photoURL}
-                  alt="Customer"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="flex items-center justify-center w-full h-full bg-gray-200">
-                  <User className="text-gray-500" size={28} />
-                </div>
-              )}
-            </div>
-
-            <div className="text-center md:text-left">
-              <p className="font-semibold text-xl">{order.customer.name}</p>
-              <p className="text-gray-800">{order.customer.phoneNumber}</p>
-              <p className="text-sm text-gray-600">{order.customer.email}</p>
+        <div className="grid grid-cols-1 md:grid-cols-5 items-center gap-3 md:gap-0 md:justify-items-center">
+          {/* 🧍‍♂️ Customer Info with Profile */}
+          <div className="flex items-center gap-3">
+            <img
+              src={
+                order.customer?.photoURL ||
+                "https://cdn-icons-png.flaticon.com/512/847/847969.png"
+              }
+              alt="User"
+              className="w-12 h-12 rounded-full object-cover border border-gray-300"
+            />
+            <div>
+              <p className="font-semibold text-xl">
+                {order.customer?.name || "Unknown"}
+              </p>
+              <p className="text-gray-800">{order.customer?.phoneNumber}</p>
+              <p className="text-sm">{order.customer?.email}</p>
             </div>
           </div>
 
-          {/* Items */}
-          <hr className="md:hidden border border-gray-400 my-2" />
           <div>
             {order.items.map((item, index) => (
               <p key={index} className="font-bold text-purple-700 comfortaa">
-                {item.productName} × {item.quantity}
+                {item.productName} x {item.quantity}
               </p>
             ))}
           </div>
 
-          {/* Address + Time */}
-          <hr className="md:hidden border border-gray-400 my-2" />
           <div>
             <p className="inline-flex items-center gap-2">
               <Clock size={16} /> {order.deliveryDate} | {order.deliveryTime}
@@ -183,8 +182,6 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
             </p>
           </div>
 
-          {/* Payment Info */}
-          <hr className="md:hidden border border-gray-400 my-2" />
           <div className="hidden md:block">
             <p>
               <strong>Total Items:</strong> {order.totalQuantity}
@@ -192,13 +189,13 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
             <p>
               <strong>Total Price:</strong> ₹{safeCurrency(order.totalAmount)}
             </p>
-            <p className="animate-pulse capitalize">
+            <p className="capitalize">
               <strong>Payment Status:</strong> {order.paymentStatus}
             </p>
           </div>
 
-          {/* Controls */}
-          <div className="flex w-full gap-4">
+          {/* Status Dropdown + View */}
+          <div className="flex w-full gap-3">
             <Select
               placeholder="Select Status"
               selectedKeys={new Set([order.orderStatus])}
@@ -207,52 +204,24 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
               className={`border-4 p-px rounded-full ${getBorderColor(
                 order.orderStatus
               )}`}
-              onSelectionChange={(newStatus) => {
-                const status = Array.from(newStatus)[0];
-                onUpdateStatus(order.id, status);
-              }}
+              onSelectionChange={(newStatus) => handleStatusChange(newStatus)}
             >
-              <SelectItem key="received" startContent={<Download size={15} />}>
-                Received
-              </SelectItem>
-              <SelectItem key="preparing" startContent={<Loader size={15} />}>
-                Preparing
-              </SelectItem>
-              <SelectItem key="out for delivery" startContent={<Truck size={15} />}>
-                Out for Delivery
-              </SelectItem>
-              <SelectItem key="delivered" startContent={<Circle size={15} />}>
-                Delivered
-              </SelectItem>
-              <SelectItem key="cancelled" startContent={<X size={15} />}>
-                Cancelled
-              </SelectItem>
-              <SelectItem key="failed" startContent={<TriangleAlert size={15} />}>
-                Failed
-              </SelectItem>
+              <SelectItem key="received">Received</SelectItem>
+              <SelectItem key="preparing">Preparing</SelectItem>
+              <SelectItem key="out for delivery">Out for Delivery</SelectItem>
+              <SelectItem key="delivered">Delivered</SelectItem>
+              <SelectItem key="cancelled">Cancelled</SelectItem>
+              <SelectItem key="failed">Failed</SelectItem>
             </Select>
 
-            <Button
-              size="sm"
-              className="md:hidden"
-              variant="secondary"
-              onClick={onOpen}
-            >
-              <Eye size={20} /> View
+            <Button size="sm" variant="secondary" onClick={onOpen}>
+              <Info size={18} />
+              View
             </Button>
-
-            <Tooltip content="View Order Details" color="secondary">
-              <span
-                onClick={() => setExpanded(!expanded)}
-                className="hidden p-2 hover:bg-gray-100 md:inline-flex justify-center items-center rounded-full focus:bg-gray-100"
-              >
-                <Info size={20} />
-              </span>
-            </Tooltip>
           </div>
         </div>
 
-        {/* Expanded View (Desktop) */}
+        {/* 🔽 Expanded (Desktop) */}
         <AnimatePresence>
           {expanded && (
             <motion.div
@@ -260,63 +229,37 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
               animate={{ height: "auto" }}
               exit={{ height: 0 }}
               transition={{ duration: 0.3 }}
-              className="hidden md:block mt-4 border-t border-gray-300 p-4 bg-white overflow-hidden"
+              className="hidden md:block mt-4 border-t p-4 bg-white"
             >
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Customer Details */}
+              <div className="grid md:grid-cols-3 gap-4">
                 <div>
-                  <h3 className="font-semibold lancelot text-purple-700 mb-2 flex gap-2 items-center">
+                  <h3 className="font-semibold text-purple-700 mb-2 flex gap-2">
                     <User size={19} /> Customer Details
                   </h3>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-gray-300">
-                      {photoURL ? (
-                        <img
-                          src={photoURL}
-                          alt="Customer"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex items-center justify-center w-full h-full bg-gray-200">
-                          <User className="text-gray-500" size={24} />
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <p>
-                        <strong>{order.customer.name}</strong>
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        {order.customer.email}
-                      </p>
-                    </div>
-                  </div>
                   <p>
-                    <strong>Customer ID:</strong> {order.customer.uid}
+                    <strong>Name:</strong> {order.customer?.name}
                   </p>
                   <p>
-                    <strong>Phone:</strong> {order.customer.phoneNumber}
+                    <strong>Phone:</strong> {order.customer?.phoneNumber}
+                  </p>
+                  <p>
+                    <strong>Email:</strong> {order.customer?.email}
                   </p>
                 </div>
 
-                {/* Address */}
                 <div>
-                  <h3 className="font-semibold lancelot text-purple-700 mb-2 flex gap-2 items-center">
+                  <h3 className="font-semibold text-purple-700 mb-2 flex gap-2">
                     <MapPin size={19} /> Address
                   </h3>
                   <p>{order.address}</p>
                 </div>
 
-                {/* Payment */}
                 <div>
-                  <h3 className="font-semibold lancelot text-purple-700 mb-2 flex gap-2 items-center">
-                    <Banknote size={19} /> Payment Details
+                  <h3 className="font-semibold text-purple-700 mb-2 flex gap-2">
+                    <Banknote size={19} /> Payment
                   </h3>
                   <p>
-                    <strong>Total Items:</strong> {order.totalQuantity}
-                  </p>
-                  <p>
-                    <strong>Total Price:</strong> ₹{safeCurrency(order.totalAmount)}
+                    <strong>Total:</strong> ₹{safeCurrency(order.totalAmount)}
                   </p>
                   <p>
                     <strong>Status:</strong> {order.paymentStatus}
@@ -327,6 +270,88 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
           )}
         </AnimatePresence>
       </div>
+
+      {/* 📱 Mobile Drawer */}
+      <Drawer isOpen={isOpen} onOpenChange={onOpenChange}>
+        <DrawerContent className="bg-white">
+          {(onClose) => (
+            <>
+              <DrawerHeader className="flex items-center gap-2 border-b">
+                <ArrowLeft size={20} onClick={onClose} className="cursor-pointer" />
+                <p>Order #{order.id.slice(-6)}</p>
+              </DrawerHeader>
+
+              <DrawerBody className="overflow-auto p-4">
+                <div className="space-y-4">
+                  <div className="border-b pb-4 flex items-center gap-3">
+                    <img
+                      src={
+                        order.customer?.photoURL ||
+                        "https://cdn-icons-png.flaticon.com/512/847/847969.png"
+                      }
+                      alt="User"
+                      className="w-14 h-14 rounded-full border object-cover"
+                    />
+                    <div>
+                      <h3 className="font-semibold text-lg">
+                        {order.customer?.name}
+                      </h3>
+                      <p className="text-sm text-gray-700">
+                        {order.customer?.email}
+                      </p>
+                      <p
+                        className="text-blue-600 flex items-center gap-1 cursor-pointer"
+                        onClick={() => copyToClipboard(order.customer?.phoneNumber)}
+                      >
+                        {order.customer?.phoneNumber} <Copy size={14} />
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="border-b pb-4">
+                    <h3 className="font-semibold text-lg mb-2 flex gap-2">
+                      <ShoppingBasket size={18} /> Items
+                    </h3>
+                    {order.items.map((item, i) => (
+                      <p key={i}>
+                        {item.productName} × {item.quantity}
+                      </p>
+                    ))}
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold text-lg mb-2 flex gap-2">
+                      <Banknote size={18} /> Billing
+                    </h3>
+                    <p>
+                      <strong>Gross Total:</strong> ₹
+                      {safeCurrency(order.grossTotalPrice)}
+                    </p>
+                    <p>
+                      <strong>Discount:</strong> -₹
+                      {safeCurrency(order.voucherDiscount)}
+                    </p>
+                    <p>
+                      <strong>Packaging:</strong> ₹
+                      {safeCurrency(order.packagingCharge || 10)}
+                    </p>
+                    <p>
+                      <strong>Total Paid:</strong> ₹
+                      {safeCurrency(order.totalAmount)}
+                    </p>
+                  </div>
+                </div>
+              </DrawerBody>
+
+              <DrawerFooter>
+                <Button variant="secondary" className="w-full" onClick={onClose}>
+                  Close
+                </Button>
+              </DrawerFooter>
+            </>
+          )}
+        </DrawerContent>
+      </Drawer>
     </motion.div>
   );
 };
