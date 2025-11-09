@@ -1,21 +1,15 @@
 import {
   ArrowLeft,
   Banknote,
-  Box,
+  BanknoteIcon,
   Clock,
-  CookingPot,
   Copy,
   HandCoins,
   Home,
   Info,
-  Loader,
   MapPin,
   ShoppingBasket,
-  TriangleAlert,
-  Truck,
-  BanknoteIcon,
   User,
-  X,
 } from "lucide-react";
 import React, { useState } from "react";
 import {
@@ -27,12 +21,10 @@ import {
   DrawerHeader,
   DrawerBody,
   DrawerFooter,
-  Tooltip,
 } from "@heroui/react";
 import toast from "react-hot-toast";
 import { AnimatePresence, motion } from "framer-motion";
 import Button from "./Button";
-import { StatusBadge } from "./StatusBadge";
 
 const OrderCard = ({ order, onUpdateStatus, i }) => {
   const [expanded, setExpanded] = useState(false);
@@ -104,6 +96,16 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
       .catch(() => toast.error("Failed to copy phone number."));
   };
 
+  // ✅ Determine profile image logic
+  const customer = order.customer || {};
+  const manualPhoto = customer.manualPhotoURL; // manually uploaded
+  const googlePhoto = customer.photoURL; // google photo
+  const userName = customer.name || "User";
+  const initialLetter = userName.charAt(0).toUpperCase();
+
+  // ✅ Final profile image logic
+  const profileImage = manualPhoto || googlePhoto || null;
+
   return (
     <motion.div
       key={order.id}
@@ -148,20 +150,21 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
         <div className="grid grid-cols-1 md:grid-cols-5 items-center gap-3 md:gap-0 md:justify-items-center">
           {/* 🧍‍♂️ Customer Info with Profile */}
           <div className="flex items-center gap-3">
-            <img
-              src={
-                order.customer?.photoURL ||
-                "https://cdn-icons-png.flaticon.com/512/847/847969.png"
-              }
-              alt="User"
-              className="w-12 h-12 rounded-full object-cover border border-gray-300"
-            />
+            {profileImage ? (
+              <img
+                src={profileImage}
+                alt="User"
+                className="w-12 h-12 rounded-full object-cover border border-gray-300"
+              />
+            ) : (
+              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-orange-400 to-red-400 flex items-center justify-center text-white font-bold text-lg">
+                {initialLetter}
+              </div>
+            )}
             <div>
-              <p className="font-semibold text-xl">
-                {order.customer?.name || "Unknown"}
-              </p>
-              <p className="text-gray-800">{order.customer?.phoneNumber}</p>
-              <p className="text-sm">{order.customer?.email}</p>
+              <p className="font-semibold text-xl">{userName}</p>
+              <p className="text-gray-800">{customer.phoneNumber}</p>
+              <p className="text-sm">{customer.email}</p>
             </div>
           </div>
 
@@ -237,13 +240,13 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                     <User size={19} /> Customer Details
                   </h3>
                   <p>
-                    <strong>Name:</strong> {order.customer?.name}
+                    <strong>Name:</strong> {customer.name}
                   </p>
                   <p>
-                    <strong>Phone:</strong> {order.customer?.phoneNumber}
+                    <strong>Phone:</strong> {customer.phoneNumber}
                   </p>
                   <p>
-                    <strong>Email:</strong> {order.customer?.email}
+                    <strong>Email:</strong> {customer.email}
                   </p>
                 </div>
 
@@ -277,33 +280,36 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
           {(onClose) => (
             <>
               <DrawerHeader className="flex items-center gap-2 border-b">
-                <ArrowLeft size={20} onClick={onClose} className="cursor-pointer" />
+                <ArrowLeft
+                  size={20}
+                  onClick={onClose}
+                  className="cursor-pointer"
+                />
                 <p>Order #{order.id.slice(-6)}</p>
               </DrawerHeader>
 
               <DrawerBody className="overflow-auto p-4">
                 <div className="space-y-4">
                   <div className="border-b pb-4 flex items-center gap-3">
-                    <img
-                      src={
-                        order.customer?.photoURL ||
-                        "https://cdn-icons-png.flaticon.com/512/847/847969.png"
-                      }
-                      alt="User"
-                      className="w-14 h-14 rounded-full border object-cover"
-                    />
+                    {profileImage ? (
+                      <img
+                        src={profileImage}
+                        alt="User"
+                        className="w-14 h-14 rounded-full border object-cover"
+                      />
+                    ) : (
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-r from-orange-400 to-red-400 flex items-center justify-center text-white font-bold text-xl">
+                        {initialLetter}
+                      </div>
+                    )}
                     <div>
-                      <h3 className="font-semibold text-lg">
-                        {order.customer?.name}
-                      </h3>
-                      <p className="text-sm text-gray-700">
-                        {order.customer?.email}
-                      </p>
+                      <h3 className="font-semibold text-lg">{userName}</h3>
+                      <p className="text-sm text-gray-700">{customer.email}</p>
                       <p
                         className="text-blue-600 flex items-center gap-1 cursor-pointer"
-                        onClick={() => copyToClipboard(order.customer?.phoneNumber)}
+                        onClick={() => copyToClipboard(customer.phoneNumber)}
                       >
-                        {order.customer?.phoneNumber} <Copy size={14} />
+                        {customer.phoneNumber} <Copy size={14} />
                       </p>
                     </div>
                   </div>
