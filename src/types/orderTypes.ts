@@ -5,6 +5,8 @@ export type Customer = {
     name: string;
     email: string;
     phoneNumber: string;
+    profileImage?: string; // ✅ Added optional field for uploaded image
+    initialAvatar?: string; // ✅ Added optional field for Google initial image
 };
 
 export type Address = {
