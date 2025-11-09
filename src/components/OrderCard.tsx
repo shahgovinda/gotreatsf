@@ -300,75 +300,83 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                                 <IconButton><ArrowLeft size={20} onClick={onClose} /></IconButton>
                                 <p> Order #{order?.id.slice(-6)}</p>
                             </DrawerHeader>
-                            <DrawerBody className="h-full overflow-auto mt-18 p-4">
-                                {/* CUSTOMER AND ADDRESS DETAILS */}
-                                <div className="space-y-4">
-                                    <div className='border-b pb-4'>
-                                        <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><User size={19} /> Customer Details</h3>
-                                        <p><strong>Name:</strong> {order.customer.name}</p>
-                                        <p className='text-sm'><strong>Customer ID:</strong> {order.customer.uid}</p>
-                                        <p className='flex items-center gap-2'><strong>Phone:</strong> {order.customer.phoneNumber} <Copy size={16} onClick={() => copyToClipboard(order.customer.phoneNumber)} className="cursor-pointer text-blue-500" /></p>
-                                        <p><strong>Email:</strong> {order.customer.email}</p>
-                                    </div>
-                                    
-                                    <div className='border-b pb-4'>
-                                        <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><MapPin size={19} /> Address</h3>
-                                        <p>{order.address}</p>
-                                    </div>
-                                    
-                                    {/* ✅ DELIVERY INFO (Ensuring consistency) */}
-                                    <div className='border-b pb-4'>
-                                        <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><Clock size={19} /> Order Info</h3>
-                                        <p className='flex justify-between'><strong>Order Placed:</strong> {formatOrderDateTime(order.createdAt)}</p>
-                                        <p className='flex justify-between'><strong>Delivery Date:</strong> {order.deliveryDate}</p>
-                                        <p className='flex justify-between'><strong>Delivery Time:</strong> {order.deliveryTime}</p>
-                                        <p className='flex justify-between'><strong>Voucher Code:</strong> {order.voucherCode || 'No Voucher'}</p>
-                                    </div>
-                                    
-                                    {/* ✅ MOBILE BILLING DETAILS (Ensuring consistency) */}
-                                    <div className='border-b pb-4'>
-                                        <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><Banknote size={19} /> Billing Summary</h3>
-                                        <p className='flex justify-between'><strong>Gross Total:</strong> ₹{safeCurrency(order.grossTotalPrice)}</p>
-                                        <p className='flex justify-between'><strong>Discount:</strong> -₹{safeCurrency(order.voucherDiscount)}</p>
-                                        
-                                        {/* Packaging Charge */}
-                                        {order.packagingCharge !== undefined && order.packagingCharge !== null && (
-                                            <p className='flex justify-between'><strong>Packaging Charge:</strong> ₹{safeCurrency(order.packagingCharge)}</p>
-                                        )}
-                                        {/* GST (Legacy) - Show safely if exists */}
-                                        {order.gst !== undefined && order.gst !== null && (
-                                            <p className='flex justify-between'><strong>GST (Legacy):</strong> ₹{safeCurrency(order.gst)}</p>
-                                        )}
+                           <DrawerBody className="h-full overflow-auto mt-18 p-4">
+  {/* CUSTOMER AND ADDRESS DETAILS */}
+  <div className="space-y-4">
+    <div className='border-b pb-4'>
+      <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><User size={19} /> Customer Details</h3>
+      <p><strong>Name:</strong> {order.customer.name}</p>
+      <p className='text-sm'><strong>Customer ID:</strong> {order.customer.uid}</p>
+      <p className='flex items-center gap-2'>
+        <strong>Phone:</strong> {order.customer.phoneNumber}
+        <Copy size={16} onClick={() => copyToClipboard(order.customer.phoneNumber)} className="cursor-pointer text-blue-500" />
+      </p>
+      <p><strong>Email:</strong> {order.customer.email}</p>
+    </div>
 
-                                        <p className='flex justify-between'><strong>Delivery Charge:</strong> ₹{safeCurrency(order.deliveryCharge)}</p>
-                                        
-                                        {/* Total Paid / Payment Status */}
-                                        <p className='text-green-600 flex font-bold justify-between pt-2'><strong>Total Paid:</strong> ₹{safeCurrency(order.totalAmount)}</p>
-                                        <p className='text-sm flex justify-between'><strong>Payment Status:</strong> {order.paymentStatus}</p>
-                                    </div>
+    <div className='border-b pb-4'>
+      <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><MapPin size={19} /> Address</h3>
+      <p>{order.address}</p>
+    </div>
 
-                                    {/* ITEMS AND QUANTITIES */}
-                                    <div className='border-b pb-4'>
-                                        <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><ShoppingBasket size={19} /> Items & Quantities</h3>
-                                        <ul className="list-disc pl-5 space-y-1">
-                                            {order.items.map((item, index) => (
-                                                <li key={index} className='flex justify-between'>
-                                                    <strong className='comfortaa font-bold text-purple-700 '>{item.productName} X {item.quantity}</strong>  
-                                                    
-                                                    {/* ✅ FIX 2: Show Total Price (Unit Price * Quantity) */}
-                                                    ₹{safeCurrency(item.offerPrice * item.quantity)}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                    
-                                    {/* INSTRUCTION */}
-                                    <div>
-                                        <h3 className="font-bold lancelot text-xl mb-2 flex gap-2"><CookingPot size={19} /> Instruction</h3>
-                                        <p className='text-gray-600'>"{order.note || 'No special instructions.'}"</p>
-                                    </div>
-                                </div>
-                            </DrawerBody>
+    {/* ORDER INFO */}
+    <div className='border-b pb-4'>
+      <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><Clock size={19} /> Order Info</h3>
+      <p className='flex justify-between'><strong>Order Placed:</strong> {formatOrderDateTime(order.createdAt)}</p>
+      <p className='flex justify-between'><strong>Delivery Date:</strong> {order.deliveryDate}</p>
+      <p className='flex justify-between'><strong>Delivery Time:</strong> {order.deliveryTime}</p>
+      <p className='flex justify-between'><strong>Voucher Code:</strong> {order.voucherCode || 'No Voucher'}</p>
+    </div>
+
+    {/* ITEMS AND QUANTITIES */}
+    <div className='border-b pb-4'>
+      <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><ShoppingBasket size={19} /> Items & Quantities</h3>
+      <ul className="list-disc pl-5 space-y-1">
+        {order.items.map((item, index) => (
+          <li key={index} className='flex justify-between'>
+            <strong className='comfortaa font-bold text-purple-700 '>
+              {item.productName} X {item.quantity}
+            </strong>
+            ₹{safeCurrency(item.offerPrice * item.quantity)}
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    {/* ✅ BILLING SUMMARY MOVED BELOW ITEMS */}
+    <div className='border-b pb-4'>
+      <h3 className="font-semibold lancelot text-xl mb-2 flex gap-2"><Banknote size={19} /> Billing Summary</h3>
+      <p className='flex justify-between'><strong>Gross Total:</strong> ₹{safeCurrency(order.grossTotalPrice)}</p>
+      <p className='flex justify-between'><strong>Discount:</strong> -₹{safeCurrency(order.voucherDiscount)}</p>
+
+      {/* Packaging Charge */}
+      {order.packagingCharge !== undefined && order.packagingCharge !== null && (
+        <p className='flex justify-between'><strong>Packaging Charge:</strong> ₹{safeCurrency(order.packagingCharge)}</p>
+      )}
+
+      {/* GST (Legacy) */}
+      {order.gst !== undefined && order.gst !== null && (
+        <p className='flex justify-between'><strong>GST (Legacy):</strong> ₹{safeCurrency(order.gst)}</p>
+      )}
+
+      <p className='flex justify-between'><strong>Delivery Charge:</strong> ₹{safeCurrency(order.deliveryCharge)}</p>
+
+      <p className='text-green-600 flex font-bold justify-between pt-2'>
+        <strong>Total Paid:</strong> ₹{safeCurrency(order.totalAmount)}
+      </p>
+      <p className='text-sm flex justify-between'>
+        <strong>Payment Status:</strong> {order.paymentStatus}
+      </p>
+    </div>
+
+    {/* INSTRUCTION */}
+    <div>
+      <h3 className="font-bold lancelot text-xl mb-2 flex gap-2"><CookingPot size={19} /> Instruction</h3>
+      <p className='text-gray-600'>"{order.note || 'No special instructions.'}"</p>
+    </div>
+  </div>
+</DrawerBody>
+
                             <DrawerFooter className='border-t-2 border-gray-200'>
                                 <Button variant="secondary" className='w-full' onClick={onClose}>
                                     Close
