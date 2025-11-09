@@ -96,15 +96,13 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
       .catch(() => toast.error("Failed to copy phone number."));
   };
 
-  // ✅ Determine profile image logic
+  // ✅ Profile image logic
   const customer = order.customer || {};
-  const manualPhoto = customer.manualPhotoURL; // manually uploaded
-  const googlePhoto = customer.photoURL; // google photo
   const userName = customer.name || "User";
-  const initialLetter = userName.charAt(0).toUpperCase();
-
-  // ✅ Final profile image logic
+  const manualPhoto = customer.manualPhotoURL;
+  const googlePhoto = customer.photoURL;
   const profileImage = manualPhoto || googlePhoto || null;
+  const initialLetter = userName.charAt(0).toUpperCase();
 
   return (
     <motion.div
@@ -168,6 +166,7 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
             </div>
           </div>
 
+          {/* Items */}
           <div>
             {order.items.map((item, index) => (
               <p key={index} className="font-bold text-purple-700 comfortaa">
@@ -176,6 +175,7 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
             ))}
           </div>
 
+          {/* Address & Time */}
           <div>
             <p className="inline-flex items-center gap-2">
               <Clock size={16} /> {order.deliveryDate} | {order.deliveryTime}
@@ -185,6 +185,7 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
             </p>
           </div>
 
+          {/* Billing Info */}
           <div className="hidden md:block">
             <p>
               <strong>Total Items:</strong> {order.totalQuantity}
@@ -290,6 +291,7 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
 
               <DrawerBody className="overflow-auto p-4">
                 <div className="space-y-4">
+                  {/* Profile */}
                   <div className="border-b pb-4 flex items-center gap-3">
                     {profileImage ? (
                       <img
@@ -314,6 +316,7 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                     </div>
                   </div>
 
+                  {/* Items */}
                   <div className="border-b pb-4">
                     <h3 className="font-semibold text-lg mb-2 flex gap-2">
                       <ShoppingBasket size={18} /> Items
@@ -325,6 +328,7 @@ const OrderCard = ({ order, onUpdateStatus, i }) => {
                     ))}
                   </div>
 
+                  {/* Billing */}
                   <div>
                     <h3 className="font-semibold text-lg mb-2 flex gap-2">
                       <Banknote size={18} /> Billing
