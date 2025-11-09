@@ -298,7 +298,7 @@ const Register = () => {
                 <p className="text-3xl font-extrabold mb-2 lancelot tracking-tight text-gray-900">Enter Details</p>
 
                 <div className="w-full">
-                  <label className="block text-sm font-semibold text-orange-500 mb-1 ml-1">
+                  {/* <label className="block text-sm font-semibold text-orange-500 mb-1 ml-1">
                     Enter Your Name<span className="text-red-500">*</span>
                   </label>
                   <Input
@@ -310,7 +310,30 @@ const Register = () => {
                     isRequired
                     className="w-full rounded-xl border-2 border-orange-200 focus-within:border-orange-400 transition-all"
                   />
-                </div>
+                </div> */}
+                  <div>
+  <label className="block text-sm font-semibold text-orange-500 mb-1 ml-1">
+    Enter Your Name<span className="text-red-500">*</span>
+  </label>
+  <Input
+    value={formData.name}
+    onChange={(e) => {
+      let value = e.target.value;
+      // Allow only alphabets and spaces
+      if (/^[A-Za-z\s]*$/.test(value)) {
+        // Auto-capitalize each word
+        value = value.replace(/\b\w/g, (char) => char.toUpperCase());
+        setFormData({ ...formData, name: value });
+      }
+    }}
+    placeholder="Enter your name"
+    size="md"
+    variant="underlined"
+    isRequired
+    className="w-full rounded-xl border-2 border-orange-200 focus-within:border-orange-400 transition-all"
+  />
+</div>
+
 
                 <div className="w-full">
                   <label className="block text-sm font-semibold text-orange-500 mb-1 ml-1">
