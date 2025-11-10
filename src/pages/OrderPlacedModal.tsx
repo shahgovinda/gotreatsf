@@ -64,7 +64,7 @@ const OrderPlacedModal = () => {
                                 className='text-center text-white'>Thank you for your order! We’re preparing your delicious meal.</motion.p>
                         </ModalBody>
                         <ModalFooter className='overflow-hidden border-t border-white cursor-pointer transition-all duration-100 ease-in-out hover:bg-green-500' onClick={close}>
-                            <p className='text-lg text-center text-white w-full font-black'>Relax ({timer})</p>
+                            <p className='text-lg text-center text-white w-full font-black'>Wait ({timer})</p>
                         </ModalFooter>
                     </>
                 )}
