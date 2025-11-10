@@ -479,11 +479,13 @@ const Checkout = () => {
               <h2 className="text-2xl font-semibold text-gray-800 mb-4">Preferred Delivery Time</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {[
+                  "8:00 AM - 10:00 AM",
                   "10:00 AM - 12:00 PM",
                   "12:00 PM - 2:00 PM",
+                  "2:00 PM - 4:00 PM",
                   "4:00 PM - 6:00 PM",
                   "6:00 PM - 8:00 PM",
-                  "8:00 PM - 10:00 PM",
+                  "8:00 AM - 10:00 PM",
                   "10:00 PM - 11:00 PM",
                 ].map((slot, idx) => (
                   <button
