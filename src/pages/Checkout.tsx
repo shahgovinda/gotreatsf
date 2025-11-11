@@ -485,7 +485,7 @@ const Checkout = () => {
                   "2:00 PM - 4:00 PM",
                   "4:00 PM - 6:00 PM",
                   "6:00 PM - 8:00 PM",
-                  "8:00 AM - 10:00 PM",
+                  "8:00 PM - 10:00 PM",
                   "10:00 PM - 11:00 PM",
                 ].map((slot, idx) => (
                   <button
