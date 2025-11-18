@@ -196,7 +196,7 @@ const Footer = () => {
               {[
                 'Kandivali West',
                 'Borivali West',
-                'Dasgisar West',
+                'Dahisar West',
                 'Malad West',
               ].map((location) => (
                 <li key={location} className="flex items-center gap-4 group hover:translate-x-1 transition-all duration-300">
