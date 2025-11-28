@@ -22,7 +22,7 @@ const FOOD_CATEGORIES = [
     "Meals",
     "Snacks",
     "Desserts",
-    "Paav Bhaaji",
+    "Sabji",
     "Maggi",
     "Pasta",
     "Drinks",
