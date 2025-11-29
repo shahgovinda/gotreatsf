@@ -442,6 +442,14 @@ const Shop = () => {
                                         onClick={() => navigate('/shop/?tag=meals')}>
                                         <Utensils strokeWidth={1.5} /> Meals
                                     </span>
+
+                                  <span
+                                        // FIXED: Consolidated text color into the conditional. Unselected state is now 'bg-white text-gray-700'
+                                        className={`whitespace-nowrap cursor-pointer px-4 py-2 rounded-xl ${tag == 'snacks' ? 'bg-orange-600 text-white hover:text-white' : 'bg-white text-gray-700 hover:text-orange-600'} inline-flex items-center shadow-xs gap-2 transition-colors duration-100 ease-in`}
+                                        onClick={() => navigate('/shop/?tag=snacks')}>
+
+                                        Snacks
+                                    </span>
                                 </>
                             )}
                         </div>
