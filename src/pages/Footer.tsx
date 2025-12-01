@@ -14,7 +14,7 @@ const Footer = () => {
           <div>
             <BrandLogo/>
             <p className="text-gray-400 dark:text-gray-300 mt-4">
-              Ghar ka khana just the way you want.
+              From Kichen To Your Hearts ❤️.
             </p>
 
             {/* Social Icons */}
