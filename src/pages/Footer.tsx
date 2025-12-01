@@ -14,7 +14,7 @@ const Footer = () => {
           <div>
             <BrandLogo/>
             <p className="text-gray-400 dark:text-gray-300 mt-4">
-              From Kichen To Your Hearts ❤️.
+              From Kichen To Your Hearts ❤️
             </p>
 
             {/* Social Icons */}
