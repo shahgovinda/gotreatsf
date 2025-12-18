@@ -81,7 +81,7 @@ const Home = () => {
     {
       id: 1,
       name: "Chicken Gravy",
-      img: "/paavai.webp",
+      img: "/chickengravy.jpg",
       link: "/shop/?tag=meals"
     },
     {
