@@ -80,9 +80,9 @@ const Home = () => {
   const varieties = [
     {
       id: 1,
-      name: "Paav Bhaaji",
+      name: "Chicken Gravy",
       img: "/paavai.webp",
-      link: "/shop/?tag=paav-bhaaji"
+      link: "/shop/?tag=meals"
     },
     {
       id: 2,
