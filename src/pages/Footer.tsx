@@ -240,7 +240,27 @@ const Footer = () => {
 
         {/* Copyright */}
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 dark:text-gray-500 text-sm">
-          <p>&copy; {new Date().getFullYear()} GoTreats. All rights reserved.</p>
+          <p>
+  &copy; {new Date().getFullYear()} GoTreats. All rights reserved. Crafted by{" "}
+  <a
+    href="https://govinda-shah.vercel.app/"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="hover:underline"
+  >
+    Govinda
+  </a>
+  {" | "}
+  <a
+    href="https://govinda-shah.vercel.app/"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="hover:underline"
+  >
+    Yuvraj
+  </a>
+</p>
+
         </div>
       </div>
     </footer>
