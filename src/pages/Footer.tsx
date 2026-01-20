@@ -14,7 +14,7 @@ const Footer = () => {
           <div>
             <BrandLogo/>
             <p className="text-gray-400 dark:text-gray-300 mt-4">
-              From Kichen To Your Hearts ❤️
+              From Kichen To Your Heart ❤️
             </p>
 
             {/* Social Icons */}
@@ -241,23 +241,23 @@ const Footer = () => {
         {/* Copyright */}
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 dark:text-gray-500 text-sm">
           <p>
-  &copy; {new Date().getFullYear()} GoTreats. All rights reserved. Crafted by{" "}
+  &copy; {new Date().getFullYear()} GoTreats. All rights reserved. Crafted by {" "}
   <a
     href="https://govinda-shah.vercel.app/"
     target="_blank"
     rel="noopener noreferrer"
     className="hover:underline"
   >
-    Govinda
+    Govinda Shah
   </a>
-  {" | "}
+  {" 😎 "}
   <a
-    href="https://govinda-shah.vercel.app/"
+    href="https://yuvraj-verma.vercel.app/"
     target="_blank"
     rel="noopener noreferrer"
     className="hover:underline"
   >
-    Yuvraj
+    Yuvraj Verma
   </a>
 </p>
 
