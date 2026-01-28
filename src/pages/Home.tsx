@@ -82,7 +82,7 @@ const Home = () => {
       id: 1,
       name: "Chicken Gravy",
       img: "/chickengravy.jpg",
-      link: "/shop/?tag=meals"
+      link: "/shop/?tag=snacks"
     },
     {
       id: 2,
