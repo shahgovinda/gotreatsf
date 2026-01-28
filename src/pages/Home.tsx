@@ -81,7 +81,7 @@ const Home = () => {
     {
       id: 1,
       name: "Chicken Gravy",
-      img: "/chickengravy.jpg",
+      img: "/Onion Pakoda [6 Pieces] (1).jpg",
       link: "/shop/?tag=snacks"
     },
     {
