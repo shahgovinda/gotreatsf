@@ -87,7 +87,7 @@ const Home = () => {
     {
       id: 2,
       name: "Egg Curry",
-      img: "egg.jpg",
+      img: "/Classic Maggi (1).jpg",
       link: "/shop/?tag=maggi"
     },
     {
