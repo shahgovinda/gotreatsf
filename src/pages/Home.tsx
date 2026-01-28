@@ -80,25 +80,25 @@ const Home = () => {
   const varieties = [
     {
       id: 1,
-      name: "Chicken Gravy",
+      name: "Onion Pakoda",
       img: "/Onion Pakoda [6 Pieces] (1).jpg",
       link: "/shop/?tag=snacks"
     },
     {
       id: 2,
-      name: "Egg Curry",
+      name: "Classic Maggi",
       img: "/Classic Maggi (1).jpg",
       link: "/shop/?tag=maggi"
     },
     {
       id: 3,
-      name: "Pasta",
+      name: "White Sauce Pasta",
       img: "/pasta2.jpg",
       link: "/shop/?tag=pasta"
     },
     {
       id: 4,
-      name: "Meals",
+      name: "Roti Sabji",
       img: "meal.jpg",
       link: "/shop/?tag=meals"
     }
