@@ -88,7 +88,7 @@ const Home = () => {
       id: 2,
       name: "Egg Curry",
       img: "egg.jpg",
-      link: "/shop/?tag=meals"
+      link: "/shop/?tag=maggi"
     },
     {
       id: 3,
